@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { CURRENT_USER_ID } from "@/lib/current-user";
+import { normalizeTitle } from "@/lib/drama-utils";
 
 export async function updateEntry(formData: FormData) {
   const dramaId = Number(formData.get("dramaId"));
@@ -99,6 +100,7 @@ export async function updateDrama(formData: FormData) {
       where: { id: dramaId },
       data: {
         title,
+        titleLower: normalizeTitle(title),
         year: num("year"),
         country: str("country"),
         episodes: num("episodes"),

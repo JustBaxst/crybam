@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎬 DramaTracker
 
-## Getting Started
+**Личный дневник для тех, кто любит дорамы.**
 
-First, run the development server:
+Не просто трекер просмотров, а место, где можно сохранить эмоции, цитаты и увидеть свой вкус со стороны. Портрет зрителя строится из отзывов — постепенно, честно, без пафоса.
+
+---
+
+## 💫 О проекте
+
+Большинство трекеров — холодные списки галочек. DramaTracker — это **дневник чувств**, где дорамы становятся способом говорить о себе.
+
+- 💔 **Эмоции** — отмечай, где рыдал, где были слёзы счастья, а где безопасно
+- 📝 **Отзывы** — короткие впечатления и полные тексты
+- 🥇 **Особое место в сердце** — дорамы с твоими личными цитатами
+- 🏆 **Личные номинации** — «моя лучшая романтика 2024»
+- 🧠 **Портрет зрителя** — ИИ анализирует отзывы и строит твой вкус
+- 🔒 **Приватность** — можно вести дневник тихо, для себя
+- 🕸️ **Граф связей** — как актёры и персонажи пересекаются между дорамами
+
+---
+
+## 🛠 Стек
+
+- **Next.js 16** — React-фреймворк с серверными компонентами
+- **TypeScript** — типизация
+- **Tailwind CSS v4** — стили, 8 цветовых схем, тёмная/светлая темы
+- **Prisma 6** — ORM для работы с базой
+- **SQLite** — база данных для разработки (в планах PostgreSQL)
+- **Lucide React** — иконки
+- **Next-Themes** — переключение темы
+
+---
+
+## 🚀 Быстрый старт
 
 ```bash
+# 1. Клонировать репозиторий
+git clone https://github.com/ТВО_ИМЯ/drama-tracker.git
+cd drama-tracker
+
+# 2. Установить зависимости
+npm install
+
+# 3. Создать .env в корне с одной строкой
+# DATABASE_URL="file:./dev.db"
+
+# 4. Применить миграции
+npx prisma migrate dev
+
+# 5. Запустить дев-сервер
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
