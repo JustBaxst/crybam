@@ -1,0 +1,16 @@
+{
+  "files.exclude": {
+    "**/.next": true,
+    "**/node_modules": true,
+    "**/generated": true,
+    "**/.git": true,
+    "**/*.tsbuildinfo": true
+  },
+  "files.autoSave": "onFocusChange",
+  "explorer.compactFolders": false,
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "page.tsx": "${capture}.tsx, ${capture}.ts, actions.ts, *.tsx",
+    "package.json": "package-lock.json, .gitignore, .env, tsconfig.json, next.config.ts, eslint.config.mjs, postcss.config.mjs, README.md, COMMANDS.md, PLAN.md"
+  }
+}
