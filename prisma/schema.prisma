@@ -1,0 +1,425 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+// ─────────────────────────────────────────────
+// Пользователь
+// ─────────────────────────────────────────────
+model User {
+  id                Int      @id @default(autoincrement())
+  name              String
+  email             String   @unique
+  bio               String?
+  avatarUrl         String?
+  isPrivate         Boolean  @default(false)
+  lastPortraitBuild DateTime?
+  createdAt         DateTime @default(now())
+
+  entries            UserDramaEntry[]
+  favoriteActors     UserFavoriteActor[]
+  favoriteCharacters UserFavoriteCharacter[]
+  nominations        Nomination[]
+  snapshots          ProfileSnapshot[]
+  tags               Tag[]
+  tasteItems         ViewerTasteItem[]
+}
+
+// ─────────────────────────────────────────────
+// Дорама — только факты
+// ─────────────────────────────────────────────
+model Drama {
+  id              Int       @id @default(autoincrement())
+  title           String
+  year            Int?
+  country         String?
+  episodes        Int?
+  seasons         Int?
+  episodeDuration Int?
+  synopsis        String?
+  posterUrl       String?
+  airStatus       String    @default("released")
+  curatorCryTag   String?
+  airedFrom       DateTime?
+  airedTo         DateTime?
+
+  // ── Внешние рейтинги ──
+  ratingKinopoisk Float?
+  ratingMDL       Float?
+  ratingIMDB      Float?
+  ratingDouban    Float?
+
+  // ── Студии озвучки (через запятую или с новой строки) ──
+  dubbingStudios  String?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  titles       DramaTitle[]
+  entries      UserDramaEntry[]
+  genres       DramaGenre[]
+  tags         DramaTag[]
+  credits      Credit[]
+  characters   Character[]
+  platforms    DramaPlatform[]
+  studios      DramaStudio[]
+  nominations  NominationEntry[]
+  soundtrack   SoundtrackLink[]
+
+  @@index([year])
+  @@index([country])
+}
+
+// ─────────────────────────────────────────────
+// Альтернативные названия дорамы
+// ─────────────────────────────────────────────
+model DramaTitle {
+  id         Int      @id @default(autoincrement())
+  dramaId    Int
+  drama      Drama    @relation(fields: [dramaId], references: [id], onDelete: Cascade)
+
+  title      String
+  titleLower String
+  language   String
+  kind       String
+  isPrimary  Boolean  @default(false)
+
+  createdAt  DateTime @default(now())
+
+  @@index([titleLower])
+  @@index([dramaId])
+}
+
+// ─────────────────────────────────────────────
+// Личная запись пользователя о дораме
+// ─────────────────────────────────────────────
+model UserDramaEntry {
+  id           Int       @id @default(autoincrement())
+  userId       Int
+  dramaId      Int
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  drama        Drama     @relation(fields: [dramaId], references: [id], onDelete: Cascade)
+
+  status       String    @default("planned")
+  rating       Float?
+  cryTag       String?   // sad | bittersweet | safe
+  impression   String?
+  review       String?
+  quote        String?
+  notes        String?
+  isFavorite   Boolean   @default(false)
+  progress     Int?
+  rewatchCount Int       @default(0)
+  startedAt    DateTime?
+  watchedAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  tasteEvidence TasteEvidence[]
+
+  @@unique([userId, dramaId])
+  @@index([userId, status])
+}
+
+// ─────────────────────────────────────────────
+// Карточка зрителя — пункты, которые строит ИИ
+// ─────────────────────────────────────────────
+model ViewerTasteItem {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  kind        String   // like | dislike | note
+  text        String
+  source      String   // auto | manual
+  confidence  Float?
+  isActive    Boolean  @default(true)
+  generatedAt DateTime?
+  order       Int?
+
+  evidence    TasteEvidence[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId, kind, isActive])
+}
+
+// ─────────────────────────────────────────────
+// Доказательства — отзывы, на которых основан пункт
+// ─────────────────────────────────────────────
+model TasteEvidence {
+  id          Int              @id @default(autoincrement())
+  tasteItemId Int
+  tasteItem   ViewerTasteItem  @relation(fields: [tasteItemId], references: [id], onDelete: Cascade)
+
+  entryId     Int
+  entry       UserDramaEntry   @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  quote       String?
+  weight      Float?
+
+  @@index([tasteItemId])
+}
+
+// ─────────────────────────────────────────────
+// Люди
+// ─────────────────────────────────────────────
+model Person {
+  id         Int       @id @default(autoincrement())
+  name       String
+  nameNative String?
+  photoUrl   String?
+  birthDate  DateTime?
+  agency     String?
+  bio        String?
+  createdAt  DateTime  @default(now())
+
+  credits           Credit[]
+  favoriteBy        UserFavoriteActor[]
+  nominationEntries NominationEntry[]
+
+  @@index([name])
+}
+
+// ─────────────────────────────────────────────
+// Роли
+// ─────────────────────────────────────────────
+model Credit {
+  id          Int        @id @default(autoincrement())
+  personId    Int
+  dramaId     Int
+  person      Person     @relation(fields: [personId], references: [id], onDelete: Cascade)
+  drama       Drama      @relation(fields: [dramaId], references: [id], onDelete: Cascade)
+
+  roleType    String
+  importance  String     @default("support")  // ← НОВОЕ: lead | support | guest
+  characterId Int?
+  character   Character? @relation(fields: [characterId], references: [id])
+  order       Int?
+  note        String?
+
+  @@index([dramaId, roleType])
+  @@index([personId])
+}
+
+// ─────────────────────────────────────────────
+// Персонажи
+// ─────────────────────────────────────────────
+model Character {
+  id          Int      @id @default(autoincrement())
+  dramaId     Int
+  drama       Drama    @relation(fields: [dramaId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+
+  credits           Credit[]
+  relationsA        CharacterRelation[] @relation("CharacterFrom")
+  relationsB        CharacterRelation[] @relation("CharacterTo")
+  favoriteBy        UserFavoriteCharacter[]
+  nominationEntries NominationEntry[]
+
+  @@index([dramaId])
+}
+
+// ─────────────────────────────────────────────
+// Связи между персонажами
+// ─────────────────────────────────────────────
+model CharacterRelation {
+  id       Int       @id @default(autoincrement())
+  fromId   Int
+  toId     Int
+  from     Character @relation("CharacterFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  to       Character @relation("CharacterTo", fields: [toId], references: [id], onDelete: Cascade)
+
+  relation String
+  note     String?
+
+  @@unique([fromId, toId, relation])
+}
+
+// ─────────────────────────────────────────────
+// Жанры
+// ─────────────────────────────────────────────
+model Genre {
+  id     Int          @id @default(autoincrement())
+  name   String       @unique
+  dramas DramaGenre[]
+}
+
+model DramaGenre {
+  dramaId Int
+  genreId Int
+  drama   Drama @relation(fields: [dramaId], references: [id], onDelete: Cascade)
+  genre   Genre @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@id([dramaId, genreId])
+}
+
+// ─────────────────────────────────────────────
+// Теги
+// ─────────────────────────────────────────────
+model Tag {
+  id     Int        @id @default(autoincrement())
+  userId Int?
+  user   User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name   String
+
+  dramas DramaTag[]
+
+  @@unique([userId, name])
+}
+
+model DramaTag {
+  dramaId Int
+  tagId   Int
+  drama   Drama @relation(fields: [dramaId], references: [id], onDelete: Cascade)
+  tag     Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([dramaId, tagId])
+}
+
+// ─────────────────────────────────────────────
+// Платформы
+// ─────────────────────────────────────────────
+model Platform {
+  id     Int             @id @default(autoincrement())
+  name   String          @unique
+  dramas DramaPlatform[]
+}
+
+model DramaPlatform {
+  dramaId    Int
+  platformId Int
+  drama      Drama    @relation(fields: [dramaId], references: [id], onDelete: Cascade)
+  platform   Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+
+  @@id([dramaId, platformId])
+}
+
+// ─────────────────────────────────────────────
+// Студии
+// ─────────────────────────────────────────────
+model Studio {
+  id      Int           @id @default(autoincrement())
+  name    String        @unique
+  country String?
+  dramas  DramaStudio[]
+}
+
+model DramaStudio {
+  dramaId  Int
+  studioId Int
+  drama    Drama  @relation(fields: [dramaId], references: [id], onDelete: Cascade)
+  studio   Studio @relation(fields: [studioId], references: [id], onDelete: Cascade)
+
+  @@id([dramaId, studioId])
+}
+
+// ─────────────────────────────────────────────
+// Номинации
+// ─────────────────────────────────────────────
+model Nomination {
+  id          Int               @id @default(autoincrement())
+  userId      Int
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title       String
+  year        Int?
+  description String?
+  createdAt   DateTime          @default(now())
+
+  entries     NominationEntry[]
+}
+
+model NominationEntry {
+  id           Int             @id @default(autoincrement())
+  nominationId Int
+  nomination   Nomination      @relation(fields: [nominationId], references: [id], onDelete: Cascade)
+
+  dramaId      Int?
+  drama        Drama?          @relation(fields: [dramaId], references: [id], onDelete: SetNull)
+  personId     Int?
+  person       Person?         @relation(fields: [personId], references: [id], onDelete: SetNull)
+  characterId  Int?
+  character    Character?      @relation(fields: [characterId], references: [id], onDelete: SetNull)
+  soundtrackId Int?
+  soundtrack   SoundtrackLink? @relation(fields: [soundtrackId], references: [id], onDelete: SetNull)
+
+  contextNote  String?
+  isWinner     Boolean         @default(false)
+  note         String?
+
+  @@index([nominationId])
+}
+
+// ─────────────────────────────────────────────
+// Саундтрек
+// ─────────────────────────────────────────────
+model SoundtrackLink {
+  id          Int     @id @default(autoincrement())
+  dramaId     Int
+  drama       Drama   @relation(fields: [dramaId], references: [id], onDelete: Cascade)
+
+  title       String
+  artist      String?
+  url         String
+  kind        String?
+  note        String?
+
+  provider    String?
+  embedId     String?
+  coverUrl    String?
+  durationSec Int?
+
+  nominationEntries NominationEntry[]
+
+  @@index([dramaId])
+}
+
+// ─────────────────────────────────────────────
+// Любимые актёры и персонажи
+// ─────────────────────────────────────────────
+model UserFavoriteActor {
+  userId   Int
+  personId Int
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  person   Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  note     String?
+  order    Int?
+
+  @@id([userId, personId])
+}
+
+model UserFavoriteCharacter {
+  userId      Int
+  characterId Int
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  note        String?
+  order       Int?
+
+  @@id([userId, characterId])
+}
+
+// ─────────────────────────────────────────────
+// Снимки профиля
+// ─────────────────────────────────────────────
+model ProfileSnapshot {
+  id      Int      @id @default(autoincrement())
+  userId  Int
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  takenAt DateTime @default(now())
+  data    String
+  note    String?
+
+  @@index([userId, takenAt])
+}

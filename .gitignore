@@ -1,0 +1,35 @@
+# Зависимости
+node_modules/
+
+# Сборка Next.js
+.next/
+out/
+build/
+
+# Переменные окружения (секреты!)
+.env
+.env*.local
+
+# База данных
+prisma/dev.db
+prisma/dev.db-journal
+
+# Сгенерированный Prisma Client
+generated/
+
+# Системные
+.DS_Store
+Thumbs.db
+*.log
+
+# Кэш
+node_modules/.cache
+tsconfig.tsbuildinfo
+
+# Инструменты разработки
+.vscode/
+.agents/
+.claude/
+.windsurf/
+AGENTS.md
+skills-lock.json

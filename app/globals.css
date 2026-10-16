@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Светлая тема — тёплая молочная, не ослепляет */
+  --background: oklch(0.94 0.008 260);
+  --surface: oklch(0.97 0.005 260);
+  --foreground: oklch(0.20 0.015 260);
+  --muted: oklch(0.50 0.02 260);
+  --border: oklch(0.86 0.012 260);
+  --cry-sad: oklch(0.60 0.18 25);
+  --cry-happy: oklch(0.68 0.15 75);
+  --cry-safe: oklch(0.60 0.12 155);
+
+  --accent: oklch(0.55 0.20 285);
+  --accent-soft: oklch(0.88 0.05 285);
+}
+
+.dark {
+  --background: oklch(0.13 0.01 260);
+  --surface: oklch(0.18 0.015 260);
+  --foreground: oklch(0.95 0.005 260);
+  --muted: oklch(0.65 0.02 260);
+  --border: oklch(0.28 0.02 260);
+  --cry-sad: oklch(0.60 0.20 25);
+  --cry-happy: oklch(0.70 0.18 85);
+  --cry-safe: oklch(0.65 0.12 155);
+
+  --accent: oklch(0.70 0.22 285);
+  --accent-soft: oklch(0.25 0.08 285);
+}
+
+/* ── Цветовые схемы ── */
+
+/* Розовый */
+[data-accent="rose"] {
+  --accent: oklch(0.60 0.20 15);
+  --accent-soft: oklch(0.92 0.05 15);
+}
+.dark[data-accent="rose"] {
+  --accent: oklch(0.70 0.20 15);
+  --accent-soft: oklch(0.25 0.08 15);
+}
+
+/* Янтарный */
+[data-accent="amber"] {
+  --accent: oklch(0.65 0.16 75);
+  --accent-soft: oklch(0.93 0.05 75);
+}
+.dark[data-accent="amber"] {
+  --accent: oklch(0.75 0.16 75);
+  --accent-soft: oklch(0.27 0.08 75);
+}
+
+/* Лаймовый */
+[data-accent="lime"] {
+  --accent: oklch(0.65 0.16 135);
+  --accent-soft: oklch(0.93 0.05 135);
+}
+.dark[data-accent="lime"] {
+  --accent: oklch(0.75 0.16 135);
+  --accent-soft: oklch(0.27 0.08 135);
+}
+
+/* Изумрудный */
+[data-accent="emerald"] {
+  --accent: oklch(0.60 0.16 165);
+  --accent-soft: oklch(0.92 0.05 165);
+}
+.dark[data-accent="emerald"] {
+  --accent: oklch(0.72 0.16 165);
+  --accent-soft: oklch(0.25 0.08 165);
+}
+
+/* Бирюзовый */
+[data-accent="cyan"] {
+  --accent: oklch(0.65 0.14 200);
+  --accent-soft: oklch(0.93 0.05 200);
+}
+.dark[data-accent="cyan"] {
+  --accent: oklch(0.75 0.14 200);
+  --accent-soft: oklch(0.27 0.08 200);
+}
+
+/* Синий */
+[data-accent="blue"] {
+  --accent: oklch(0.60 0.18 240);
+  --accent-soft: oklch(0.92 0.05 240);
+}
+.dark[data-accent="blue"] {
+  --accent: oklch(0.70 0.18 240);
+  --accent-soft: oklch(0.25 0.08 240);
+}
+
+/* Малиновый */
+[data-accent="pink"] {
+  --accent: oklch(0.65 0.20 330);
+  --accent-soft: oklch(0.93 0.05 330);
+}
+.dark[data-accent="pink"] {
+  --accent: oklch(0.72 0.20 330);
+  --accent-soft: oklch(0.27 0.08 330);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-border: var(--border);
+  --color-cry-sad: var(--cry-sad);
+  --color-cry-happy: var(--cry-happy);
+  --color-cry-safe: var(--cry-safe);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+svg.lucide {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+}
