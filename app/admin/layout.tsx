@@ -1,5 +1,7 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Shield, Home, Film, Users, UserCircle } from "lucide-react";
+import { getCurrentUser } from "@/lib/auth";
 
 const navItems = [
   { href: "/admin", label: "Обзор", Icon: Home },
@@ -8,11 +10,17 @@ const navItems = [
   { href: "/admin/characters", label: "Персонажи", Icon: UserCircle },
 ];
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const user = await getCurrentUser();
+
+  if (!user || (user.role !== "admin" && user.role !== "moderator")) {
+    redirect("/");
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Полоса админ-навигации */}

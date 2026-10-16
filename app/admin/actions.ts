@@ -4,8 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { normalizeTitle } from "@/lib/drama-utils";
+import { requireModerator } from "@/lib/auth";
 
 export async function createDrama(formData: FormData) {
+  await requireModerator();
   const str = (name: string) =>
     String(formData.get(name) ?? "").trim() || null;
   const num = (name: string) => {
@@ -39,6 +41,7 @@ export async function createDrama(formData: FormData) {
 }
 
 export async function deleteDrama(formData: FormData) {
+  await requireModerator();
   const dramaId = Number(formData.get("dramaId"));
   if (!Number.isInteger(dramaId) || dramaId <= 0) {
     return { error: "Неверный ID" };

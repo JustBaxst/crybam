@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Clapperboard, Menu } from "lucide-react";
+import { Clapperboard, Menu, Shield } from "lucide-react";
 import { SearchBar } from "@/components/SearchBar";
 import { MainMenu } from "@/components/MainMenu";
 import { UserMenu } from "@/components/UserMenu";
@@ -55,6 +55,14 @@ export function Header() {
           </div>
 
           <div className="hidden md:flex items-center gap-2">
+            <Link
+              href="/admin"
+              className="w-9 h-9 rounded-lg border border-border hover:border-accent/40 transition-colors flex items-center justify-center"
+              aria-label="Админка"
+              title="Админка"
+            >
+              <Shield className="w-4 h-4 text-accent" />
+            </Link>
             <UserMenu />
             <AppearanceMenu />
           </div>
