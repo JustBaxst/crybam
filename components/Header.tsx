@@ -56,13 +56,14 @@ export function Header() {
 
           <div className="hidden md:flex items-center gap-2">
             <Link
-              href="/admin"
-              className="w-9 h-9 rounded-lg border border-border hover:border-accent/40 transition-colors flex items-center justify-center"
-              aria-label="Админка"
-              title="Админка"
-            >
-              <Shield className="w-4 h-4 text-accent" />
-            </Link>
+  href="/admin"
+  className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border hover:border-accent/40 transition-colors text-sm text-accent font-medium"
+  aria-label="Админ-панель"
+  title="Админ-панель"
+>
+  <Shield className="w-4 h-4" />
+  <span className="hidden lg:inline">Админ-панель</span>
+</Link>
             <UserMenu />
             <AppearanceMenu />
           </div>
