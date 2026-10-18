@@ -20,6 +20,8 @@ type DramaData = {
   ratingIMDB: number | null;
   ratingDouban: number | null;
   dubbingStudios: string | null;
+  airStatus: string;
+  curatorCryTag: string | null;
 };
 
 export function EditDramaButton({

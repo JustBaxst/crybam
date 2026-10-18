@@ -142,6 +142,14 @@ export default async function DramaPage({ params }: { params: Params }) {
             </div>
           )}
 
+          {/* Совет редактора (если записи нет) */}
+          {!entry && isCryTag(drama.curatorCryTag) && (
+            <div className="flex items-center gap-2 mt-4">
+              <span className="text-xs text-muted">Совет редактора:</span>
+              <CryBadge tag={drama.curatorCryTag} size="md" />
+            </div>
+          )}
+
           {/* Факты */}
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-5 text-sm text-muted">
             {drama.year && (
@@ -174,6 +182,18 @@ export default async function DramaPage({ params }: { params: Params }) {
               <span className="flex items-center gap-1.5">
                 <Clock className="w-4 h-4 text-accent" />
                 ~{drama.episodeDuration} мин/серия
+              </span>
+            )}
+
+            {drama.airStatus === "ongoing" && (
+              <span className="flex items-center gap-1.5 text-accent font-medium">
+                <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+                Выходит сейчас
+              </span>
+            )}
+            {drama.airStatus === "announced" && (
+              <span className="text-muted border border-border px-2 py-0.5 rounded-full text-xs">
+                Анонс
               </span>
             )}
           </div>
@@ -264,15 +284,21 @@ export default async function DramaPage({ params }: { params: Params }) {
           </div>
 
           <div className="flex items-center gap-3 flex-wrap mb-6">
-  <QuickStatusButtons
-    dramaId={drama.id}
-    currentStatus={entry.status}
-    compact
-  />
-  {isCryTag(entry.cryTag) && (
-    <CryBadge tag={entry.cryTag} size="md" />
-  )}
-</div>
+            <QuickStatusButtons
+              dramaId={drama.id}
+              currentStatus={entry.status}
+              compact
+            />
+            {isCryTag(entry.cryTag) && (
+              <CryBadge tag={entry.cryTag} size="md" />
+            )}
+            {entry.isFavorite && (
+              <span className="inline-flex items-center gap-1 text-sm px-3 py-1.5 rounded-full border border-yellow-400/40 bg-yellow-400/10 text-yellow-400 font-medium">
+                <Crown className="w-4 h-4" />
+                Особое место
+              </span>
+            )}
+          </div>
 
           {entry.impression && (
             <div className="mb-6">
@@ -360,17 +386,17 @@ export default async function DramaPage({ params }: { params: Params }) {
         </section>
       ) : (
         <section className="mt-12 rounded-2xl border-2 border-dashed border-accent/30 bg-accent/5 p-8 text-center">
-  <Plus className="w-8 h-8 text-accent mx-auto mb-4" />
-  <h2 className="text-lg font-semibold mb-2">
-    Этой дорамы пока нет в твоём дневнике
-  </h2>
-  <p className="text-sm text-muted mb-6 max-w-md mx-auto">
-    Добавь её одним кликом — детали можно заполнить позже.
-  </p>
-  <div className="flex justify-center">
-    <QuickStatusButtons dramaId={drama.id} currentStatus={null} />
-  </div>
-</section>
+          <Plus className="w-8 h-8 text-accent mx-auto mb-4" />
+          <h2 className="text-lg font-semibold mb-2">
+            Этой дорамы пока нет в твоём дневнике
+          </h2>
+          <p className="text-sm text-muted mb-6 max-w-md mx-auto">
+            Добавь её одним кликом — детали можно заполнить позже.
+          </p>
+          <div className="flex justify-center">
+            <QuickStatusButtons dramaId={drama.id} currentStatus={null} />
+          </div>
+        </section>
       )}
 
       {/* ─── ЗОНА 2: О ДОРАМЕ ─── */}

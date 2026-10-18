@@ -30,6 +30,8 @@ type DramaData = {
   ratingIMDB: number | null;
   ratingDouban: number | null;
   dubbingStudios: string | null;
+  airStatus: string;
+  curatorCryTag: string | null;
 };
 
 export function EditDramaForm({
@@ -184,6 +186,26 @@ export function EditDramaForm({
             description="Даты эфира, озвучка и платформы"
           >
             <div className="grid grid-cols-2 gap-4">
+
+              <div className="grid grid-cols-2 gap-4">
+  <div>
+    <label className={labelCls}>Статус выхода</label>
+    <select name="airStatus" defaultValue={drama.airStatus || "released"} className={inputCls}>
+      <option value="released">Вышла (Завершена)</option>
+      <option value="ongoing">Выходит прямо сейчас</option>
+      <option value="announced">Анонсирована</option>
+    </select>
+  </div>
+  <div>
+    <label className={labelCls}>Метка плача (до отзывов)</label>
+    <select name="curatorCryTag" defaultValue={drama.curatorCryTag || ""} className={inputCls}>
+      <option value="">— не указана —</option>
+      <option value="safe">❤️ Безопасно</option>
+      <option value="bittersweet">❤️‍🩹 Слёзы счастья</option>
+      <option value="sad">💔 Рыдай</option>
+    </select>
+  </div>
+</div>
               <div>
                 <label className={labelCls}>Дата начала эфира</label>
                 <input

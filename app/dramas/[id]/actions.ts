@@ -18,6 +18,7 @@ export async function updateEntry(formData: FormData) {
   const review = String(formData.get("review") ?? "").trim() || null;
   const quote = String(formData.get("quote") ?? "").trim() || null;
   const notes = String(formData.get("notes") ?? "").trim() || null;
+  const isFavorite = formData.get("isFavorite") === "on";
   const progressRaw = String(formData.get("progress") ?? "").trim();
   const rewatchRaw = String(formData.get("rewatchCount") ?? "").trim();
   const startedAtRaw = String(formData.get("startedAt") ?? "").trim();
@@ -29,6 +30,7 @@ export async function updateEntry(formData: FormData) {
 
   const startedAt = startedAtRaw ? new Date(startedAtRaw) : null;
   const watchedAt = watchedAtRaw ? new Date(watchedAtRaw) : null;
+
 
   const existing = await prisma.userDramaEntry.findFirst({
     where: { userId: CURRENT_USER_ID, dramaId },
@@ -46,6 +48,7 @@ export async function updateEntry(formData: FormData) {
     rewatchCount,
     startedAt,
     watchedAt,
+    isFavorite,
   };
 
   if (existing) {
@@ -115,6 +118,8 @@ export async function updateDrama(formData: FormData) {
         ratingIMDB: float("ratingIMDB"),
         ratingDouban: float("ratingDouban"),
         dubbingStudios: str("dubbingStudios"),
+        airStatus: str("airStatus") || "released",
+        curatorCryTag: str("curatorCryTag"),
       },
     });
   } catch (e) {
@@ -385,5 +390,36 @@ export async function quickSetStatus(formData: FormData) {
   revalidatePath("/library");
   revalidatePath("/");
 
+  return { success: true };
+}
+
+export async function updateTitles(formData: FormData) {
+  const dramaId = Number(formData.get("dramaId"));
+  if (!Number.isInteger(dramaId) || dramaId <= 0) return { error: "Неверный ID" };
+
+  const titlesRaw = String(formData.get("titles") ?? "").trim();
+
+  await prisma.dramaTitle.deleteMany({
+    where: { dramaId, isPrimary: false },
+  });
+
+  if (titlesRaw) {
+      const titles = titlesRaw.split(/\n/).map(t => t.trim()).filter(Boolean);
+    for (const title of titles) {
+      await prisma.dramaTitle.create({
+        data: {
+          dramaId,
+          title,
+          titleLower: title.toLowerCase(),
+          language: "unknown",
+          kind: "alternative",
+          isPrimary: false,
+        },
+      });
+    }
+  }
+
+  revalidatePath(`/dramas/${dramaId}`);
+  revalidatePath(`/admin/dramas/${dramaId}`);
   return { success: true };
 }

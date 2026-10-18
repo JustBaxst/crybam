@@ -18,6 +18,7 @@ import { EditDramaButton } from "../../../dramas/[id]/EditDramaButton";
 import { GenresEditButton } from "../../../dramas/[id]/GenresEditButton";
 import { CreditsEditButton } from "../../../dramas/[id]/CreditsEditButton";
 import { DeleteDramaButton } from "../DeleteDramaButton";
+import { TitlesEditButton } from "@/app/dramas/[id]/TitlesEditButton";
 
 type Params = Promise<{ id: string }>;
 
@@ -108,6 +109,10 @@ export default async function AdminDramaEditPage({
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
+                 <TitlesEditButton 
+            dramaId={drama.id} 
+            currentTitles={drama.titles.filter(t => !t.isPrimary).map(t => t.title)} 
+          />
           <EditDramaButton
             dramaId={drama.id}
             drama={{
@@ -126,6 +131,8 @@ export default async function AdminDramaEditPage({
               ratingIMDB: drama.ratingIMDB,
               ratingDouban: drama.ratingDouban,
               dubbingStudios: drama.dubbingStudios,
+              airStatus: drama.airStatus,
+              curatorCryTag: drama.curatorCryTag,
             }}
           />
           <DeleteDramaButton dramaId={drama.id} dramaTitle={drama.title} />

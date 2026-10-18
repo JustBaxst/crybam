@@ -26,6 +26,7 @@ type EntryData = {
   rewatchCount: number;
   startedAt: Date | null;
   watchedAt: Date | null;
+  isFavorite: boolean;
 };
 
 const CRY_OPTIONS: { value: CryTag; label: string }[] = [
@@ -257,6 +258,18 @@ export function EditEntryForm({
             title="Личные заметки"
             description="Видно только тебе"
           >
+            <label className="flex items-center gap-3 p-3 rounded-lg border border-border bg-background cursor-pointer hover:border-accent/40 transition-colors mb-2">
+              <input
+                type="checkbox"
+                name="isFavorite"
+                defaultChecked={entry?.isFavorite ?? false}
+                className="w-4 h-4 accent-accent"
+              />
+              <div>
+                <p className="text-sm font-medium">Добавить в «Особое место»</p>
+                <p className="text-xs text-muted">Дорама появится в твоем «Зале славы»</p>
+              </div>
+            </label>
             <div>
               <label className={labelCls}>Заметки</label>
               <textarea
