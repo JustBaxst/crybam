@@ -6,8 +6,11 @@ import { prisma } from "@/lib/prisma";
 import { normalizeTitle } from "@/lib/drama-utils";
 import { requireModerator } from "@/lib/auth";
 
-export async function createDrama(formData: FormData) {
+export async function createDrama(
+  formData: FormData
+): Promise<{ error?: string; existingId?: number } | undefined> {
   await requireModerator();
+  
   const str = (name: string) =>
     String(formData.get(name) ?? "").trim() || null;
   const num = (name: string) => {
@@ -15,6 +18,16 @@ export async function createDrama(formData: FormData) {
     if (raw === "") return null;
     const n = Number(raw);
     return Number.isFinite(n) ? n : null;
+  };
+  const float = (name: string) => {
+    const raw = String(formData.get(name) ?? "").trim();
+    if (raw === "") return null;
+    const n = Number(raw.replace(",", "."));
+    return Number.isFinite(n) ? n : null;
+  };
+  const date = (name: string) => {
+    const raw = String(formData.get(name) ?? "").trim();
+    return raw ? new Date(raw) : null;
   };
 
   const title = str("title");
@@ -40,7 +53,7 @@ export async function createDrama(formData: FormData) {
       error: `Точный дубль: «${exactDuplicate.title}» (${
         [exactDuplicate.year, exactDuplicate.country].filter(Boolean).join(", ") || "год/страна не указаны"
       }) уже есть в базе.`,
-      existingId: exactDuplicate.id,
+      existingId: Number(exactDuplicate.id),
     };
   }
 
@@ -53,6 +66,19 @@ export async function createDrama(formData: FormData) {
       episodes: num("episodes"),
       seasons: num("seasons"),
       episodeDuration: num("episodeDuration"),
+      
+      // Новые поля:
+      synopsis: str("synopsis"),
+      posterUrl: str("posterUrl"),
+      airedFrom: date("airedFrom"),
+      airedTo: date("airedTo"),
+      ratingKinopoisk: float("ratingKinopoisk"),
+      ratingMDL: float("ratingMDL"),
+      ratingIMDB: float("ratingIMDB"),
+      ratingDouban: float("ratingDouban"),
+      dubbingStudios: str("dubbingStudios"),
+      airStatus: str("airStatus") || "released",
+      curatorCryTag: str("curatorCryTag"),
     },
   });
 

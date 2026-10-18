@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Save, Film, Sliders } from "lucide-react";
+import { Save, Film, Sliders, Tv, Star, Image } from "lucide-react";
 import { createDrama } from "../../actions";
 import { FormSection } from "@/components/FormSection";
 import Link from "next/link";
@@ -11,7 +11,7 @@ export function NewDramaForm() {
   const [error, setError] = useState<string | null>(null);
   const [existingId, setExistingId] = useState<number | null>(null);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setExistingId(null);
@@ -19,9 +19,11 @@ export function NewDramaForm() {
 
     startTransition(async () => {
       const result = await createDrama(formData);
-            if (result?.error) {
+      if (result?.error) {
         setError(result.error);
-        if ("existingId" in result) setExistingId(result.existingId ?? null);
+        if (result.existingId && typeof result.existingId === "number") {
+          setExistingId(result.existingId);
+        }
       }
     });
   };
@@ -111,6 +113,94 @@ export function NewDramaForm() {
               className={inputCls}
             />
           </div>
+        </div>
+      </FormSection>
+
+{/* ─── ВЕЩАНИЕ ─── */}
+      <FormSection
+        Icon={Tv}
+        title="Вещание"
+        description="Даты эфира и озвучка"
+      >
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Дата начала эфира</label>
+            <input type="date" name="airedFrom" className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>Дата конца эфира</label>
+            <input type="date" name="airedTo" className={inputCls} />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Статус выхода</label>
+            <select name="airStatus" defaultValue="released" className={inputCls}>
+              <option value="released">Вышла (Завершена)</option>
+              <option value="ongoing">Выходит прямо сейчас</option>
+              <option value="announced">Анонсирована</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>Метка плача (до отзывов)</label>
+            <select name="curatorCryTag" defaultValue="" className={inputCls}>
+              <option value="">— не указана —</option>
+              <option value="safe">❤️ Безопасно</option>
+              <option value="bittersweet">❤️‍🩹 Слёзы счастья</option>
+              <option value="sad">💔 Рыдай</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label className={labelCls}>Студии озвучки</label>
+          <input
+            type="text"
+            name="dubbingStudios"
+            placeholder="Kinolibrary, SoftBox"
+            className={inputCls}
+          />
+        </div>
+      </FormSection>
+
+      {/* ─── РЕЙТИНГИ ─── */}
+      <FormSection
+        Icon={Star}
+        title="Внешние рейтинги"
+        description="Оценки с других площадок"
+      >
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div>
+            <label className={labelCls}>Кинопоиск</label>
+            <input type="text" inputMode="decimal" name="ratingKinopoisk" placeholder="8.4" className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>MyDramaList</label>
+            <input type="text" inputMode="decimal" name="ratingMDL" placeholder="9.2" className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>IMDb</label>
+            <input type="text" inputMode="decimal" name="ratingIMDB" placeholder="8.8" className={inputCls} />
+          </div>
+          <div>
+            <label className={labelCls}>Douban</label>
+            <input type="text" inputMode="decimal" name="ratingDouban" placeholder="8.1" className={inputCls} />
+          </div>
+        </div>
+      </FormSection>
+
+      {/* ─── МЕДИА ─── */}
+      <FormSection
+        Icon={Image}
+        title="Медиа и описание"
+        description="Постер и синопсис"
+      >
+        <div>
+          <label className={labelCls}>URL постера</label>
+          <input type="url" name="posterUrl" placeholder="https://..." className={inputCls} />
+        </div>
+        <div>
+          <label className={labelCls}>Синопсис</label>
+          <textarea name="synopsis" rows={4} placeholder="О чём эта дорама..." className={`${inputCls} resize-y`} />
         </div>
       </FormSection>
 
