@@ -94,14 +94,29 @@ export function SoundtrackPlayer({ track }: { track: any }) {
               </div>
             </div>
             
-            <div className="p-4 bg-black/50">
+                        <div className="p-4 bg-black/50">
               {embedUrl ? (
-                <iframe
-                  src={embedUrl}
-                  className="w-full aspect-video rounded-lg"
-                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                  allowFullScreen
-                />
+                                    track.provider === "spotify" ? (
+                  <div className="relative w-full h-88 overflow-hidden rounded-xl">
+                    <iframe
+                      src={`https://open.spotify.com/embed/track/${track.embedId}?utm_source=generator&theme=1`}
+                      width="100%"
+                      height="352"
+                      className="block border-0"
+                      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                      loading="lazy"
+                      style={{ borderRadius: "12px" }}
+                    />
+                  </div>
+                ) : (
+                  // Универсальный рендер для YouTube, SoundCloud и Яндекс.Музыки
+                  <iframe
+                    src={embedUrl}
+                    className="w-full aspect-video rounded-lg"
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                    allowFullScreen
+                  />
+                )
               ) : (
                 <div className="text-center py-10">
                   <p className="text-sm text-muted mb-4">Для этого сервиса нет встроенного плеера.</p>
