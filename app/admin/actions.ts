@@ -22,12 +22,34 @@ export async function createDrama(formData: FormData) {
     return { error: "Название обязательно" };
   }
 
+  const year = num("year");
+  const country = str("country");
+  const normalizedTitle = normalizeTitle(title);
+
+  // Жёсткая проверка: название + год + страна
+  const exactDuplicate = await prisma.drama.findFirst({
+    where: {
+      titleLower: normalizedTitle,
+      ...(year ? { year } : {}),
+      ...(country ? { country } : {}),
+    },
+  });
+
+  if (exactDuplicate) {
+    return {
+      error: `Точный дубль: «${exactDuplicate.title}» (${
+        [exactDuplicate.year, exactDuplicate.country].filter(Boolean).join(", ") || "год/страна не указаны"
+      }) уже есть в базе.`,
+      existingId: exactDuplicate.id,
+    };
+  }
+
   const drama = await prisma.drama.create({
     data: {
       title,
-      titleLower: normalizeTitle(title),
-      year: num("year"),
-      country: str("country"),
+      titleLower: normalizedTitle,
+      year,
+      country,
       episodes: num("episodes"),
       seasons: num("seasons"),
       episodeDuration: num("episodeDuration"),

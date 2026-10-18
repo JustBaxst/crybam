@@ -4,19 +4,24 @@ import { useState, useTransition } from "react";
 import { Save, Film, Sliders } from "lucide-react";
 import { createDrama } from "../../actions";
 import { FormSection } from "@/components/FormSection";
+import Link from "next/link";
 
 export function NewDramaForm() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [existingId, setExistingId] = useState<number | null>(null);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
+    setExistingId(null);
     const formData = new FormData(e.currentTarget);
 
     startTransition(async () => {
       const result = await createDrama(formData);
-      if (result?.error) {
+            if (result?.error) {
         setError(result.error);
+        if ("existingId" in result) setExistingId(result.existingId ?? null);
       }
     });
   };
@@ -109,10 +114,18 @@ export function NewDramaForm() {
         </div>
       </FormSection>
 
-      {error && (
-        <p className="text-sm text-red-400 border border-red-500/30 bg-red-500/10 rounded-lg px-3 py-2">
-          {error}
-        </p>
+        {error && (
+        <div className="text-sm text-red-400 border border-red-500/30 bg-red-500/10 rounded-lg px-3 py-2 flex items-start justify-between gap-3">
+          <span className="flex-1">{error}</span>
+          {existingId && (
+            <Link
+              href={`/admin/dramas/${existingId}`}
+              className="shrink-0 px-3 py-1 bg-red-500/20 hover:bg-red-500/30 rounded-md transition-colors text-red-200 whitespace-nowrap"
+            >
+              Открыть её →
+            </Link>
+          )}
+        </div>
       )}
 
       <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
