@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EditEntryButton } from "./EditEntryButton";
+import { SiYoutube, SiSpotify, SiSoundcloud, SiVk } from "react-icons/si";
 import {
   ArrowLeft,
   Star,
@@ -22,12 +23,14 @@ import {
   Video,
   Languages,
   Award,
+  Trophy,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { CURRENT_USER_ID } from "@/lib/current-user";
 import { isCryTag } from "@/lib/cry-tags";
 import { CryBadge } from "@/components/CryBadge";
 import { QuickStatusButtons } from "./QuickStatusButtons";
+import { SoundtrackPlayer } from "./SoundtrackPlayer";
 
 type Params = Promise<{ id: string }>;
 
@@ -125,23 +128,24 @@ export default async function DramaPage({ params }: { params: Params }) {
         </div>
 
         <div className="flex-1 min-w-0">
-          <h1 className="text-3xl font-bold leading-tight">{mainTitle}</h1>
+                    <h1 className="text-3xl font-bold leading-tight">{mainTitle}</h1>
 
           {altTitles.length > 0 && (
-            <div className="mt-2 space-y-0.5">
+            <div className="mt-3 space-y-2">
               {altTitles.map((t) => (
-                <p key={t.id} className="text-sm text-muted">
-                  {t.title}
-                  {t.language && (
-                    <span className="text-xs text-muted/60 ml-2 uppercase">
+                <div key={t.id} className="flex items-center gap-2 text-sm text-muted">
+                  <span>{t.title}</span>
+                  {t.language && t.language !== "unknown" && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded border border-border bg-surface text-muted uppercase tracking-wider leading-none">
                       {t.language}
                     </span>
                   )}
-                </p>
+                </div>
               ))}
             </div>
           )}
 
+          {/* Совет редактора (если записи нет) */}
           {/* Совет редактора (если записи нет) */}
           {!entry && isCryTag(drama.curatorCryTag) && (
             <div className="flex items-center gap-2 mt-4">
@@ -504,22 +508,9 @@ export default async function DramaPage({ params }: { params: Params }) {
             isEmpty={drama.soundtrack.length === 0}
             emptyText="Саундтрек пока не заполнен"
           >
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               {drama.soundtrack.map((s) => (
-                <div
-                  key={s.id}
-                  className="flex items-center gap-3 rounded-xl border border-border bg-surface p-3"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-accent-soft flex items-center justify-center shrink-0">
-                    <PlayCircle className="w-5 h-5 text-accent" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium truncate">{s.title}</p>
-                    {s.artist && (
-                      <p className="text-xs text-muted truncate">{s.artist}</p>
-                    )}
-                  </div>
-                </div>
+                <SoundtrackPlayer key={s.id} track={s} />
               ))}
             </div>
           </InfoBlock>

@@ -403,21 +403,86 @@ export async function updateTitles(formData: FormData) {
     where: { dramaId, isPrimary: false },
   });
 
-  if (titlesRaw) {
-      const titles = titlesRaw.split(/\n/).map(t => t.trim()).filter(Boolean);
+    if (titlesRaw) {
+    const titles = titlesRaw.split(/\n/).map(t => t.trim()).filter(Boolean);
+    
+    // Функция для определения языка
+    const detectLanguage = (text: string) => {
+      if (/[\uAC00-\uD7AF]/.test(text)) return "ko"; // Корейский
+      if (/[а-яА-Я]/.test(text)) return "ru";       // Русский
+      if (/[a-zA-Z]/.test(text)) return "en";       // Английский
+      return "unknown";
+    };
+    
     for (const title of titles) {
       await prisma.dramaTitle.create({
         data: {
           dramaId,
           title,
           titleLower: title.toLowerCase(),
-          language: "unknown",
+          language: detectLanguage(title), // ← используем автоопределение
           kind: "alternative",
           isPrimary: false,
         },
       });
     }
   }
+
+  revalidatePath(`/dramas/${dramaId}`);
+  revalidatePath(`/admin/dramas/${dramaId}`);
+  return { success: true };
+}
+export async function addSoundtrack(formData: FormData) {
+  const dramaId = Number(formData.get("dramaId"));
+  if (!Number.isInteger(dramaId) || dramaId <= 0) return { error: "Неверный ID" };
+
+  const title = String(formData.get("title") ?? "").trim();
+  const url = String(formData.get("url") ?? "").trim();
+  const artist = String(formData.get("artist") ?? "").trim() || null;
+  const kind = String(formData.get("kind") ?? "ost_part").trim();
+
+  if (!title || !url) return { error: "Название и ссылка обязательны" };
+
+  let provider: string | null = null;
+  let embedId: string | null = null;
+
+  if (url.includes("youtube.com") || url.includes("youtu.be")) {
+    provider = "youtube";
+    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=))([^"&?\/\s]{11})/);
+    if (match) embedId = match[1];
+  } else if (url.includes("spotify.com")) {
+    provider = "spotify";
+    const match = url.match(/track\/([a-zA-Z0-9]+)/);
+    if (match) embedId = match[1];
+  } else if (url.includes("music.yandex")) {
+    provider = "yandex";
+    const match = url.match(/track\/(\d+)/);
+    if (match) embedId = match[1];
+  } else if (url.includes("soundcloud.com")) {
+    provider = "soundcloud";
+    embedId = encodeURIComponent(url);
+  } else if (url.includes("vk.com")) {
+    provider = "vk";
+    const match = url.match(/audio(-\d+_\d+)/);
+    if (match) embedId = match[1];
+  }
+
+    await prisma.soundtrackLink.create({
+    data: { dramaId, title, url, artist, kind, provider, embedId },
+  });
+
+  revalidatePath(`/dramas/${dramaId}`);
+  revalidatePath(`/admin/dramas/${dramaId}`);
+  return { success: true };
+}
+
+export async function removeSoundtrack(formData: FormData) {
+  const soundtrackId = Number(formData.get("soundtrackId"));
+  const dramaId = Number(formData.get("dramaId"));
+
+  if (!Number.isInteger(soundtrackId)) return { error: "Неверный ID" };
+
+  await prisma.soundtrackLink.delete({ where: { id: soundtrackId } });
 
   revalidatePath(`/dramas/${dramaId}`);
   revalidatePath(`/admin/dramas/${dramaId}`);

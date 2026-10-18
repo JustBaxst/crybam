@@ -12,6 +12,7 @@ import {
   Languages,
   Tv,
   Layers,
+  Music,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { EditDramaButton } from "../../../dramas/[id]/EditDramaButton";
@@ -19,6 +20,7 @@ import { GenresEditButton } from "../../../dramas/[id]/GenresEditButton";
 import { CreditsEditButton } from "../../../dramas/[id]/CreditsEditButton";
 import { DeleteDramaButton } from "../DeleteDramaButton";
 import { TitlesEditButton } from "@/app/dramas/[id]/TitlesEditButton";
+import { SoundtracksEditButton } from "@/app/dramas/[id]/SoundtracksEditButton";
 
 type Params = Promise<{ id: string }>;
 
@@ -39,6 +41,7 @@ export default async function AdminDramaEditPage({
       platforms: { include: { platform: true } },
       studios: { include: { studio: true } },
       genres: { include: { genre: true } },
+      soundtrack: true,
       credits: {
         include: { person: true, character: true },
         orderBy: { order: "asc" },
@@ -327,6 +330,34 @@ export default async function AdminDramaEditPage({
                       {a.character.description}
                     </p>
                   )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+            </section>
+
+      {/* ── САУНДТРЕК ── */}
+      <section className="rounded-2xl border border-border bg-surface p-6 mt-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-medium text-muted uppercase tracking-wide flex items-center gap-2">
+            <Music className="w-4 h-4" />
+            Саундтрек
+          </h2>
+          <SoundtracksEditButton dramaId={drama.id} soundtracks={drama.soundtrack} />
+        </div>
+        {drama.soundtrack.length === 0 ? (
+          <p className="text-xs text-muted/70 italic">Саундтрек пока не заполнен</p>
+        ) : (
+          <div className="space-y-2">
+            {drama.soundtrack.map((s) => (
+              <div key={s.id} className="flex items-center gap-3 rounded-lg border border-border bg-background p-3">
+                <div className="w-8 h-8 rounded bg-accent/10 flex items-center justify-center text-accent shrink-0">
+                  <Music className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">{s.title}</p>
+                  {s.artist && <p className="text-xs text-muted truncate">{s.artist}</p>}
                 </div>
               </div>
             ))}
