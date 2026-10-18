@@ -154,56 +154,57 @@ export default async function DramaPage({ params }: { params: Params }) {
             </div>
           )}
 
-          {/* Факты */}
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-5 text-sm text-muted">
-            {drama.year && (
-              <span className="flex items-center gap-1.5">
-                <Calendar className="w-4 h-4 text-accent" />
-                {drama.year}
-              </span>
-            )}
-            {drama.country && (
-              <span className="flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 text-accent" />
-                {drama.country}
-              </span>
-            )}
-            {drama.episodes && (
-              <span className="flex items-center gap-1.5">
-                <Film className="w-4 h-4 text-accent" />
-                {drama.episodes}{" "}
-                {plural(drama.episodes, "серия", "серии", "серий")}
-              </span>
-            )}
-            {drama.seasons && drama.seasons > 1 && (
-              <span className="flex items-center gap-1.5">
-                <Video className="w-4 h-4 text-accent" />
-                {drama.seasons}{" "}
-                {plural(drama.seasons, "сезон", "сезона", "сезонов")}
-              </span>
-            )}
-            {drama.episodeDuration && (
-              <span className="flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-accent" />
-                ~{drama.episodeDuration} мин/серия
-              </span>
-            )}
+          {/* Факты, даты, каналы и озвучка */}
+          <div className="mt-5 flex flex-col gap-y-2.5 text-sm text-muted">
+            {/* Первая строка: год, страна, серии и длительность */}
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+              {drama.year && (
+                <span className="flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4 text-accent" />
+                  {drama.year} г.
+                </span>
+              )}
+              {drama.country && (
+                <span className="flex items-center gap-1.5">
+                  <MapPin className="w-4 h-4 text-accent" />
+                  {drama.country}
+                </span>
+              )}
+              {drama.episodes && (
+                <span className="flex items-center gap-1.5">
+                  <Film className="w-4 h-4 text-accent" />
+                  {drama.episodes}{" "}
+                  {plural(drama.episodes, "серия", "серии", "серий")}
+                </span>
+              )}
+              {drama.seasons && drama.seasons > 1 && (
+                <span className="flex items-center gap-1.5">
+                  <Video className="w-4 h-4 text-accent" />
+                  {drama.seasons}{" "}
+                  {plural(drama.seasons, "сезон", "сезона", "сезонов")}
+                </span>
+              )}
+              {drama.episodeDuration && (
+                <span className="flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-accent" />
+                  ~{drama.episodeDuration} мин/серия
+                </span>
+              )}
 
-            {drama.airStatus === "ongoing" && (
-              <span className="flex items-center gap-1.5 text-accent font-medium">
-                <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-                Выходит сейчас
-              </span>
-            )}
-            {drama.airStatus === "announced" && (
-              <span className="text-muted border border-border px-2 py-0.5 rounded-full text-xs">
-                Анонс
-              </span>
-            )}
-          </div>
+              {drama.airStatus === "ongoing" && (
+                <span className="flex items-center gap-1.5 text-accent font-medium">
+                  <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+                  Выходит сейчас
+                </span>
+              )}
+              {drama.airStatus === "announced" && (
+                <span className="text-muted border border-border px-2 py-0.5 rounded-full text-xs">
+                  Анонс
+                </span>
+              )}
+            </div>
 
-          {/* Даты, каналы и студии озвучки */}
-          <div className="mt-4 space-y-2.5 text-sm text-muted">
+            {/* Остальные факты — каждый в своей строке */}
             {(drama.airedFrom || drama.airedTo) && (
               <div className="flex items-center gap-1.5">
                 <Calendar className="w-4 h-4 text-accent" />

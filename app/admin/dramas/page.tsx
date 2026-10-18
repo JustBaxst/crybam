@@ -3,10 +3,11 @@ import { Plus, Pencil, Trash2, Star } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { DeleteDramaButton } from "./DeleteDramaButton";
 
-
 export default async function AdminDramasPage() {
   const dramas = await prisma.drama.findMany({
     include: {
+      platforms: { include: { platform: true } },    
+      studios: { include: { studio: true } },        
       _count: {
         select: { credits: true, genres: true },
       },
@@ -62,6 +63,12 @@ export default async function AdminDramasPage() {
                   Страна
                 </th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted uppercase tracking-wide hidden lg:table-cell">
+                  Платформы                                     
+                </th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted uppercase tracking-wide hidden lg:table-cell">
+                  Студии                                        
+                </th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted uppercase tracking-wide hidden xl:table-cell">
                   Кредитов
                 </th>
                 <th className="text-right px-4 py-3 text-xs font-medium text-muted uppercase tracking-wide">
@@ -73,7 +80,7 @@ export default async function AdminDramasPage() {
               {dramas.map((d) => (
                 <tr
                   key={d.id}
-                  className="border-b border-border last:border-b-0 hover:bg-foreground/0.02 transition-colors"
+                  className="border-b border-border last:border-b-0 hover:bg-foreground/2 transition-colors"
                 >
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
@@ -107,7 +114,13 @@ export default async function AdminDramasPage() {
                   <td className="px-4 py-3 text-sm text-muted hidden md:table-cell">
                     {d.country ?? "—"}
                   </td>
-                  <td className="px-4 py-3 text-sm text-muted hidden lg:table-cell">
+                    <td className="px-4 py-3 text-sm text-muted hidden lg:table-cell max-w-37.5 truncate">
+                    {d.platforms.map((p) => p.platform.name).join(", ") || "—"}  
+                  </td>
+                    <td className="px-4 py-3 text-sm text-muted hidden lg:table-cell max-w-37.5 truncate">
+                    {d.studios.map((s) => s.studio.name).join(", ") || "—"}     
+                  </td>
+                  <td className="px-4 py-3 text-sm text-muted hidden xl:table-cell">
                     {d._count.credits} / {d._count.genres} жанров
                   </td>
                   <td className="px-4 py-3">
