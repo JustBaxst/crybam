@@ -134,6 +134,8 @@ export default async function AdminDramaEditPage({
               ratingIMDB: drama.ratingIMDB,
               ratingDouban: drama.ratingDouban,
               dubbingStudios: drama.dubbingStudios,
+              platforms: platforms,    
+              studios: productionStudios, 
               airStatus: drama.airStatus,
               curatorCryTag: drama.curatorCryTag,
             }}

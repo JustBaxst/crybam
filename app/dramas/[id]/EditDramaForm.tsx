@@ -30,6 +30,8 @@ type DramaData = {
   ratingIMDB: number | null;
   ratingDouban: number | null;
   dubbingStudios: string | null;
+  platforms: string[];
+  studios: string[];
   airStatus: string;
   curatorCryTag: string | null;
 };
@@ -239,6 +241,28 @@ export function EditDramaForm({
                 Через запятую
               </p>
             </div>
+
+            <div>                                                           
+          <label className={labelCls}>Платформы (через запятую)</label> 
+          <input                                                      
+            type="text"                                               
+            name="platforms"                                          
+            defaultValue={drama.platforms.join(", ")}                 
+            placeholder="Netflix, Viki, Кинопоиск"                    
+            className={inputCls}                                      
+          />                                                          
+        </div>                                                        
+
+        <div>                                                           
+          <label className={labelCls}>Производство (через запятую)</label> 
+          <input                                                      
+            type="text"                                               
+            name="studios"                                            
+            defaultValue={drama.studios.join(", ")}                   
+            placeholder="tvN, JTBC, Studio Dragon"                    
+            className={inputCls}                                      
+          />                                                          
+        </div>                                                        
           </FormSection>
 
           {/* ─── РЕЙТИНГИ ─── */}

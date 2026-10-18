@@ -160,6 +160,27 @@ export function NewDramaForm() {
             className={inputCls}
           />
         </div>
+
+<div>                                                           
+          <label className={labelCls}>Платформы (через запятую)</label> 
+          <input                                                      
+            type="text"                                               
+            name="platforms"                                          
+            placeholder="Netflix, Viki, Кинопоиск"                    
+            className={inputCls}                                      
+          />                                                          
+        </div>                                                        
+
+        <div>                                                           
+          <label className={labelCls}>Производство (через запятую)</label> 
+          <input                                                      
+            type="text"                                               
+            name="studios"                                            
+            placeholder="tvN, JTBC, Studio Dragon"                    
+            className={inputCls}                                      
+          />                                                          
+        </div>                                                        
+
       </FormSection>
 
       {/* ─── РЕЙТИНГИ ─── */}

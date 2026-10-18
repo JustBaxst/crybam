@@ -82,6 +82,38 @@ export async function createDrama(
     },
   });
 
+  // Платформы                                                      
+  const platformsRaw = String(formData.get("platforms") ?? "").trim(); 
+  if (platformsRaw) {                                              
+    const names = platformsRaw.split(",").map(s => s.trim()).filter(Boolean); 
+    for (const name of names) {                                    
+      const platform = await prisma.platform.upsert({              
+        where: { name },                                           
+        update: {},                                                
+        create: { name },                                          
+      });                                                          
+      await prisma.dramaPlatform.create({                          
+        data: { dramaId: drama.id, platformId: platform.id },      
+      });                                                          
+    }                                                              
+  }                                                       
+  
+  // Студии                                                         
+  const studiosRaw = String(formData.get("studios") ?? "").trim();   
+  if (studiosRaw) {                                                
+    const names = studiosRaw.split(",").map(s => s.trim()).filter(Boolean); 
+    for (const name of names) {                                    
+      const studio = await prisma.studio.upsert({                  
+        where: { name },                                           
+        update: {},                                                
+        create: { name },                                          
+      });                                                          
+      await prisma.dramaStudio.create({                            
+        data: { dramaId: drama.id, studioId: studio.id },          
+      });                                                          
+    }                                                              
+  }                                                                
+
   revalidatePath("/admin/dramas");
   revalidatePath("/dramas");
 

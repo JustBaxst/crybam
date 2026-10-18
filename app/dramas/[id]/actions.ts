@@ -126,6 +126,36 @@ export async function updateDrama(formData: FormData) {
     return { error: "Не удалось сохранить: " + String(e) };
   }
 
+  // Обновляем платформы                                              
+  const platformsRaw = String(formData.get("platforms") ?? "").trim(); 
+  await prisma.dramaPlatform.deleteMany({ where: { dramaId } });     
+  if (platformsRaw) {                                                
+    const names = platformsRaw.split(",").map(s => s.trim()).filter(Boolean); 
+    for (const name of names) {                                      
+      const platform = await prisma.platform.upsert({                
+        where: { name }, update: {}, create: { name },               
+      });                                                            
+      await prisma.dramaPlatform.create({                            
+        data: { dramaId, platformId: platform.id },                  
+      });                                                            
+    }                                                                
+  }                                                                  
+
+  // Обновляем студии                                                
+  const studiosRaw = String(formData.get("studios") ?? "").trim();   
+  await prisma.dramaStudio.deleteMany({ where: { dramaId } });       
+  if (studiosRaw) {                                                  
+    const names = studiosRaw.split(",").map(s => s.trim()).filter(Boolean); 
+    for (const name of names) {                                      
+      const studio = await prisma.studio.upsert({                    
+        where: { name }, update: {}, create: { name },               
+      });                                                            
+      await prisma.dramaStudio.create({                              
+        data: { dramaId, studioId: studio.id },                      
+      });                                                            
+    }                                                                
+  }                                                                  
+
   revalidatePath(`/dramas/${dramaId}`);
   revalidatePath("/library");
   revalidatePath("/");

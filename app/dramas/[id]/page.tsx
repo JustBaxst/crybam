@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EditEntryButton } from "./EditEntryButton";
-import { SiYoutube, SiSpotify, SiSoundcloud, SiVk } from "react-icons/si";
 import {
   ArrowLeft,
   Star,
@@ -23,7 +22,6 @@ import {
   Video,
   Languages,
   Award,
-  Trophy,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { CURRENT_USER_ID } from "@/lib/current-user";
@@ -128,12 +126,15 @@ export default async function DramaPage({ params }: { params: Params }) {
         </div>
 
         <div className="flex-1 min-w-0">
-                    <h1 className="text-3xl font-bold leading-tight">{mainTitle}</h1>
+          <h1 className="text-3xl font-bold leading-tight">{mainTitle}</h1>
 
           {altTitles.length > 0 && (
             <div className="mt-3 space-y-2">
               {altTitles.map((t) => (
-                <div key={t.id} className="flex items-center gap-2 text-sm text-muted">
+                <div
+                  key={t.id}
+                  className="flex items-center gap-2 text-sm text-muted"
+                >
                   <span>{t.title}</span>
                   {t.language && t.language !== "unknown" && (
                     <span className="text-[10px] px-1.5 py-0.5 rounded border border-border bg-surface text-muted uppercase tracking-wider leading-none">
@@ -145,7 +146,6 @@ export default async function DramaPage({ params }: { params: Params }) {
             </div>
           )}
 
-          {/* Совет редактора (если записи нет) */}
           {/* Совет редактора (если записи нет) */}
           {!entry && isCryTag(drama.curatorCryTag) && (
             <div className="flex items-center gap-2 mt-4">
@@ -202,36 +202,46 @@ export default async function DramaPage({ params }: { params: Params }) {
             )}
           </div>
 
-          {/* Даты выхода */}
-          {(drama.airedFrom || drama.airedTo) && (
-            <p className="text-sm text-muted mt-2">
-              {formatDate(drama.airedFrom)}
-              {drama.airedTo && ` — ${formatDate(drama.airedTo)}`}
-            </p>
-          )}
+          {/* Даты, каналы и студии озвучки */}
+          <div className="mt-4 space-y-2.5 text-sm text-muted">
+            {(drama.airedFrom || drama.airedTo) && (
+              <div className="flex items-center gap-1.5">
+                <Calendar className="w-4 h-4 text-accent" />
+                <span>
+                  {formatDate(drama.airedFrom)}
+                  {drama.airedTo && ` — ${formatDate(drama.airedTo)}`}
+                </span>
+              </div>
+            )}
 
-          {/* Каналы и студии озвучки */}
-          <div className="mt-3 space-y-1.5 text-sm text-muted">
             {platforms.length > 0 && (
-              <p className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5">
                 <Tv className="w-4 h-4 text-accent" />
-                <span className="text-foreground/80">Канал:</span>{" "}
-                {platforms.join(", ")}
-              </p>
+                <span>
+                  <span className="text-foreground/80">Канал:</span>{" "}
+                  {platforms.join(", ")}
+                </span>
+              </div>
             )}
+
             {productionStudios.length > 0 && (
-              <p className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5">
                 <Video className="w-4 h-4 text-accent" />
-                <span className="text-foreground/80">Производство:</span>{" "}
-                {productionStudios.join(", ")}
-              </p>
+                <span>
+                  <span className="text-foreground/80">Производство:</span>{" "}
+                  {productionStudios.join(", ")}
+                </span>
+              </div>
             )}
+
             {drama.dubbingStudios && (
-              <p className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5">
                 <Languages className="w-4 h-4 text-accent" />
-                <span className="text-foreground/80">Озвучка:</span>{" "}
-                {drama.dubbingStudios}
-              </p>
+                <span>
+                  <span className="text-foreground/80">Озвучка:</span>{" "}
+                  {drama.dubbingStudios}
+                </span>
+              </div>
             )}
           </div>
 
