@@ -27,6 +27,7 @@ import { prisma } from "@/lib/prisma";
 import { CURRENT_USER_ID } from "@/lib/current-user";
 import { isCryTag } from "@/lib/cry-tags";
 import { CryBadge } from "@/components/CryBadge";
+import { QuickStatusButtons } from "./QuickStatusButtons";
 
 type Params = Promise<{ id: string }>;
 
@@ -262,14 +263,16 @@ export default async function DramaPage({ params }: { params: Params }) {
             <EditEntryButton dramaId={drama.id} entry={entry} />
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap mb-6">
-            {isCryTag(entry.cryTag) && (
-              <CryBadge tag={entry.cryTag} size="md" />
-            )}
-            <span className="text-sm px-3 py-1.5 rounded-full border border-border text-muted leading-none">
-              {statusLabel(entry.status)}
-            </span>
-          </div>
+          <div className="flex items-center gap-3 flex-wrap mb-6">
+  <QuickStatusButtons
+    dramaId={drama.id}
+    currentStatus={entry.status}
+    compact
+  />
+  {isCryTag(entry.cryTag) && (
+    <CryBadge tag={entry.cryTag} size="md" />
+  )}
+</div>
 
           {entry.impression && (
             <div className="mb-6">
@@ -357,16 +360,17 @@ export default async function DramaPage({ params }: { params: Params }) {
         </section>
       ) : (
         <section className="mt-12 rounded-2xl border-2 border-dashed border-accent/30 bg-accent/5 p-8 text-center">
-          <Plus className="w-8 h-8 text-accent mx-auto mb-4" />
-          <h2 className="text-lg font-semibold mb-2">
-            Этой дорамы пока нет в твоём дневнике
-          </h2>
-          <p className="text-sm text-muted mb-6 max-w-md mx-auto">
-            Добавь её, чтобы вести записи: поставить рейтинг, отметить эмоцию,
-            написать отзыв и сохранить любимую цитату.
-          </p>
-          <EditEntryButton dramaId={drama.id} entry={null} />
-        </section>
+  <Plus className="w-8 h-8 text-accent mx-auto mb-4" />
+  <h2 className="text-lg font-semibold mb-2">
+    Этой дорамы пока нет в твоём дневнике
+  </h2>
+  <p className="text-sm text-muted mb-6 max-w-md mx-auto">
+    Добавь её одним кликом — детали можно заполнить позже.
+  </p>
+  <div className="flex justify-center">
+    <QuickStatusButtons dramaId={drama.id} currentStatus={null} />
+  </div>
+</section>
       )}
 
       {/* ─── ЗОНА 2: О ДОРАМЕ ─── */}
@@ -525,17 +529,6 @@ function InfoBlock({
       )}
     </div>
   );
-}
-
-function statusLabel(status: string) {
-  const map: Record<string, string> = {
-    watched: "Просмотрено",
-    watching: "Смотрю",
-    planned: "В планах",
-    on_hold: "Отложено",
-    dropped: "Брошено",
-  };
-  return map[status] ?? status;
 }
 
 function plural(n: number, one: string, few: string, many: string) {

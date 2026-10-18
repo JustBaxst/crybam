@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Save } from "lucide-react";
+import { Save, Film, Sliders } from "lucide-react";
 import { createDrama } from "../../actions";
+import { FormSection } from "@/components/FormSection";
 
 export function NewDramaForm() {
   const [isPending, startTransition] = useTransition();
@@ -21,81 +22,92 @@ export function NewDramaForm() {
   };
 
   const inputCls =
-    "w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors";
-  const labelCls = "block text-sm font-medium mb-2";
+    "w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors text-sm";
+  const labelCls = "block text-xs font-medium text-muted mb-1.5";
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-2xl border border-border bg-surface p-6 space-y-5"
+      className="rounded-2xl border border-border bg-surface p-6 space-y-8"
     >
-      {/* Название */}
-      <div>
-        <label className={labelCls}>
-          Название <span className="text-accent">*</span>
-        </label>
-        <input
-          type="text"
-          name="title"
-          required
-          placeholder="Псих, но всё в порядке"
-          className={inputCls}
-          autoFocus
-        />
-      </div>
-
-      {/* Год + Страна */}
-      <div className="grid grid-cols-2 gap-4">
+      {/* ─── ОСНОВНОЕ ─── */}
+      <FormSection
+        Icon={Film}
+        title="Основное"
+        description="Обязательный минимум — название"
+      >
         <div>
-          <label className={labelCls}>Год</label>
-          <input
-            type="number"
-            name="year"
-            placeholder="2020"
-            className={inputCls}
-          />
-        </div>
-        <div>
-          <label className={labelCls}>Страна</label>
+          <label className={labelCls}>
+            Название <span className="text-accent">*</span>
+          </label>
           <input
             type="text"
-            name="country"
-            placeholder="Южная Корея"
+            name="title"
+            required
+            autoFocus
+            placeholder="Псих, но всё в порядке"
             className={inputCls}
           />
         </div>
-      </div>
 
-      {/* Серии + Сезоны + Длительность */}
-      <div className="grid grid-cols-3 gap-4">
-        <div>
-          <label className={labelCls}>Серий</label>
-          <input
-            type="number"
-            name="episodes"
-            placeholder="16"
-            className={inputCls}
-          />
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Год</label>
+            <input
+              type="number"
+              name="year"
+              placeholder="2020"
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Страна</label>
+            <input
+              type="text"
+              name="country"
+              placeholder="Южная Корея"
+              className={inputCls}
+            />
+          </div>
         </div>
-        <div>
-          <label className={labelCls}>Сезонов</label>
-          <input
-            type="number"
-            name="seasons"
-            placeholder="1"
-            className={inputCls}
-          />
+      </FormSection>
+
+      {/* ─── ПАРАМЕТРЫ ─── */}
+      <FormSection
+        Icon={Sliders}
+        title="Параметры"
+        description="Структура и длительность"
+      >
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <label className={labelCls}>Серий</label>
+            <input
+              type="number"
+              name="episodes"
+              placeholder="16"
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Сезонов</label>
+            <input
+              type="number"
+              name="seasons"
+              placeholder="1"
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Мин / серия</label>
+            <input
+              type="number"
+              name="episodeDuration"
+              placeholder="70"
+              className={inputCls}
+            />
+          </div>
         </div>
-        <div>
-          <label className={labelCls}>Мин/серия</label>
-          <input
-            type="number"
-            name="episodeDuration"
-            placeholder="70"
-            className={inputCls}
-          />
-        </div>
-      </div>
+      </FormSection>
 
       {error && (
         <p className="text-sm text-red-400 border border-red-500/30 bg-red-500/10 rounded-lg px-3 py-2">
@@ -103,7 +115,7 @@ export function NewDramaForm() {
         </p>
       )}
 
-      <div className="flex items-center justify-end gap-3 pt-2 border-t border-border">
+      <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
         <button
           type="submit"
           disabled={isPending}

@@ -1,9 +1,18 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { X, Save } from "lucide-react";
+import {
+  X,
+  Save,
+  Star,
+  MessageCircle,
+  Calendar,
+  Lock,
+} from "lucide-react";
 import { updateEntry } from "./actions";
+import { FormSection } from "@/components/FormSection";
 import type { CryTag } from "@/lib/cry-tags";
+import { useLockBodyScroll } from "@/lib/use-lock-body-scroll";
 
 type EntryData = {
   status: string;
@@ -45,6 +54,8 @@ export function EditEntryForm({
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
+  useLockBodyScroll();
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -63,15 +74,26 @@ export function EditEntryForm({
   const formatDateForInput = (d: Date | null) =>
     d ? new Date(d).toISOString().slice(0, 10) : "";
 
+  const inputCls =
+    "w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors text-sm";
+  const labelCls = "block text-xs font-medium text-muted mb-1.5";
+
   return (
-    <div className="fixed inset-0 z-100 bg-background/80 backdrop-blur-sm flex items-start justify-center pt-10 px-4 overflow-y-auto">
+    <div className="fixed inset-0 z-100 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-2xl rounded-2xl border border-border bg-surface shadow-2xl mb-10"
+        className="w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl border border-border bg-surface shadow-2xl"
       >
-        {/* Шапка */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <h2 className="text-lg font-semibold">Редактировать запись</h2>
+        {/* Шапка модалки */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
+          <div>
+            <h2 className="text-lg font-semibold">
+              {entry ? "Редактировать запись" : "Добавить в дневник"}
+            </h2>
+            <p className="text-xs text-muted mt-0.5">
+              Твои личные данные о дораме
+            </p>
+          </div>
           <button
             type="button"
             onClick={onClose}
@@ -81,162 +103,171 @@ export function EditEntryForm({
           </button>
         </div>
 
-        {/* Тело формы */}
-        <div className="p-6 space-y-5">
-          {/* Статус */}
-          <div>
-            <label className="block text-sm font-medium mb-2">Статус</label>
-            <select
-              name="status"
-              defaultValue={entry?.status ?? "planned"}
-              className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors"
-            >
-              {STATUS_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* Тело формы — скроллится только оно */}
+        <div className="p-6 space-y-8 overflow-y-auto flex-1">
+          {/* ─── СТАТУС И ОЦЕНКА ─── */}
+          <FormSection
+            Icon={Star}
+            title="Статус и оценка"
+            description="Что это для тебя сейчас"
+          >
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className={labelCls}>Статус</label>
+                <select
+                  name="status"
+                  defaultValue={entry?.status ?? "planned"}
+                  className={inputCls}
+                >
+                  {STATUS_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className={labelCls}>Рейтинг (1–10)</label>
+                <input
+                  type="number"
+                  name="rating"
+                  step="0.1"
+                  min="0"
+                  max="10"
+                  defaultValue={entry?.rating ?? ""}
+                  placeholder="8.5"
+                  className={inputCls}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Эмоция</label>
+                <select
+                  name="cryTag"
+                  defaultValue={entry?.cryTag ?? ""}
+                  className={inputCls}
+                >
+                  <option value="">— не выбрано —</option>
+                  {CRY_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </FormSection>
 
-          {/* Рейтинг + cryTag в ряд */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* ─── ВПЕЧАТЛЕНИЯ ─── */}
+          <FormSection
+            Icon={MessageCircle}
+            title="Впечатления"
+            description="Что осталось в памяти"
+          >
             <div>
-              <label className="block text-sm font-medium mb-2">Рейтинг</label>
+              <label className={labelCls}>Впечатление (короткое)</label>
               <input
-                type="number"
-                name="rating"
-                step="0.1"
-                min="0"
-                max="10"
-                defaultValue={entry?.rating ?? ""}
-                placeholder="0–10"
-                className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors"
+                type="text"
+                name="impression"
+                defaultValue={entry?.impression ?? ""}
+                placeholder="Пара слов: «Идеальная героиня»"
+                className={inputCls}
               />
             </div>
+
             <div>
-              <label className="block text-sm font-medium mb-2">Эмоция</label>
-              <select
-                name="cryTag"
-                defaultValue={entry?.cryTag ?? ""}
-                className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors"
-              >
-                <option value="">— не выбрано —</option>
-                {CRY_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
+              <label className={labelCls}>Отзыв</label>
+              <textarea
+                name="review"
+                defaultValue={entry?.review ?? ""}
+                rows={6}
+                placeholder="Полный отзыв..."
+                className={`${inputCls} resize-y`}
+              />
             </div>
-          </div>
 
-          {/* Впечатление */}
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Впечатление (короткое)
-            </label>
-            <input
-              type="text"
-              name="impression"
-              defaultValue={entry?.impression ?? ""}
-              placeholder="Пара слов: «Идеальная героиня»"
-              className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors"
-            />
-          </div>
-
-          {/* Отзыв */}
-          <div>
-            <label className="block text-sm font-medium mb-2">Отзыв</label>
-            <textarea
-              name="review"
-              defaultValue={entry?.review ?? ""}
-              rows={6}
-              placeholder="Полный отзыв..."
-              className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors resize-y"
-            />
-          </div>
-
-          {/* Цитата */}
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Цитата (для «Особого места»)
-            </label>
-            <textarea
-              name="quote"
-              defaultValue={entry?.quote ?? ""}
-              rows={2}
-              placeholder="Любимая фраза из дорамы"
-              className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors resize-y"
-            />
-          </div>
-
-          {/* Прогресс + пересмотры */}
-          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Прогресс (серия)
+              <label className={labelCls}>
+                Цитата для «Особого места»
               </label>
-              <input
-                type="number"
-                name="progress"
-                min="0"
-                defaultValue={entry?.progress ?? ""}
-                placeholder="на какой серии"
-                className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors"
+              <textarea
+                name="quote"
+                defaultValue={entry?.quote ?? ""}
+                rows={2}
+                placeholder="Любимая фраза из дорамы"
+                className={`${inputCls} resize-y`}
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Пересмотров
-              </label>
-              <input
-                type="number"
-                name="rewatchCount"
-                min="0"
-                defaultValue={entry?.rewatchCount ?? 0}
-                className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors"
-              />
-            </div>
-          </div>
+          </FormSection>
 
-          {/* Даты */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Начал смотреть
-              </label>
-              <input
-                type="date"
-                name="startedAt"
-                defaultValue={formatDateForInput(entry?.startedAt ?? null)}
-                className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors"
-              />
+          {/* ─── ДАТЫ И ПЕРЕСМОТРЫ ─── */}
+          <FormSection
+            Icon={Calendar}
+            title="Даты и прогресс"
+            description="Когда смотрел и сколько раз"
+          >
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={labelCls}>Начал смотреть</label>
+                <input
+                  type="date"
+                  name="startedAt"
+                  defaultValue={formatDateForInput(entry?.startedAt ?? null)}
+                  className={inputCls}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Досмотрел</label>
+                <input
+                  type="date"
+                  name="watchedAt"
+                  defaultValue={formatDateForInput(entry?.watchedAt ?? null)}
+                  className={inputCls}
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Досмотрел</label>
-              <input
-                type="date"
-                name="watchedAt"
-                defaultValue={formatDateForInput(entry?.watchedAt ?? null)}
-                className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors"
-              />
-            </div>
-          </div>
 
-          {/* Заметки */}
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Личные заметки (приватные)
-            </label>
-            <textarea
-              name="notes"
-              defaultValue={entry?.notes ?? ""}
-              rows={3}
-              placeholder="Только для тебя"
-              className="w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors resize-y"
-            />
-          </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={labelCls}>Прогресс (серия)</label>
+                <input
+                  type="number"
+                  name="progress"
+                  min="0"
+                  defaultValue={entry?.progress ?? ""}
+                  placeholder="на какой серии остановился"
+                  className={inputCls}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Пересмотров</label>
+                <input
+                  type="number"
+                  name="rewatchCount"
+                  min="0"
+                  defaultValue={entry?.rewatchCount ?? 0}
+                  className={inputCls}
+                />
+              </div>
+            </div>
+          </FormSection>
+
+          {/* ─── ПРИВАТНОЕ ─── */}
+          <FormSection
+            Icon={Lock}
+            title="Личные заметки"
+            description="Видно только тебе"
+          >
+            <div>
+              <label className={labelCls}>Заметки</label>
+              <textarea
+                name="notes"
+                defaultValue={entry?.notes ?? ""}
+                rows={3}
+                placeholder="Только для тебя"
+                className={`${inputCls} resize-y`}
+              />
+            </div>
+          </FormSection>
 
           {error && (
             <p className="text-sm text-red-400 border border-red-500/30 bg-red-500/10 rounded-lg px-3 py-2">
@@ -245,8 +276,8 @@ export function EditEntryForm({
           )}
         </div>
 
-        {/* Кнопки */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border">
+        {/* Футер модалки */}
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border shrink-0">
           <button
             type="button"
             onClick={onClose}

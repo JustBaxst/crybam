@@ -348,3 +348,42 @@ export async function updateCredit(formData: FormData) {
   revalidatePath(`/dramas/${dramaId}`);
   return { success: true };
 }
+
+export async function quickSetStatus(formData: FormData) {
+  const dramaId = Number(formData.get("dramaId"));
+  if (!Number.isInteger(dramaId) || dramaId <= 0) {
+    return { error: "Неверный ID дорамы" };
+  }
+
+  const status = String(formData.get("status") ?? "");
+  const allowed = ["watching", "planned", "watched", "on_hold", "dropped"];
+  if (!allowed.includes(status)) {
+    return { error: "Неверный статус" };
+  }
+
+  const existing = await prisma.userDramaEntry.findFirst({
+    where: { userId: CURRENT_USER_ID, dramaId },
+  });
+
+  if (existing) {
+    // Меняем только статус, остальные поля не трогаем
+    await prisma.userDramaEntry.update({
+      where: { id: existing.id },
+      data: { status },
+    });
+  } else {
+    await prisma.userDramaEntry.create({
+      data: {
+        userId: CURRENT_USER_ID,
+        dramaId,
+        status,
+      },
+    });
+  }
+
+  revalidatePath(`/dramas/${dramaId}`);
+  revalidatePath("/library");
+  revalidatePath("/");
+
+  return { success: true };
+}

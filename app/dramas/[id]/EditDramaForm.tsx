@@ -1,8 +1,18 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { X, Save } from "lucide-react";
+import {
+  X,
+  Save,
+  Film,
+  Tv,
+  Star,
+  Image,
+  Sliders,
+} from "lucide-react";
 import { updateDrama } from "./actions";
+import { FormSection } from "@/components/FormSection";
+import { useLockBodyScroll } from "@/lib/use-lock-body-scroll";
 
 type DramaData = {
   title: string;
@@ -34,6 +44,8 @@ export function EditDramaForm({
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
+  useLockBodyScroll();
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -52,17 +64,23 @@ export function EditDramaForm({
     d ? new Date(d).toISOString().slice(0, 10) : "";
 
   const inputCls =
-    "w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors";
-  const labelCls = "block text-sm font-medium mb-2";
+    "w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors text-sm";
+  const labelCls = "block text-xs font-medium text-muted mb-1.5";
 
   return (
-    <div className="fixed inset-0 z-100 bg-background/80 backdrop-blur-sm flex items-start justify-center pt-10 px-4 overflow-y-auto">
+    <div className="fixed inset-0 z-100 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-2xl rounded-2xl border border-border bg-surface shadow-2xl mb-10"
+        className="w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl border border-border bg-surface shadow-2xl"
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <h2 className="text-lg font-semibold">Редактировать дораму</h2>
+        {/* Шапка модалки */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
+          <div>
+            <h2 className="text-lg font-semibold">Редактировать дораму</h2>
+            <p className="text-xs text-muted mt-0.5">
+              {drama.title}
+            </p>
+          </div>
           <button
             type="button"
             onClick={onClose}
@@ -73,167 +91,216 @@ export function EditDramaForm({
         </div>
 
         <input type="hidden" name="dramaId" value={dramaId} />
-        {/* ↑ ниже заменим через hiddenField */}
 
-        <div className="p-6 space-y-5">
-          {/* Название */}
-          <div>
-            <label className={labelCls}>Название (главное)</label>
-            <input
-              type="text"
-              name="title"
-              defaultValue={drama.title}
-              required
-              className={inputCls}
-            />
-          </div>
-
-          {/* Год + страна + серии + сезоны */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {/* Тело формы — скроллится только оно */}
+        <div className="p-6 space-y-8 overflow-y-auto flex-1">
+          {/* ─── ОСНОВНОЕ ─── */}
+          <FormSection
+            Icon={Film}
+            title="Основное"
+            description="Название и главная информация"
+          >
             <div>
-              <label className={labelCls}>Год</label>
-              <input
-                type="number"
-                name="year"
-                defaultValue={drama.year ?? ""}
-                className={inputCls}
-              />
-            </div>
-            <div>
-              <label className={labelCls}>Страна</label>
+              <label className={labelCls}>
+                Название <span className="text-accent">*</span>
+              </label>
               <input
                 type="text"
-                name="country"
-                defaultValue={drama.country ?? ""}
+                name="title"
+                defaultValue={drama.title}
+                required
                 className={inputCls}
               />
             </div>
-            <div>
-              <label className={labelCls}>Серий</label>
-              <input
-                type="number"
-                name="episodes"
-                defaultValue={drama.episodes ?? ""}
-                className={inputCls}
-              />
-            </div>
-            <div>
-              <label className={labelCls}>Сезонов</label>
-              <input
-                type="number"
-                name="seasons"
-                defaultValue={drama.seasons ?? ""}
-                className={inputCls}
-              />
-            </div>
-          </div>
 
-          {/* Длительность */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className={labelCls}>Длительность серии (мин)</label>
-              <input
-                type="number"
-                name="episodeDuration"
-                defaultValue={drama.episodeDuration ?? ""}
-                className={inputCls}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={labelCls}>Год</label>
+                <input
+                  type="number"
+                  name="year"
+                  defaultValue={drama.year ?? ""}
+                  placeholder="2020"
+                  className={inputCls}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Страна</label>
+                <input
+                  type="text"
+                  name="country"
+                  defaultValue={drama.country ?? ""}
+                  placeholder="Южная Корея"
+                  className={inputCls}
+                />
+              </div>
             </div>
+          </FormSection>
+
+          {/* ─── ПАРАМЕТРЫ ─── */}
+          <FormSection
+            Icon={Sliders}
+            title="Параметры"
+            description="Структура и длительность"
+          >
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className={labelCls}>Серий</label>
+                <input
+                  type="number"
+                  name="episodes"
+                  defaultValue={drama.episodes ?? ""}
+                  placeholder="16"
+                  className={inputCls}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Сезонов</label>
+                <input
+                  type="number"
+                  name="seasons"
+                  defaultValue={drama.seasons ?? ""}
+                  placeholder="1"
+                  className={inputCls}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Мин / серия</label>
+                <input
+                  type="number"
+                  name="episodeDuration"
+                  defaultValue={drama.episodeDuration ?? ""}
+                  placeholder="70"
+                  className={inputCls}
+                />
+              </div>
+            </div>
+          </FormSection>
+
+          {/* ─── ВЕЩАНИЕ ─── */}
+          <FormSection
+            Icon={Tv}
+            title="Вещание"
+            description="Даты эфира, озвучка и платформы"
+          >
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={labelCls}>Дата начала эфира</label>
+                <input
+                  type="date"
+                  name="airedFrom"
+                  defaultValue={toDateInput(drama.airedFrom)}
+                  className={inputCls}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Дата конца эфира</label>
+                <input
+                  type="date"
+                  name="airedTo"
+                  defaultValue={toDateInput(drama.airedTo)}
+                  className={inputCls}
+                />
+              </div>
+            </div>
+
             <div>
               <label className={labelCls}>Студии озвучки</label>
               <input
                 type="text"
                 name="dubbingStudios"
                 defaultValue={drama.dubbingStudios ?? ""}
-                placeholder="Kinolibrary, AniLibria"
+                placeholder="Kinolibrary, AniLibria, SoftBox"
                 className={inputCls}
               />
+              <p className="text-[11px] text-muted/70 mt-1.5">
+                Через запятую
+              </p>
             </div>
-          </div>
+          </FormSection>
 
-          {/* Даты выхода */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className={labelCls}>Дата начала эфира</label>
-              <input
-                type="date"
-                name="airedFrom"
-                defaultValue={toDateInput(drama.airedFrom)}
-                className={inputCls}
-              />
-            </div>
-            <div>
-              <label className={labelCls}>Дата конца эфира</label>
-              <input
-                type="date"
-                name="airedTo"
-                defaultValue={toDateInput(drama.airedTo)}
-                className={inputCls}
-              />
-            </div>
-          </div>
-
-          {/* Внешние рейтинги */}
-          <div>
-            <label className={labelCls}>Оценки на площадках</label>
+          {/* ─── РЕЙТИНГИ ─── */}
+          <FormSection
+            Icon={Star}
+            title="Внешние рейтинги"
+            description="Оценки с других площадок"
+          >
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <label className={labelCls}>Кинопоиск</label>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  name="ratingKinopoisk"
+                  defaultValue={drama.ratingKinopoisk ?? ""}
+                  placeholder="8.4"
+                  className={inputCls}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>MyDramaList</label>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  name="ratingMDL"
+                  defaultValue={drama.ratingMDL ?? ""}
+                  placeholder="9.2"
+                  className={inputCls}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>IMDb</label>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  name="ratingIMDB"
+                  defaultValue={drama.ratingIMDB ?? ""}
+                  placeholder="8.8"
+                  className={inputCls}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Douban</label>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  name="ratingDouban"
+                  defaultValue={drama.ratingDouban ?? ""}
+                  placeholder="8.1"
+                  className={inputCls}
+                />
+              </div>
+            </div>
+          </FormSection>
+
+          {/* ─── МЕДИА ─── */}
+          <FormSection
+            Icon={Image}
+            title="Медиа и описание"
+            description="Постер и краткое описание сюжета"
+          >
+            <div>
+              <label className={labelCls}>URL постера</label>
               <input
-                type="text"
-                inputMode="decimal"
-                name="ratingKinopoisk"
-                defaultValue={drama.ratingKinopoisk ?? ""}
-                placeholder="Кинопоиск"
-                className={inputCls}
-              />
-              <input
-                type="text"
-                inputMode="decimal"
-                name="ratingMDL"
-                defaultValue={drama.ratingMDL ?? ""}
-                placeholder="MDL"
-                className={inputCls}
-              />
-              <input
-                type="text"
-                inputMode="decimal"
-                name="ratingIMDB"
-                defaultValue={drama.ratingIMDB ?? ""}
-                placeholder="IMDb"
-                className={inputCls}
-              />
-              <input
-                type="text"
-                inputMode="decimal"
-                name="ratingDouban"
-                defaultValue={drama.ratingDouban ?? ""}
-                placeholder="Douban"
+                type="url"
+                name="posterUrl"
+                defaultValue={drama.posterUrl ?? ""}
+                placeholder="https://..."
                 className={inputCls}
               />
             </div>
-          </div>
 
-          {/* Постер */}
-          <div>
-            <label className={labelCls}>URL постера</label>
-            <input
-              type="url"
-              name="posterUrl"
-              defaultValue={drama.posterUrl ?? ""}
-              placeholder="https://..."
-              className={inputCls}
-            />
-          </div>
-
-          {/* Синопсис */}
-          <div>
-            <label className={labelCls}>Синопсис</label>
-            <textarea
-              name="synopsis"
-              defaultValue={drama.synopsis ?? ""}
-              rows={4}
-              className={`${inputCls} resize-y`}
-            />
-          </div>
+            <div>
+              <label className={labelCls}>Синопсис</label>
+              <textarea
+                name="synopsis"
+                defaultValue={drama.synopsis ?? ""}
+                rows={5}
+                placeholder="О чём эта дорама..."
+                className={`${inputCls} resize-y`}
+              />
+            </div>
+          </FormSection>
 
           {error && (
             <p className="text-sm text-red-400 border border-red-500/30 bg-red-500/10 rounded-lg px-3 py-2">
@@ -242,7 +309,8 @@ export function EditDramaForm({
           )}
         </div>
 
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border">
+        {/* Футер модалки */}
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border shrink-0">
           <button
             type="button"
             onClick={onClose}
