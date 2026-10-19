@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CryBadge } from "@/components/CryBadge";
 import {
   Flame,
   Crown,
@@ -13,60 +14,59 @@ import {
   Star,
 } from "lucide-react";
 import { YearHeatmap } from "@/components/YearHeatmap";
-import { CryBadge } from "@/components/CryBadge";
+import { LibraryBar } from "@/components/LibraryBar";
 import { prisma } from "@/lib/prisma";
 import { CURRENT_USER_ID } from "@/lib/current-user";
 
 export default async function HomePage() {
-  // 1. Получаем пользователя
+  // 1. Пользователь
   const user = await prisma.user.findUnique({
     where: { id: CURRENT_USER_ID },
   });
 
-  // 2. Получаем все записи пользователя с дорамами (свежие сверху)
+  // 2. Все записи с дорамами (свежие сверху)
   const entries = await prisma.userDramaEntry.findMany({
     where: { userId: CURRENT_USER_ID },
     include: { drama: true },
     orderBy: { updatedAt: "desc" },
   });
 
-  // --- РАСЧЁТ СТАТИСТИКИ ---
-  const total = entries.length;
+  // --- СТАТИСТИКА ---
   const watchedCount = entries.filter((e) => e.status === "watched").length;
   const plannedCount = entries.filter((e) => e.status === "planned").length;
   const watchingCount = entries.filter((e) => e.status === "watching").length;
+  const onHoldCount = entries.filter((e) => e.status === "on_hold").length;
+  const droppedCount = entries.filter((e) => e.status === "dropped").length;
 
-  // Часы (только для просмотренных: серии * длительность / 60)
+  // Часы (только просмотренные)
   const totalHours = Math.round(
     entries
       .filter((e) => e.status === "watched")
       .reduce((sum, e) => sum + (e.drama.episodes || 0) * (e.drama.episodeDuration || 60), 0) / 60
   );
 
-  // Особое место
   const favoritesCount = entries.filter((e) => e.isFavorite).length;
-  
-  // 3. Недавние отзывы (те, где есть текст отзыва или впечатление)
+
+  // 3. Недавние отзывы
   const recentReviews = entries
     .filter((e) => e.review || e.impression)
     .slice(0, 3);
 
-  // 4. Особое место (с цитатами)
+  // 4. Особое место
   const heartDramas = entries
     .filter((e) => e.isFavorite && e.quote)
     .slice(0, 3);
 
-  // 5. Данные для Heatmap (из дат окончания просмотра)
+  // 5. Heatmap
   const heatmapActivities = entries
     .filter((e) => e.watchedAt)
     .map((e) => ({
-      date: e.watchedAt!.toISOString().slice(0, 10), // YYYY-MM-DD
-      level: Math.min(Math.ceil((e.drama.episodes || 1) / 4), 4), // Условный уровень (1-4)
+      date: e.watchedAt!.toISOString().slice(0, 10),
+      level: Math.min(Math.ceil((e.drama.episodes || 1) / 4), 4),
       episodes: e.drama.episodes || 1,
       dramaTitle: e.drama.title,
     }));
 
-  // Дата регистрации
   const joinDate = user?.createdAt
     ? new Date(user.createdAt).toLocaleDateString("ru-RU", { month: "long", year: "numeric" })
     : "недавно";
@@ -87,25 +87,36 @@ export default async function HomePage() {
       </section>
 
       {/* ─── Статистика ─── */}
-      <section className="grid grid-cols-3 md:grid-cols-6 gap-3">
-        <Stat label="Просмотрено" value={watchedCount} accent />
-        <Stat label="Смотрю" value={watchingCount} />
-        <Stat label="В планах" value={plannedCount} />
-        <Stat label="Часов" value={totalHours} />
-        <Stat label="Особое место" value={favoritesCount} />
-        <Stat label="Номинаций" value={0} />
-      </section>
+      <LibraryBar
+        counts={{
+          watched: watchedCount,
+          watching: watchingCount,
+          planned: plannedCount,
+          on_hold: onHoldCount,
+          dropped: droppedCount,
+        }}
+      />
 
       {/* ─── Активность ─── */}
       <section>
-        <SectionHeader Icon={Flame} title="Активность" href="/stats" count={null} />
+        <SectionHeader
+          Icon={Flame}
+          title="Активность"
+          href="/stats"
+          count={null}
+        />
         <YearHeatmap activities={heatmapActivities} />
       </section>
 
       {/* ─── Особое место ─── */}
       {heartDramas.length > 0 && (
         <section>
-          <SectionHeader Icon={Crown} title="Особое место в сердце" href="/heart" count={favoritesCount} />
+          <SectionHeader
+            Icon={Crown}
+            title="Особое место в сердце"
+            href="/heart"
+            count={favoritesCount}
+          />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {heartDramas.map((entry) => (
               <HeartPreview
@@ -122,7 +133,12 @@ export default async function HomePage() {
       {/* ─── Недавние отзывы ─── */}
       {recentReviews.length > 0 && (
         <section>
-          <SectionHeader Icon={MessageCircle} title="Недавние отзывы" href="/library" count={watchedCount} />
+          <SectionHeader
+            Icon={MessageCircle}
+            title="Недавние отзывы"
+            href="/library"
+            count={watchedCount}
+          />
           <div className="space-y-3">
             {recentReviews.map((entry) => (
               <ReviewPreview
@@ -132,7 +148,10 @@ export default async function HomePage() {
                 rating={entry.rating || 0}
                 cryTag={entry.cryTag || "safe"}
                 excerpt={entry.review || entry.impression || ""}
-                date={new Date(entry.updatedAt).toLocaleDateString("ru-RU", { day: "numeric", month: "short" })}
+                date={new Date(entry.updatedAt).toLocaleDateString("ru-RU", {
+                  day: "numeric",
+                  month: "short",
+                })}
                 posterUrl={entry.drama.posterUrl}
               />
             ))}
@@ -142,7 +161,12 @@ export default async function HomePage() {
 
       {/* ─── Карточка зрителя ─── */}
       <section>
-        <SectionHeader Icon={User} title="Карточка зрителя" href="/me" count={null} />
+        <SectionHeader
+          Icon={User}
+          title="Карточка зрителя"
+          href="/me"
+          count={null}
+        />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <ViewerCard
             Icon={Heart}
@@ -185,22 +209,25 @@ export default async function HomePage() {
 /*  Компоненты                                  */
 /* ──────────────────────────────────────────── */
 
-function Stat({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
-  return (
-    <div className="rounded-xl border border-border bg-surface p-3 text-center">
-      <p className={`text-xl font-bold ${accent ? "text-accent" : ""}`}>{value}</p>
-      <p className="text-[11px] text-muted mt-1 leading-tight">{label}</p>
-    </div>
-  );
-}
-
-function SectionHeader({ Icon, title, href, count }: { Icon: React.ComponentType<{ className?: string }>; title: string; href: string; count: number | null }) {
+function SectionHeader({
+  Icon,
+  title,
+  href,
+  count,
+}: {
+  Icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  href: string;
+  count: number | null;
+}) {
   return (
     <div className="flex items-center justify-between mb-4">
       <h2 className="text-lg font-semibold flex items-center gap-2">
         <Icon className="w-5 h-5 text-accent" />
         <span>{title}</span>
-        {count !== null && <span className="text-sm text-muted font-normal">({count})</span>}
+        {count !== null && (
+          <span className="text-sm text-muted font-normal">({count})</span>
+        )}
       </h2>
       <Link href={href} className="text-sm text-accent hover:underline shrink-0">
         все →
@@ -209,7 +236,15 @@ function SectionHeader({ Icon, title, href, count }: { Icon: React.ComponentType
   );
 }
 
-function HeartPreview({ title, year, quote }: { title: string; year: number; quote: string }) {
+function HeartPreview({
+  title,
+  year,
+  quote,
+}: {
+  title: string;
+  year: number;
+  quote: string;
+}) {
   return (
     <div className="rounded-2xl border border-border bg-surface p-4 border-l-4 border-l-yellow-400/70">
       <div className="flex items-baseline justify-between mb-2">
@@ -226,20 +261,42 @@ function HeartPreview({ title, year, quote }: { title: string; year: number; quo
   );
 }
 
-function ReviewPreview({ title, year, rating, cryTag, excerpt, date, posterUrl }: { title: string; year: number; rating: number; cryTag: string; excerpt: string; date: string; posterUrl?: string | null }) {
+function ReviewPreview({
+  title,
+  year,
+  rating,
+  cryTag,
+  excerpt,
+  date,
+  posterUrl,
+}: {
+  title: string;
+  year: number;
+  rating: number;
+  cryTag: string;
+  excerpt: string;
+  date: string;
+  posterUrl?: string | null;
+}) {
   return (
     <div className="rounded-2xl border border-border bg-surface p-4 flex gap-4">
       <div className="w-16 h-24 rounded-lg overflow-hidden bg-accent-soft/40 flex items-center justify-center text-2xl shrink-0">
         {posterUrl ? (
-          <img src={posterUrl} alt={title} className="w-full h-full object-cover" />
+          <img
+            src={posterUrl}
+            alt={title}
+            className="w-full h-full object-cover"
+          />
         ) : (
           <span className="text-muted">🎬</span>
         )}
       </div>
+
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-2 flex-wrap">
           <h3 className="font-semibold">
-            {title} <span className="text-muted font-normal text-sm">({year})</span>
+            {title}{" "}
+            <span className="text-muted font-normal text-sm">({year})</span>
           </h3>
           <div className="flex items-center gap-2 shrink-0">
             <span className="flex items-center gap-1 text-sm text-yellow-400">
@@ -258,9 +315,27 @@ function ReviewPreview({ title, year, rating, cryTag, excerpt, date, posterUrl }
   );
 }
 
-function ViewerCard({ column, tone, items, Icon }: { column: string; tone: "like" | "dislike" | "note"; items: string[]; Icon: React.ComponentType<{ className?: string }>; }) {
-  const accent = { like: "text-green-400", dislike: "text-red-400", note: "text-muted" }[tone];
-  const BulletIcon = { like: Check, dislike: X, note: Circle }[tone];
+function ViewerCard({
+  column,
+  tone,
+  items,
+  Icon,
+}: {
+  column: string;
+  tone: "like" | "dislike" | "note";
+  items: string[];
+  Icon: React.ComponentType<{ className?: string }>;
+}) {
+  const accent = {
+    like: "text-green-400",
+    dislike: "text-red-400",
+    note: "text-muted",
+  }[tone];
+  const BulletIcon = {
+    like: Check,
+    dislike: X,
+    note: Circle,
+  }[tone];
 
   return (
     <div className="rounded-2xl border border-border bg-surface p-4">
