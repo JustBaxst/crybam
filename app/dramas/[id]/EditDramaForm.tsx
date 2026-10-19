@@ -13,6 +13,7 @@ import {
 import { updateDrama } from "./actions";
 import { FormSection } from "@/components/FormSection";
 import { useLockBodyScroll } from "@/lib/use-lock-body-scroll";
+import { COUNTRIES } from "@/lib/constants";
 
 type DramaData = {
   title: string;
@@ -128,15 +129,18 @@ export function EditDramaForm({
                   className={inputCls}
                 />
               </div>
-              <div>
+                            <div>
                 <label className={labelCls}>Страна</label>
-                <input
-                  type="text"
+                <select
                   name="country"
                   defaultValue={drama.country ?? ""}
-                  placeholder="Южная Корея"
                   className={inputCls}
-                />
+                >
+                  <option value="">— не выбрана —</option>
+                  {COUNTRIES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
               </div>
             </div>
           </FormSection>

@@ -5,6 +5,7 @@ import { Save, Film, Sliders, Tv, Star, Image } from "lucide-react";
 import { createDrama } from "../../actions";
 import { FormSection } from "@/components/FormSection";
 import Link from "next/link";
+import { COUNTRIES } from "@/lib/constants";
 
 export function NewDramaForm() {
   const [isPending, startTransition] = useTransition();
@@ -66,16 +67,20 @@ export function NewDramaForm() {
               placeholder="2020"
               className={inputCls}
             />
-          </div>
-          <div>
-            <label className={labelCls}>Страна</label>
-            <input
-              type="text"
-              name="country"
-              placeholder="Южная Корея"
-              className={inputCls}
-            />
-          </div>
+                        <div>
+                <label className={labelCls}>Страна</label>
+                <select
+                  name="country"
+                  defaultValue=""
+                  className={inputCls}
+                >
+                  <option value="">— не выбрана —</option>
+                  {COUNTRIES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+        </div>
         </div>
       </FormSection>
 

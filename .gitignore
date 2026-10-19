@@ -33,3 +33,8 @@ tsconfig.tsbuildinfo
 .windsurf/
 AGENTS.md
 skills-lock.json
+
+# Личные данные и временные скрипты
+dramas.txt
+import-dramas.mjs
+check-db.mjs
