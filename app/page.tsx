@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { CryBadge } from "@/components/CryBadge";
 import {
   Flame,
   Crown,
@@ -14,9 +13,64 @@ import {
   Star,
 } from "lucide-react";
 import { YearHeatmap } from "@/components/YearHeatmap";
-import { LibraryBar } from "@/components/LibraryBar";
+import { CryBadge } from "@/components/CryBadge";
+import { prisma } from "@/lib/prisma";
+import { CURRENT_USER_ID } from "@/lib/current-user";
 
-export default function HomePage() {
+export default async function HomePage() {
+  // 1. Получаем пользователя
+  const user = await prisma.user.findUnique({
+    where: { id: CURRENT_USER_ID },
+  });
+
+  // 2. Получаем все записи пользователя с дорамами (свежие сверху)
+  const entries = await prisma.userDramaEntry.findMany({
+    where: { userId: CURRENT_USER_ID },
+    include: { drama: true },
+    orderBy: { updatedAt: "desc" },
+  });
+
+  // --- РАСЧЁТ СТАТИСТИКИ ---
+  const total = entries.length;
+  const watchedCount = entries.filter((e) => e.status === "watched").length;
+  const plannedCount = entries.filter((e) => e.status === "planned").length;
+  const watchingCount = entries.filter((e) => e.status === "watching").length;
+
+  // Часы (только для просмотренных: серии * длительность / 60)
+  const totalHours = Math.round(
+    entries
+      .filter((e) => e.status === "watched")
+      .reduce((sum, e) => sum + (e.drama.episodes || 0) * (e.drama.episodeDuration || 60), 0) / 60
+  );
+
+  // Особое место
+  const favoritesCount = entries.filter((e) => e.isFavorite).length;
+  
+  // 3. Недавние отзывы (те, где есть текст отзыва или впечатление)
+  const recentReviews = entries
+    .filter((e) => e.review || e.impression)
+    .slice(0, 3);
+
+  // 4. Особое место (с цитатами)
+  const heartDramas = entries
+    .filter((e) => e.isFavorite && e.quote)
+    .slice(0, 3);
+
+  // 5. Данные для Heatmap (из дат окончания просмотра)
+  const heatmapActivities = entries
+    .filter((e) => e.watchedAt)
+    .map((e) => ({
+      date: e.watchedAt!.toISOString().slice(0, 10), // YYYY-MM-DD
+      level: Math.min(Math.ceil((e.drama.episodes || 1) / 4), 4), // Условный уровень (1-4)
+      episodes: e.drama.episodes || 1,
+      dramaTitle: e.drama.title,
+    }));
+
+  // Дата регистрации
+  const joinDate = user?.createdAt
+    ? new Date(user.createdAt).toLocaleDateString("ru-RU", { month: "long", year: "numeric" })
+    : "недавно";
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-10 space-y-12">
       {/* ─── Приветствие ─── */}
@@ -25,138 +79,102 @@ export default function HomePage() {
           🎬
         </div>
         <div>
-          <h1 className="text-2xl font-bold">Привет, Артём</h1>
+          <h1 className="text-2xl font-bold">Привет, {user?.name || "Артём"}</h1>
           <p className="text-muted text-sm mt-1">
-            в дневнике с октября 2026 · 31 просмотрено · 34 в планах
+            в дневнике с {joinDate} · {watchedCount} просмотрено · {plannedCount} в планах
           </p>
         </div>
       </section>
 
       {/* ─── Статистика ─── */}
-   <LibraryBar
-  counts={{
-    watched: 31,
-    watching: 6,
-    planned: 34,
-    on_hold: 5,
-    dropped: 5,
-  }}
-/>
+      <section className="grid grid-cols-3 md:grid-cols-6 gap-3">
+        <Stat label="Просмотрено" value={watchedCount} accent />
+        <Stat label="Смотрю" value={watchingCount} />
+        <Stat label="В планах" value={plannedCount} />
+        <Stat label="Часов" value={totalHours} />
+        <Stat label="Особое место" value={favoritesCount} />
+        <Stat label="Номинаций" value={0} />
+      </section>
 
       {/* ─── Активность ─── */}
       <section>
-        <SectionHeader
-          Icon={Flame}
-          title="Активность"
-          href="/stats"
-          count={null}
-        />
-        <YearHeatmap activities={demoActivities} />
+        <SectionHeader Icon={Flame} title="Активность" href="/stats" count={null} />
+        <YearHeatmap activities={heatmapActivities} />
       </section>
 
       {/* ─── Особое место ─── */}
-      <section>
-        <SectionHeader
-          Icon={Crown}
-          title="Особое место в сердце"
-          href="/heart"
-          count={7}
-        />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <HeartPreview
-            title="Мышь"
-            year={2021}
-            quote="Дорама, которая даёт тебе шанс побыть детективом, но как бы ты ни старался, ответы ты получишь лишь в конце"
-          />
-          <HeartPreview
-            title="Отель Дель Луна"
-            year={2019}
-            quote="Желаю всем найти такого человека, которого хотелось бы любить спустя тысячелетия"
-          />
-          <HeartPreview
-            title="Псих, но всё в порядке"
-            year={2020}
-            quote="Многое хотелось бы сказать, но скажу лишь одно: я ОБОЖАЮ таких девушек, как главная героиня"
-          />
-        </div>
-      </section>
+      {heartDramas.length > 0 && (
+        <section>
+          <SectionHeader Icon={Crown} title="Особое место в сердце" href="/heart" count={favoritesCount} />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {heartDramas.map((entry) => (
+              <HeartPreview
+                key={entry.id}
+                title={entry.drama.title}
+                year={entry.drama.year || 0}
+                quote={entry.quote || ""}
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ─── Недавние отзывы ─── */}
-      <section>
-        <SectionHeader
-          Icon={MessageCircle}
-          title="Недавние отзывы"
-          href="/library"
-          count={31}
-        />
-        <div className="space-y-3">
-          <ReviewPreview
-            title="Жена принца XXI века"
-            year={2026}
-            rating={10}
-            cryTag="safe"
-            excerpt="Вы такого не видели. Короли и королевы, принцы и регенты, а через дорогу наш привычный XXI век. Я обожаю эту актрису — она не играет роль, она играет саму себя. Это было волшебно."
-            date="12 окт"
-          />
-          <ReviewPreview
-            title="Игра: Стремление к нулю"
-            year={2020}
-            rating={9}
-            cryTag="bittersweet"
-            excerpt="Никогда бы не подумал, что знать смерть других, но не знать как умрёт любимая — станет для меня проклятием."
-            date="8 окт"
-          />
-          <ReviewPreview
-            title="Силачка До Бон Сун"
-            year={2017}
-            rating={10}
-            cryTag="bittersweet"
-            excerpt="Комично и романтично. Хотите вспомнить себя, когда вы были влюблённым подростком — понаблюдайте за главным героем."
-            date="4 окт"
-          />
-        </div>
-      </section>
+      {recentReviews.length > 0 && (
+        <section>
+          <SectionHeader Icon={MessageCircle} title="Недавние отзывы" href="/library" count={watchedCount} />
+          <div className="space-y-3">
+            {recentReviews.map((entry) => (
+              <ReviewPreview
+                key={entry.id}
+                title={entry.drama.title}
+                year={entry.drama.year || 0}
+                rating={entry.rating || 0}
+                cryTag={entry.cryTag || "safe"}
+                excerpt={entry.review || entry.impression || ""}
+                date={new Date(entry.updatedAt).toLocaleDateString("ru-RU", { day: "numeric", month: "short" })}
+                posterUrl={entry.drama.posterUrl}
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ─── Карточка зрителя ─── */}
       <section>
-        <SectionHeader
-          Icon={User}
-          title="Карточка зрителя"
-          href="/me"
-          count={null}
-        />
+        <SectionHeader Icon={User} title="Карточка зрителя" href="/me" count={null} />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <ViewerCard
-  Icon={Heart}
-  column="Любит"
-  tone="like"
-  items={[
-    "Дорамы, оставляющие пространство для выводов",
-    "Сюжеты, где нужно ставить на паузу и вести расследование",
-    "Эксцентричные, яркие главные героини",
-    "Микс жанров: романтика + детектив + фэнтези",
-  ]}
-/>
-<ViewerCard
-  Icon={Ban}
-  column="Не заходит"
-  tone="dislike"
-  items={[
-    "Скучные, вялые сюжеты",
-    "Азиатский гипертрофированный юмор",
-    "Недостаток романтики там, где она уместна",
-  ]}
-/>
-<ViewerCard
-  Icon={StickyNote}
-  column="Отметки"
-  tone="note"
-  items={[
-    "Иногда выбирает дни, чтобы поплакать",
-    "Любит обсуждать и разгадывать сюжет",
-    "Пишет отзывы на эмоциях, без лишних слов, но с сутью",
-  ]}
-/>
+            Icon={Heart}
+            column="Любит"
+            tone="like"
+            items={[
+              "Дорамы, оставляющие пространство для выводов",
+              "Сюжеты, где нужно ставить на паузу и вести расследование",
+              "Эксцентричные, яркие главные героини",
+              "Микс жанров: романтика + детектив + фэнтези",
+            ]}
+          />
+          <ViewerCard
+            Icon={Ban}
+            column="Не заходит"
+            tone="dislike"
+            items={[
+              "Скучные, вялые сюжеты",
+              "Азиатский гипертрофированный юмор",
+              "Недостаток романтики там, где она уместна",
+            ]}
+          />
+          <ViewerCard
+            Icon={StickyNote}
+            column="Отметки"
+            tone="note"
+            items={[
+              "Иногда выбирает дни, чтобы поплакать",
+              "Любит обсуждать и разгадывать сюжет",
+              "Пишет отзывы на эмоциях, без лишних слов, но с сутью",
+            ]}
+          />
         </div>
       </section>
     </div>
@@ -167,15 +185,7 @@ export default function HomePage() {
 /*  Компоненты                                  */
 /* ──────────────────────────────────────────── */
 
-function Stat({
-  label,
-  value,
-  accent,
-}: {
-  label: string;
-  value: number;
-  accent?: boolean;
-}) {
+function Stat({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
   return (
     <div className="rounded-xl border border-border bg-surface p-3 text-center">
       <p className={`text-xl font-bold ${accent ? "text-accent" : ""}`}>{value}</p>
@@ -184,25 +194,13 @@ function Stat({
   );
 }
 
-function SectionHeader({
-  Icon,
-  title,
-  href,
-  count,
-}: {
-  Icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  href: string;
-  count: number | null;
-}) {
+function SectionHeader({ Icon, title, href, count }: { Icon: React.ComponentType<{ className?: string }>; title: string; href: string; count: number | null }) {
   return (
     <div className="flex items-center justify-between mb-4">
       <h2 className="text-lg font-semibold flex items-center gap-2">
         <Icon className="w-5 h-5 text-accent" />
         <span>{title}</span>
-        {count !== null && (
-          <span className="text-sm text-muted font-normal">({count})</span>
-        )}
+        {count !== null && <span className="text-sm text-muted font-normal">({count})</span>}
       </h2>
       <Link href={href} className="text-sm text-accent hover:underline shrink-0">
         все →
@@ -211,15 +209,7 @@ function SectionHeader({
   );
 }
 
-function HeartPreview({
-  title,
-  year,
-  quote,
-}: {
-  title: string;
-  year: number;
-  quote: string;
-}) {
+function HeartPreview({ title, year, quote }: { title: string; year: number; quote: string }) {
   return (
     <div className="rounded-2xl border border-border bg-surface p-4 border-l-4 border-l-yellow-400/70">
       <div className="flex items-baseline justify-between mb-2">
@@ -236,49 +226,26 @@ function HeartPreview({
   );
 }
 
-function ReviewPreview({
-  title,
-  year,
-  rating,
-  cryTag,
-  excerpt,
-  date,
-  posterUrl,
-}: {
-  title: string;
-  year: number;
-  rating: number;
-  cryTag: string;
-  excerpt: string;
-  date: string;
-  posterUrl?: string;
-}) {
+function ReviewPreview({ title, year, rating, cryTag, excerpt, date, posterUrl }: { title: string; year: number; rating: number; cryTag: string; excerpt: string; date: string; posterUrl?: string | null }) {
   return (
     <div className="rounded-2xl border border-border bg-surface p-4 flex gap-4">
-      {/* Постер */}
       <div className="w-16 h-24 rounded-lg overflow-hidden bg-accent-soft/40 flex items-center justify-center text-2xl shrink-0">
         {posterUrl ? (
-          <img
-            src={posterUrl}
-            alt={title}
-            className="w-full h-full object-cover"
-          />
+          <img src={posterUrl} alt={title} className="w-full h-full object-cover" />
         ) : (
           <span className="text-muted">🎬</span>
         )}
       </div>
-
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-2 flex-wrap">
           <h3 className="font-semibold">
-            {title}{" "}
-            <span className="text-muted font-normal text-sm">({year})</span>
+            {title} <span className="text-muted font-normal text-sm">({year})</span>
           </h3>
           <div className="flex items-center gap-2 shrink-0">
             <span className="flex items-center gap-1 text-sm text-yellow-400">
-  <Star className="w-4 h-4 fill-current" />
-  {rating}
-</span>
+              <Star className="w-4 h-4 fill-current" />
+              {rating}
+            </span>
             <CryBadge tag={cryTag} size="sm" />
             <span className="text-muted text-xs">{date}</span>
           </div>
@@ -291,27 +258,9 @@ function ReviewPreview({
   );
 }
 
-function ViewerCard({
-  column,
-  tone,
-  items,
-  Icon,
-}: {
-  column: string;
-  tone: "like" | "dislike" | "note";
-  items: string[];
-  Icon: React.ComponentType<{ className?: string }>;
-}) {
-  const accent = {
-    like: "text-green-400",
-    dislike: "text-red-400",
-    note: "text-muted",
-  }[tone];
-  const BulletIcon = {
-    like: Check,
-    dislike: X,
-    note: Circle,
-  }[tone];
+function ViewerCard({ column, tone, items, Icon }: { column: string; tone: "like" | "dislike" | "note"; items: string[]; Icon: React.ComponentType<{ className?: string }>; }) {
+  const accent = { like: "text-green-400", dislike: "text-red-400", note: "text-muted" }[tone];
+  const BulletIcon = { like: Check, dislike: X, note: Circle }[tone];
 
   return (
     <div className="rounded-2xl border border-border bg-surface p-4">
@@ -330,53 +279,3 @@ function ViewerCard({
     </div>
   );
 }
-
-
-/* ──────────────────────────────────────────── */
-/*  Демо-данные                                 */
-/* ──────────────────────────────────────────── */
-
-const demoActivities = [
-  // ─── 2024 ───
-  { date: "2024-02-14", level: 3, episodes: 4, dramaTitle: "Мышь" },
-  { date: "2024-03-08", level: 2, episodes: 3, dramaTitle: "Сигнал" },
-  { date: "2024-04-20", level: 4, episodes: 6, dramaTitle: "Монстр" },
-  { date: "2024-05-15", level: 2, episodes: 3, dramaTitle: "Тоннель" },
-  { date: "2024-06-10", level: 1, episodes: 2, dramaTitle: "Меморист" },
-  { date: "2024-08-05", level: 3, episodes: 4, dramaTitle: "Болтун" },
-  { date: "2024-09-22", level: 2, episodes: 3, dramaTitle: "Кайрос" },
-  { date: "2024-11-11", level: 4, episodes: 5, dramaTitle: "19 этаж" },
-  { date: "2024-12-25", level: 1, episodes: 2, dramaTitle: "Начало" },
-
-  // ─── 2025 ───
-  { date: "2025-01-07", level: 2, episodes: 3, dramaTitle: "Отель Дель Луна" },
-  { date: "2025-02-14", level: 4, episodes: 5, dramaTitle: "Псих, но всё в порядке" },
-  { date: "2025-03-20", level: 3, episodes: 4, dramaTitle: "Киберкраш" },
-  { date: "2025-04-05", level: 2, episodes: 3, dramaTitle: "Силачка До Бон Сун" },
-  { date: "2025-05-18", level: 4, episodes: 6, dramaTitle: "Что случилось с секретарём Ким?" },
-  { date: "2025-06-30", level: 2, episodes: 3, dramaTitle: "Король земли" },
-  { date: "2025-08-12", level: 3, episodes: 4, dramaTitle: "Деловое предложение" },
-  { date: "2025-09-25", level: 2, episodes: 3, dramaTitle: "Мой демон" },
-  { date: "2025-10-10", level: 4, episodes: 5, dramaTitle: "Жена принца XXI века" },
-  { date: "2025-11-20", level: 1, episodes: 2, dramaTitle: "С сегодняшнего дня я человек" },
-  { date: "2025-12-15", level: 3, episodes: 4, dramaTitle: "Игра: Стремление к нулю" },
-
-  // ─── 2026 (текущий) ───
-  { date: "2026-01-05", level: 1, episodes: 2, dramaTitle: "Мышь" },
-  { date: "2026-01-12", level: 2, episodes: 3, dramaTitle: "Мышь" },
-  { date: "2026-01-19", level: 1, episodes: 1, dramaTitle: "Сигнал" },
-  { date: "2026-02-03", level: 3, episodes: 4, dramaTitle: "Сигнал" },
-  { date: "2026-02-10", level: 2, episodes: 2, dramaTitle: "Тоннель" },
-  { date: "2026-03-08", level: 4, episodes: 6, dramaTitle: "Монстр" },
-  { date: "2026-03-15", level: 2, episodes: 3, dramaTitle: "Монстр" },
-  { date: "2026-04-18", level: 3, episodes: 4, dramaTitle: "Болтун" },
-  { date: "2026-05-10", level: 2, episodes: 3, dramaTitle: "Игра: Стремление к нулю" },
-  { date: "2026-07-12", level: 4, episodes: 5, dramaTitle: "19 этаж" },
-  { date: "2026-08-05", level: 3, episodes: 4, dramaTitle: "Отель Дель Луна" },
-  { date: "2026-08-22", level: 2, episodes: 2, dramaTitle: "Отель Дель Луна" },
-  { date: "2026-09-10", level: 1, episodes: 2, dramaTitle: "Псих, но всё в порядке" },
-  { date: "2026-09-28", level: 3, episodes: 4, dramaTitle: "Киберкраш" },
-  { date: "2026-10-04", level: 2, episodes: 3, dramaTitle: "Силачка До Бон Сун" },
-  { date: "2026-10-08", level: 3, episodes: 4, dramaTitle: "Силачка До Бон Сун" },
-  { date: "2026-10-12", level: 4, episodes: 5, dramaTitle: "Жена принца XXI века" },
-];
