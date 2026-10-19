@@ -177,7 +177,7 @@ export default async function DramaPage({ params }: { params: Params }) {
                   {plural(drama.episodes, "серия", "серии", "серий")}
                 </span>
               )}
-              {drama.seasons && drama.seasons > 1 && (
+              {drama.seasons && (
                 <span className="flex items-center gap-1.5">
                   <Video className="w-4 h-4 text-accent" />
                   {drama.seasons}{" "}
