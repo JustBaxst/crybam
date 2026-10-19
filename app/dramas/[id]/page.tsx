@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EditEntryButton } from "./EditEntryButton";
+import { PosterImage } from "@/components/PosterImage";
 import {
   ArrowLeft,
   Star,

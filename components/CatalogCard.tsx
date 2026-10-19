@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Star, Calendar, MapPin } from "lucide-react";
+import { PosterImage } from "@/components/PosterImage";
 
 type CatalogCardProps = {
   dramaId: number;
@@ -30,17 +31,9 @@ export function CatalogCard({
       href={`/dramas/${dramaId}`}
       className="rounded-xl overflow-hidden border border-border bg-surface hover:border-accent/50 transition-colors duration-200 flex flex-col"
     >
-      {/* Постер */}
-      <div className="relative aspect-2/3 flex items-center justify-center text-4xl bg-accent-soft">
-        {posterUrl ? (
-          <img
-            src={posterUrl}
-            alt={title}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <span className="text-muted">🎬</span>
-        )}
+            {/* Постер */}
+      <div className="relative aspect-2/3 bg-accent-soft">
+        <PosterImage posterUrl={posterUrl ?? null} title={title} year={year} />
 
         {rating != null && (
           <div className="absolute top-2 left-2 inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full border border-border bg-background/80 font-medium">
