@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EditEntryButton } from "./EditEntryButton";
+import { AlternativeTitles } from "./AlternativeTitles";
 import { PosterImage } from "@/components/PosterImage";
 import {
   ArrowLeft,
@@ -129,23 +130,8 @@ export default async function DramaPage({ params }: { params: Params }) {
         <div className="flex-1 min-w-0">
           <h1 className="text-3xl font-bold leading-tight">{mainTitle}</h1>
 
-          {altTitles.length > 0 && (
-            <div className="mt-3 space-y-2">
-              {altTitles.map((t) => (
-                <div
-                  key={t.id}
-                  className="flex items-center gap-2 text-sm text-muted"
-                >
-                  <span>{t.title}</span>
-                  {t.language && t.language !== "unknown" && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded border border-border bg-surface text-muted uppercase tracking-wider leading-none">
-                      {t.language}
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
+                    {/* Другие названия */}
+          <AlternativeTitles titles={altTitles} />
 
           {/* Совет редактора (если записи нет) */}
           {!entry && isCryTag(drama.curatorCryTag) && (

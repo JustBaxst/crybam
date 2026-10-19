@@ -24,15 +24,23 @@ const mobileNavItems = [
   { href: "/settings",          label: "Настройки" },
 ];
 
-export function Header() {
+type HeaderProps = {
+  user: {
+    name: string;
+    role: string;
+  } | null;
+};
+
+export function Header({ user }: HeaderProps) {  // ← ДОБАВЛЕНО user
   const [mobileOpen, setMobileOpen] = useState(false);
+  const isAdmin = user?.role === "admin" || user?.role === "moderator"; // ← ДОБАВЛЕНО
 
   return (
     <header className="border-b border-border bg-surface/60 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 md:px-6 py-3 flex items-center gap-3">
         <Link href="/" className="flex items-center gap-2 text-lg font-bold text-accent shrink-0">
           <Clapperboard className="w-5 h-5" />
-          <span className="hidden sm:inline">DramaTracker</span>
+          <span className="hidden sm:inline">Crybam</span>
         </Link>
 
         <div className="hidden md:block">
@@ -55,16 +63,18 @@ export function Header() {
           </div>
 
           <div className="hidden md:flex items-center gap-2">
-            <Link
-  href="/admin"
-  className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border hover:border-accent/40 transition-colors text-sm text-accent font-medium"
-  aria-label="Админ-панель"
-  title="Админ-панель"
->
-  <Shield className="w-4 h-4" />
-  <span className="hidden lg:inline">Админ-панель</span>
-</Link>
-            <UserMenu />
+            {isAdmin && (  
+              <Link
+                href="/admin"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border hover:border-accent/40 transition-colors text-sm text-accent font-medium"
+                aria-label="Админ-панель"
+                title="Админ-панель"
+              >
+                <Shield className="w-4 h-4" />
+                <span className="hidden lg:inline">Админ-панель</span>
+              </Link>
+            )}  
+            <UserMenu user={user} /> 
             <AppearanceMenu />
           </div>
 

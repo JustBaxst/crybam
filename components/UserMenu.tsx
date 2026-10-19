@@ -26,9 +26,14 @@ const userSections = [
   { href: "/graph",         Icon: Network,    label: "Граф связей",       hint: "Визуализация" },
 ];
 
-const USER_NAME = "Артём"; // позже подтянем из базы
+type UserMenuProps = {
+  user: {
+    name: string;
+    role: string;
+  } | null;
+};
 
-export function UserMenu() {
+export function UserMenu({ user }: UserMenuProps) {  // ← ДОБАВЛЕНО user
   const [open, setOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -64,7 +69,9 @@ export function UserMenu() {
         <span className="w-7 h-7 rounded-md bg-accent-soft flex items-center justify-center">
           <User className="w-4 h-4 text-accent" />
         </span>
-        <span className="hidden md:inline max-w-25 truncate">{USER_NAME}</span>
+        <span className="hidden md:inline max-w-25 truncate">
+          {user?.name ?? "Гость"}  {/* ← ИЗМЕНЕНО: имя из базы */}
+        </span>
         <ChevronDown className="w-3.5 h-3.5 text-muted" />
       </button>
 
