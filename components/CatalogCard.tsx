@@ -23,17 +23,16 @@ export function CatalogCard({
   ratingIMDB,
   genres,
 }: CatalogCardProps) {
-  // Показываем лучший из доступных рейтингов
   const rating = ratingKinopoisk ?? ratingIMDB ?? null;
 
   return (
     <Link
       href={`/dramas/${dramaId}`}
-      className="rounded-xl overflow-hidden border border-border bg-surface hover:border-accent/50 transition-colors duration-200 flex flex-col"
+      className="rounded-xl overflow-hidden border border-border bg-surface hover:border-accent/50 transition-colors duration-200 flex flex-col h-full" // ← ДОБАВЛЕНО h-full
     >
-            {/* Постер */}
-      <div className="relative aspect-2/3 bg-accent-soft">
-        <PosterImage posterUrl={posterUrl ?? null} title={title} year={year} />
+      {/* Постер */}
+      <div className="relative aspect-2/3 flex items-center justify-center bg-accent-soft">
+        <PosterImage posterUrl={posterUrl} title={title} year={year} />
 
         {rating != null && (
           <div className="absolute top-2 left-2 inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full border border-border bg-background/80 font-medium">
@@ -46,7 +45,7 @@ export function CatalogCard({
       </div>
 
       {/* Информация */}
-      <div className="p-3 flex flex-col flex-1">
+      <div className="p-3 flex flex-col flex-1"> {/* ← ДОБАВЛЕНО flex-1 */}
         <h3 className="font-semibold text-sm leading-tight line-clamp-2 min-h-[2.4em]">
           {title}
         </h3>
@@ -66,23 +65,28 @@ export function CatalogCard({
           )}
         </div>
 
-        {genres.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2 pt-2 border-t border-border">
-            {genres.slice(0, 3).map((g) => (
-              <span
-                key={g}
-                className="text-[10px] px-1.5 py-0.5 rounded-full border border-border text-muted"
-              >
-                {g}
-              </span>
-            ))}
-            {genres.length > 3 && (
-              <span className="text-[10px] text-muted px-1.5 py-0.5">
-                +{genres.length - 3}
-              </span>
-            )}
-          </div>
-        )}
+        {/* Теги прижимаются к низу */}
+        <div className="mt-auto pt-2"> {/* ← ДОБАВЛЕНО mt-auto */}
+          {genres.length > 0 ? (
+            <div className="flex flex-wrap gap-1">
+              {genres.slice(0, 3).map((g) => (
+                <span
+                  key={g}
+                  className="text-[10px] px-1.5 py-0.5 rounded-full border border-border text-muted"
+                >
+                  {g}
+                </span>
+              ))}
+              {genres.length > 3 && (
+                <span className="text-[10px] text-muted px-1.5 py-0.5">
+                  +{genres.length - 3}
+                </span>
+              )}
+            </div>
+          ) : (
+            <div className="min-h-5" /> // Пустой блок-заглушка, чтобы высота не прыгала
+          )}
+        </div>
       </div>
     </Link>
   );
