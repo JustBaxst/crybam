@@ -2,15 +2,16 @@ import { Search, Plus } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { CatalogCard } from "@/components/CatalogCard";
 
-type SearchParams = Promise<{ q?: string }>;
+type SearchParams = Promise<{ q?: string; sort?: string }>; 
 
 export default async function DramasCatalogPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const { q } = await searchParams;
+  const { q, sort } = await searchParams; 
   const query = (q ?? "").trim();
+  const currentSort = sort || "year_desc";
 
   const dramas = await prisma.drama.findMany({
 where: query
@@ -28,7 +29,12 @@ where: query
     include: {
       genres: { include: { genre: true } },
     },
-    orderBy: [{ year: "desc" }, { title: "asc" }],
+    orderBy: 
+      currentSort === "rating_desc" 
+        ? [{ ratingKinopoisk: "desc" }, { ratingIMDB: "desc" }] 
+        : currentSort === "title_asc" 
+        ? [{ title: "asc" }] 
+        : [{ year: "desc" }, { title: "asc" }], // year_desc
   });
 
   return (
@@ -51,6 +57,30 @@ where: query
               </>
             )}
           </p>
+        </div>
+      </div>
+
+            {/* Сортировка */}
+      <div className="flex items-center gap-2 mb-6 text-sm">
+        <span className="text-muted">Сортировка:</span>
+        <div className="flex items-center gap-1.5">
+          {[
+            { key: "year_desc", label: "По году" },
+            { key: "rating_desc", label: "По рейтингу" },
+            { key: "title_asc", label: "По алфавиту" },
+          ].map((s) => (
+            <a
+              key={s.key}
+              href={`/dramas?${query ? `q=${encodeURIComponent(query)}&` : ""}sort=${s.key}`}
+              className={`px-3 py-1.5 rounded-lg border transition-colors ${
+                currentSort === s.key
+                  ? "bg-accent text-white border-accent"
+                  : "border-border hover:border-accent/40 text-muted hover:text-foreground"
+              }`}
+            >
+              {s.label}
+            </a>
+          ))}
         </div>
       </div>
 

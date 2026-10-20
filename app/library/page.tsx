@@ -84,6 +84,7 @@ export default async function LibraryPage({
   cryTag={isCryTag(entry.cryTag) ? entry.cryTag : undefined}
   status={entry.status}
   impression={entry.impression}
+  posterUrl={entry.drama.posterUrl}
 />
           ))}
         </div>
@@ -99,6 +100,7 @@ export default async function LibraryPage({
               rating={entry.rating ?? 0}
               cryTag={isCryTag(entry.cryTag) ? entry.cryTag : undefined}
               status={entry.status}
+              posterUrl={entry.drama.posterUrl}
             />
           ))}
         </div>

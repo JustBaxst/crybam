@@ -13,7 +13,7 @@ type DramaCardProps = {
   cryTag?: CryTag;
   status?: string;
   impression?: string | null;
-  posterUrl?: string;
+    posterUrl?: string | null;
 };
 
 export function DramaCard({
@@ -33,8 +33,8 @@ export function DramaCard({
       className="rounded-xl overflow-hidden border border-border bg-surface hover:border-accent/50 transition-colors duration-200 flex flex-col"
     >
             {/* Постер */}
-      <div className="relative aspect-2/3 bg-accent-soft">
-        <PosterImage posterUrl={posterUrl ?? null} title={title} year={year} />
+      <div className="relative aspect-[2/3] bg-accent-soft overflow-hidden">
+  <PosterImage posterUrl={posterUrl ?? null} title={title} year={year} className="absolute inset-0" />
 
         <div className="absolute top-2 left-2 inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full border border-border bg-background/80 font-medium">
           <Star className="w-3.5 h-3.5 fill-current text-yellow-400 shrink-0" />
