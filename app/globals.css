@@ -135,3 +135,20 @@ svg.lucide {
   height: 1em;
   vertical-align: -0.125em;
 }
+
+/* Кастомный скроллбар */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent; 
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border); /* Серый по умолчанию */
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+/* Когда карусель в движении (свайп или инерция) */
+.custom-scrollbar.is-scrolling::-webkit-scrollbar-thumb {
+  background: var(--accent); /* Акцентный цвет */
+}

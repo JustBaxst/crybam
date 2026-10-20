@@ -12,11 +12,14 @@ import {
   Ban,
   StickyNote,
   Star,
+  MapPin,
+  Cake,
 } from "lucide-react";
 import { YearHeatmap } from "@/components/YearHeatmap";
 import { LibraryBar } from "@/components/LibraryBar";
 import { prisma } from "@/lib/prisma";
 import { CURRENT_USER_ID } from "@/lib/current-user";
+import { HorizontalScroll } from "@/components/HorizontalScroll";
 
 export default async function HomePage() {
   // 1. Пользователь
@@ -55,7 +58,7 @@ export default async function HomePage() {
   // 4. Особое место
   const heartDramas = entries
     .filter((e) => e.isFavorite && e.quote)
-    .slice(0, 3);
+    .slice(0, 10)
 
   // 5. Heatmap
   const heatmapActivities = entries
@@ -78,11 +81,22 @@ export default async function HomePage() {
         <div className="w-20 h-20 rounded-full bg-accent-soft flex items-center justify-center text-3xl shrink-0">
           🎬
         </div>
-        <div>
+                <div>
           <h1 className="text-2xl font-bold">Привет, {user?.name || "Артём"}</h1>
           <p className="text-muted text-sm mt-1">
-            в дневнике с {joinDate} · {watchedCount} просмотрено · {plannedCount} в планах
+            в дневнике с {joinDate}
           </p>
+                    <div className="text-muted text-xs mt-1.5 flex items-center gap-3">
+            <span className="flex items-center gap-1">
+              <MapPin className="w-3.5 h-3.5 text-accent" /> Страна
+            </span>
+            <span className="flex items-center gap-1">
+              <User className="w-3.5 h-3.5 text-accent" /> Пол
+            </span>
+            <span className="flex items-center gap-1">
+              <Cake className="w-3.5 h-3.5 text-accent" /> Возраст
+            </span>
+          </div>
         </div>
       </section>
 
@@ -117,16 +131,17 @@ export default async function HomePage() {
             href="/heart"
             count={favoritesCount}
           />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <HorizontalScroll>
             {heartDramas.map((entry) => (
-              <HeartPreview
-                key={entry.id}
-                title={entry.drama.title}
-                year={entry.drama.year || 0}
-                quote={entry.quote || ""}
-              />
+              <div key={entry.id} className="min-w-70 max-w-80 snap-start shrink-0">
+                <HeartPreview
+                  title={entry.drama.title}
+                  year={entry.drama.year || 0}
+                  quote={entry.quote || ""}
+                />
+              </div>
             ))}
-          </div>
+          </HorizontalScroll>
         </section>
       )}
 
@@ -246,12 +261,18 @@ function HeartPreview({
   quote: string;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-surface p-4 border-l-4 border-l-yellow-400/70">
+    <div className="rounded-2xl border border-border bg-surface p-4 border-l-4 border-l-yellow-400/70 h-full">
       <div className="flex items-baseline justify-between mb-2">
-        <h3 className="font-bold text-sm flex items-center gap-1.5">
+        {/* Оборачиваем в Link только заголовок */}
+        <Link 
+          href="/heart" 
+          className="group flex items-center gap-1.5 hover:text-accent transition-colors"
+        >
           <Crown className="w-4 h-4 text-yellow-400" />
-          {title}
-        </h3>
+          <h3 className="font-bold text-sm">
+            {title}
+          </h3>
+        </Link>
         <span className="text-xs text-muted">{year}</span>
       </div>
       <p className="text-sm text-muted italic leading-relaxed line-clamp-3">
