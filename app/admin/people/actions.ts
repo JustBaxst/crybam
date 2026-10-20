@@ -11,13 +11,32 @@ export async function createPerson(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   if (!name) return { error: "Имя обязательно" };
 
+  const nameNative = String(formData.get("nameNative") ?? "").trim() || null;
+  const photoUrl = String(formData.get("photoUrl") ?? "").trim() || null;
+  const agency = String(formData.get("agency") ?? "").trim() || null;
+  const bio = String(formData.get("bio") ?? "").trim() || null;
+  
+  const birthDateRaw = String(formData.get("birthDate") ?? "").trim();
+  const birthDate = birthDateRaw ? new Date(birthDateRaw) : null;
+
+  const aliasesRaw = String(formData.get("aliases") ?? "").trim();
+  const aliasNames = aliasesRaw.split(/\n/).map(s => s.trim()).filter(Boolean);
+
   const person = await prisma.person.create({
     data: {
       name,
-      nameNative: String(formData.get("nameNative") ?? "").trim() || null,
-      photoUrl: String(formData.get("photoUrl") ?? "").trim() || null,
-      agency: String(formData.get("agency") ?? "").trim() || null,
-      bio: String(formData.get("bio") ?? "").trim() || null,
+      nameLower: name.toLowerCase(),
+      nameNative,
+      birthDate,
+      photoUrl,
+      agency,
+      bio,
+      aliases: {
+        create: aliasNames.map((alias) => ({
+          name: alias,
+          nameLower: alias.toLowerCase(),
+        })),
+      },
     },
   });
 
@@ -42,21 +61,40 @@ export async function updatePerson(formData: FormData) {
   const name = str("name");
   if (!name) return { error: "Имя обязательно" };
 
-  await prisma.person.update({
-    where: { id: personId },
-    data: {
-      name,
-      nameNative: str("nameNative"),
-      photoUrl: str("photoUrl"),
-      agency: str("agency"),
-      bio: str("bio"),
-      birthDate: date("birthDate"),
-    },
+  const aliasesRaw = String(formData.get("aliases") ?? "").trim();
+  const aliasNames = aliasesRaw ? aliasesRaw.split(/\n/).map(s => s.trim()).filter(Boolean) : [];
+
+  // Используем транзакцию, чтобы обновить всё разом (и не оставить базу в кривом состоянии)
+  await prisma.$transaction(async (tx) => {
+    await tx.person.update({
+      where: { id: personId },
+      data: {
+        name,
+        nameLower: name.toLowerCase(),
+        nameNative: str("nameNative"),
+        photoUrl: str("photoUrl"),
+        agency: str("agency"),
+        bio: str("bio"),
+        birthDate: date("birthDate"),
+      },
+    });
+
+    // Удаляем старые алиасы и создаём новые
+    await tx.personAlias.deleteMany({ where: { personId } });
+    if (aliasNames.length > 0) {
+      await tx.personAlias.createMany({
+        data: aliasNames.map((alias) => ({
+          personId,
+          name: alias,
+          nameLower: alias.toLowerCase(),
+        })),
+      });
+    }
   });
 
   revalidatePath(`/admin/people/${personId}`);
   revalidatePath("/admin/people");
-  revalidatePath("/dramas"); // Обновляем и публичную часть
+  revalidatePath("/dramas");
   return { success: true };
 }
 

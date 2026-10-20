@@ -173,6 +173,8 @@ model Person {
   id         Int       @id @default(autoincrement())
   name       String
   nameNative String?
+  nameLower  String    @default("")
+  aliases    PersonAlias[]
   photoUrl   String?
   birthDate  DateTime?
   agency     String?
@@ -184,6 +186,7 @@ model Person {
   nominationEntries NominationEntry[]
 
   @@index([name])
+  @@index([nameLower]) 
 }
 
 // ─────────────────────────────────────────────
@@ -216,6 +219,7 @@ model Character {
   drama       Drama    @relation(fields: [dramaId], references: [id], onDelete: Cascade)
 
   name        String
+  nameLower   String   @default("")
   description String?
   imageUrl    String?
   createdAt   DateTime @default(now())
@@ -227,6 +231,7 @@ model Character {
   nominationEntries NominationEntry[]
 
   @@index([dramaId])
+  @@index([nameLower]) 
 }
 
 // ─────────────────────────────────────────────
@@ -424,4 +429,23 @@ model ProfileSnapshot {
   note    String?
 
   @@index([userId, takenAt])
+
+  
+}
+
+// ─────────────────────────────────────────────
+// Альтернативные имена актеров (псевдонимы, латиница и т.д.)
+// ─────────────────────────────────────────────
+model PersonAlias {
+  id        Int      @id @default(autoincrement())
+  personId  Int
+  person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  name      String
+  nameLower String   @default("")
+
+  createdAt DateTime @default(now())
+
+  @@index([personId])
+  @@index([nameLower])
 }

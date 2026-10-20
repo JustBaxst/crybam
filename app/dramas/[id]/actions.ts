@@ -235,10 +235,15 @@ const importance = ["lead", "support", "guest"].includes(importanceRaw)
   const order = orderRaw === "" ? null : Number(orderRaw);
   const note = String(formData.get("note") ?? "").trim() || null;
 
-  // Ищем или создаём Person
-  let person = await prisma.person.findFirst({ where: { name: personName } });
+  /// Ищем или создаём Person
+  let person = await prisma.person.findFirst({ where: { nameLower: personName.toLowerCase() } });
   if (!person) {
-    person = await prisma.person.create({ data: { name: personName } });
+    person = await prisma.person.create({ 
+      data: { 
+        name: personName,
+        nameLower: personName.toLowerCase() 
+      } 
+    });
   }
 
   // Если actor с персонажем — ищем или создаём Character
@@ -275,6 +280,7 @@ if (roleType === "actor") {
         data: {
           dramaId,
           name: finalName,
+          nameLower: finalName.toLowerCase(),
           description: characterDescription,
         },
       });

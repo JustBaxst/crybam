@@ -13,6 +13,7 @@ type PersonData = {
   agency?: string | null;
   photoUrl?: string | null;
   bio?: string | null;
+  aliases?: { name: string }[];
 };
 
 export function PersonForm({ person }: { person?: PersonData }) {
@@ -75,6 +76,17 @@ export function PersonForm({ person }: { person?: PersonData }) {
             defaultValue={person?.nameNative ?? ""}
             placeholder="김수현"
             className={inputCls}
+          />
+        </div>
+
+        <div>
+          <label className={labelCls}>Альтернативные имена (каждое с новой строки)</label>
+          <textarea
+            name="aliases"
+            defaultValue={person?.aliases?.map((a) => a.name).join("\n") ?? ""}
+            rows={3}
+            placeholder="Kim Soo Hyun&#10;Ким Су Хён"
+            className={`${inputCls} resize-y`}
           />
         </div>
 

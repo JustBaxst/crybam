@@ -38,3 +38,4 @@ skills-lock.json
 dramas.txt
 import-dramas.mjs
 check-db.mjs
+fill-name-lower.mjs
