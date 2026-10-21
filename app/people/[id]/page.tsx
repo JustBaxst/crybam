@@ -8,6 +8,7 @@ import {
   User as UserIcon,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { AlternativeTitles } from "@/app/dramas/[id]/AlternativeTitles";
 
 type Params = Promise<{ id: string }>;
 
@@ -20,6 +21,7 @@ export default async function PersonPage({ params }: { params: Params }) {
   const person = await prisma.person.findUnique({
     where: { id },
     include: {
+      aliases: true, // Обязательно подтягиваем имена
       credits: {
         include: {
           drama: true,
@@ -71,9 +73,20 @@ export default async function PersonPage({ params }: { params: Params }) {
         <div className="flex-1 min-w-0">
           <h1 className="text-3xl font-bold leading-tight">{person.name}</h1>
 
-          {person.nameNative && (
-            <p className="text-sm text-muted mt-1">{person.nameNative}</p>
-          )}
+          {/* ЕДИНЫЙ БЛОК ПИЛЮЛЬ (сюда попадает и nameNative, и aliases) */}
+          <AlternativeTitles 
+            label="Другие имена:"
+            titles={[
+              ...(person.nameNative ? [{ id: -1, title: person.nameNative, language: "ko" }] : []),
+              ...person.aliases.map((a) => ({ 
+                id: a.id, 
+                title: a.name, 
+                language: a.language 
+              }))
+            ].filter((v, i, a) => 
+              a.findIndex(t => t.title === v.title) === i
+            )} 
+          />
 
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4 text-sm text-muted">
             {person.birthDate && (

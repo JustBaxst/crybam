@@ -9,9 +9,15 @@ type TitleData = {
   language: string | null;
 };
 
-export function AlternativeTitles({ titles }: { titles: TitleData[] }) {
+export function AlternativeTitles({ 
+  titles, 
+  label = "Другие названия:" 
+}: { 
+  titles: TitleData[]; 
+  label?: string 
+}) {
   const [copiedId, setCopiedId] = useState<number | null>(null);
-
+<span className="text-xs text-muted/70">{label}</span>
   if (titles.length === 0) return null;
 
   const handleCopy = (id: number, text: string) => {
@@ -22,7 +28,7 @@ export function AlternativeTitles({ titles }: { titles: TitleData[] }) {
 
   return (
     <div className="relative flex flex-wrap items-center gap-2 mt-3 text-sm text-muted">
-      <span className="text-xs text-muted/70">Другие названия:</span>
+            <span className="text-xs text-muted/70">{label}</span>
       
       {titles.map((t) => (
         <Tooltip key={t.id} content={t.title}>

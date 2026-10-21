@@ -17,7 +17,7 @@ export function TitlesEditButton({
     <>
       <button onClick={() => setOpen(true)} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border text-xs text-muted hover:border-accent/40 hover:text-foreground">
         <Pencil className="w-3 h-3" />
-        Названия
+        Другие названия
       </button>
       {open && (
         <TitlesEditor dramaId={dramaId} currentTitles={currentTitles} onClose={() => setOpen(false)} />

@@ -443,6 +443,7 @@ model PersonAlias {
 
   name      String
   nameLower String   @default("")
+  language  String   @default("unknown")
 
   createdAt DateTime @default(now())
 

@@ -8,7 +8,6 @@ import { FormSection } from "@/components/FormSection";
 type PersonData = {
   id?: number;
   name?: string | null;
-  nameNative?: string | null;
   birthDate?: Date | null;
   agency?: string | null;
   photoUrl?: string | null;
@@ -65,28 +64,6 @@ export function PersonForm({ person }: { person?: PersonData }) {
             required
             placeholder="Ким Су Хён"
             className={inputCls}
-          />
-        </div>
-
-        <div>
-          <label className={labelCls}>Имя на родном языке</label>
-          <input
-            type="text"
-            name="nameNative"
-            defaultValue={person?.nameNative ?? ""}
-            placeholder="김수현"
-            className={inputCls}
-          />
-        </div>
-
-        <div>
-          <label className={labelCls}>Альтернативные имена (каждое с новой строки)</label>
-          <textarea
-            name="aliases"
-            defaultValue={person?.aliases?.map((a) => a.name).join("\n") ?? ""}
-            rows={3}
-            placeholder="Kim Soo Hyun&#10;Ким Су Хён"
-            className={`${inputCls} resize-y`}
           />
         </div>
 

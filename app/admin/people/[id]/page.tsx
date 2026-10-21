@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { PersonForm } from "../PersonForm";
 import { DeletePersonButton } from "./DeletePersonButton";
+import { PersonAliasEditButton } from "../PersonAliasEditButton";
 
 type Params = Promise<{ id: string }>;
 
@@ -12,7 +13,11 @@ export default async function EditPersonPage({ params }: { params: Params }) {
   const id = Number(rawId);
   if (!Number.isInteger(id) || id <= 0) notFound();
 
-  const person = await prisma.person.findUnique({ where: { id } });
+  const person = await prisma.person.findUnique({ 
+    where: { id },
+    include: { aliases: true } 
+  });
+  
   if (!person) notFound();
 
   return (
@@ -24,7 +29,16 @@ export default async function EditPersonPage({ params }: { params: Params }) {
         <DeletePersonButton personId={person.id} personName={person.name} />
       </div>
       
-      <h1 className="text-2xl font-bold mb-6">{person.name}</h1>
+      {/* Шапка с именем и кнопкой */}
+      <div className="flex items-center gap-4 mb-6 flex-wrap">
+        <h1 className="text-2xl font-bold">{person.name}</h1>
+        <PersonAliasEditButton 
+          personId={person.id} 
+          currentAliases={person.aliases.map((a) => a.name)} 
+        />
+      </div>
+
+      {/* Сама форма редактирования (она была случайно удалена) */}
       <PersonForm person={person} />
     </div>
   );

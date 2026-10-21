@@ -101,21 +101,20 @@ export default async function AdminDramaEditPage({
         Назад к списку
       </Link>
 
-      {/* Заголовок с действиями */}
+            {/* Заголовок с действиями */}
       <div className="flex items-start justify-between gap-4 mb-8 flex-wrap">
-        <div className="min-w-0">
+        <div className="min-w-0 flex items-center gap-4 flex-wrap">
           <h1 className="text-2xl font-bold leading-tight">
             {drama.title}
           </h1>
-          <p className="text-sm text-muted mt-1">
-            ID: {drama.id} · Редактирование фактов
-          </p>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-                 <TitlesEditButton 
+          {/* Кнопка переехала сюда */}
+          <TitlesEditButton 
             dramaId={drama.id} 
             currentTitles={drama.titles.filter(t => !t.isPrimary).map(t => t.title)} 
           />
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Возвращаем нормальные пропсы для EditDramaButton */}
           <EditDramaButton
             dramaId={drama.id}
             drama={{

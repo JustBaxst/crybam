@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { X, Save } from "lucide-react";
 import { updateTitles } from "./actions";
+import { useLockBodyScroll } from "@/lib/use-lock-body-scroll";
 
 export function TitlesEditor({
   dramaId,
@@ -15,6 +16,8 @@ export function TitlesEditor({
 }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+
+  useLockBodyScroll();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
