@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Shield, Home, Film, Users, UserCircle } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
+import { CommandPalette } from "@/components/CommandPalette";
 
 const navItems = [
   { href: "/admin", label: "Обзор", Icon: Home },
@@ -23,6 +24,7 @@ export default async function AdminLayout({
 
   return (
     <div className="min-h-screen bg-background">
+      <CommandPalette />
       {/* Полоса админ-навигации */}
       <div className="border-b border-border bg-surface">
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center gap-4 flex-wrap">

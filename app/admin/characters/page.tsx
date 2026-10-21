@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Plus, Pencil, UserCircle } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { AdminSearchBar } from "@/components/AdminSearchBar";
+import { MobileSearchButton } from "@/components/MobileSearchButton";
 
 type SearchParams = Promise<{ q?: string; filter?: string }>;
 
@@ -37,56 +38,64 @@ export default async function AdminCharactersPage({
     ],
   });
 
-  return (
-    <div className="max-w-6xl mx-auto px-6 py-10">
-      <div className="flex items-start justify-between gap-4 mb-8 flex-wrap">
+ return (
+    <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col gap-6">
+      
+      {/* ВЕРХНИЙ РЯД */}
+      <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Персонажи</h1>
-          <p className="text-sm text-muted mt-1">
-            Всего: <span className="text-accent">{characters.length}</span>{" "}
-            {plural(characters.length, "персонаж", "персонажа", "персонажей")}
-          </p>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            Персонажи
+            <span className="text-sm font-normal text-muted bg-surface px-2 py-0.5 rounded-full border border-border">
+              {characters.length}
+            </span>
+          </h1>
         </div>
-
-        <div className="flex-1 flex justify-end order-2 md:order-0">
-          <AdminSearchBar placeholder="Поиск по названию..." />
+        
+        <div className="flex items-center gap-3">
+          <MobileSearchButton />
+          <Link
+            href="/admin/characters/new"
+            className="inline-flex items-center gap-2 px-4 h-9 rounded-lg bg-accent text-white text-sm font-medium hover:opacity-90 transition-opacity"
+          >
+            <Plus className="w-4 h-4" />
+            Добавить
+          </Link>
         </div>
-
-              {/* Фильтры-чипсы */}
-      <div className="flex items-center gap-2 mb-6 flex-wrap">
-        <span className="text-xs text-muted mr-2">Фильтры:</span>
-        {[
-          { key: "no_photo", label: "Без фото" },
-          { key: "no_desc", label: "Без описания" },
-        ].map((f) => {
-          const isActive = currentFilter === f.key;
-          const params = new URLSearchParams();
-          if (query) params.set("q", query);
-          if (!isActive) params.set("filter", f.key);
-          
-          return (
-            <Link
-              key={f.key}
-              href={`/admin/characters?${params.toString()}`}
-              className={`px-3 py-1 rounded-full border text-xs transition-colors ${
-                isActive 
-                  ? "bg-accent text-white border-accent" 
-                  : "border-border text-muted hover:border-accent/40 hover:text-foreground"
-              }`}
-            >
-              {f.label}
-            </Link>
-          );
-        })}
       </div>
 
-        <Link
-          href="/admin/characters/new"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:opacity-90 transition-opacity"
-        >
-          <Plus className="w-4 h-4" />
-          Добавить персонажа
-        </Link>
+      {/* НИЖНИЙ РЯД: Поиск и Фильтры */}
+      <div className="flex flex-col gap-3">
+        <div className="w-full max-w-2xl">
+          <AdminSearchBar placeholder="Поиск по имени персонажа..." />
+        </div>
+        
+        <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-1 [&::-webkit-scrollbar]:hidden">
+          <span className="text-xs text-muted shrink-0 mr-1">Фильтры:</span>
+          {[
+            { key: "no_photo", label: "Без фото" },
+            { key: "no_desc", label: "Без описания" },
+          ].map((f) => {
+            const isActive = currentFilter === f.key;
+            const params = new URLSearchParams();
+            if (query) params.set("q", query);
+            if (!isActive) params.set("filter", f.key);
+            
+            return (
+              <Link
+                key={f.key}
+                href={`/admin/characters?${params.toString()}`}
+                className={`px-3 py-1 rounded-full text-xs transition-colors shrink-0 border-none ${
+                  isActive 
+                    ? "bg-accent text-white" 
+                    : "bg-transparent text-muted hover:bg-surface hover:text-foreground"
+                }`}
+              >
+                {f.label}
+              </Link>
+            );
+          })}
+        </div>
       </div>
 
       {characters.length === 0 ? (

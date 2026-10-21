@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { Plus, Pencil, Trash2, Star } from "lucide-react";
+import { Plus, Pencil, Trash2, Star, Search } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { DeleteDramaButton } from "./DeleteDramaButton";
 import { AdminSearchBar } from "@/components/AdminSearchBar";
+import { MobileSearchButton } from "@/components/MobileSearchButton";
 
 type SearchParams = Promise<{ q?: string; filter?: string }>;
 
@@ -43,61 +44,70 @@ export default async function AdminDramasPage({
     orderBy: [{ year: "desc" }, { title: "asc" }],
   });
 
-  return (
-    <div className="max-w-6xl mx-auto px-6 py-10">
-
-      {/* Шапка */}
-      <div className="flex items-start justify-between gap-4 mb-8 flex-wrap">
+return (
+    <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col gap-6">
+      
+      {/* ВЕРХНИЙ РЯД: Заголовок и Кнопка */}
+      <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Дорамы</h1>
-          <p className="text-sm text-muted mt-1">
-            Всего: <span className="text-accent">{dramas.length}</span>{" "}
-            {plural(dramas.length, "дорама", "дорамы", "дорам")}
-          </p>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            Дорамы 
+            <span className="text-sm font-normal text-muted bg-surface px-2 py-0.5 rounded-full border border-border">
+              {dramas.length}
+            </span>
+          </h1>
         </div>
-
-      <div className="flex-1 flex justify-end order-2 md:order-0">
-          <AdminSearchBar placeholder="Поиск по названию..." />
-        </div>
-
-              {/* Фильтры-чипсы */}
-      <div className="flex items-center gap-2 mb-6 flex-wrap">
-        <span className="text-xs text-muted mr-2">Фильтры:</span>
-        {[
-          { key: "no_genres", label: "Без жанров" },
-          { key: "no_credits", label: "Без актёров" },
-          { key: "no_poster", label: "Без постера" },
-        ].map((f) => {
-          const isActive = currentFilter === f.key;
-          // Формируем ссылку, сохраняя поиск
-          const params = new URLSearchParams();
-          if (query) params.set("q", query);
-          if (!isActive) params.set("filter", f.key);
+        
+        <div className="flex items-center gap-3">
+          {/* Мобильная иконка для глобального поиска (44x44) */}
+          <MobileSearchButton />
           
-          return (
-            <Link
-              key={f.key}
-              href={`/admin/dramas?${params.toString()}`}
-              className={`px-3 py-1 rounded-full border text-xs transition-colors ${
-                isActive 
-                  ? "bg-accent text-white border-accent" 
-                  : "border-border text-muted hover:border-accent/40 hover:text-foreground"
-              }`}
-            >
-              {f.label}
-            </Link>
-          );
-        })}
+          <Link
+            href="/admin/dramas/new"
+            className="inline-flex items-center gap-2 px-4 h-9 rounded-lg bg-accent text-white text-sm font-medium hover:opacity-90 transition-opacity"
+          >
+            <Plus className="w-4 h-4" />
+            Добавить дораму
+          </Link>
+        </div>
       </div>
 
-        <Link
-          href="/admin/dramas/new"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:opacity-90 transition-opacity order-3 md:order-0"
-        >
-          <Plus className="w-4 h-4" />
-          Добавить дораму
-        </Link>
+      {/* НИЖНИЙ РЯД: Поиск и Фильтры */}
+      <div className="flex flex-col gap-3">
+        <div className="w-full max-w-2xl">
+          <AdminSearchBar placeholder="Поиск по названиям..." />
+        </div>
+        
+        {/* Чипсы (скроллятся на мобилке) */}
+        <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-1 [&::-webkit-scrollbar]:hidden">
+          <span className="text-xs text-muted shrink-0 mr-1">Фильтры:</span>
+          {[
+            { key: "no_genres", label: "Без жанров" },
+            { key: "no_credits", label: "Без актёров" },
+            { key: "no_poster", label: "Без постера" },
+          ].map((f) => {
+            const isActive = currentFilter === f.key;
+            const params = new URLSearchParams();
+            if (query) params.set("q", query);
+            if (!isActive) params.set("filter", f.key);
+            
+            return (
+              <Link
+                key={f.key}
+                href={`/admin/dramas?${params.toString()}`}
+                className={`px-3 py-1 rounded-full text-xs transition-colors shrink-0 border-none ${
+                  isActive 
+                    ? "bg-accent text-white" 
+                    : "bg-transparent text-muted hover:bg-surface hover:text-foreground"
+                }`}
+              >
+                {f.label}
+              </Link>
+            );
+          })}
+        </div>
       </div>
+
 
       {dramas.length === 0 ? (
         <div className="rounded-2xl border-2 border-dashed border-border bg-surface/50 p-10 text-center">

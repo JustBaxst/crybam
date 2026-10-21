@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Search, Loader2, X } from "lucide-react";
 
@@ -11,8 +11,16 @@ export function AdminSearchBar({ placeholder = "Поиск..." }: { placeholder?
   
   const [text, setText] = useState(searchParams.get("q") || "");
   const [isPending, setIsPending] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // Debounce
+  // Слушаем закрытие глобальной палитры, чтобы вернуть фокус
+  useEffect(() => {
+    const handleFocus = () => inputRef.current?.focus();
+    window.addEventListener("command-palette-closed", handleFocus);
+    return () => window.removeEventListener("command-palette-closed", handleFocus);
+  }, []);
+
+  // Debounce для фильтрации таблицы
   useEffect(() => {
     const currentQ = searchParams.get("q") || "";
     if (text === currentQ) return;
@@ -32,24 +40,41 @@ export function AdminSearchBar({ placeholder = "Поиск..." }: { placeholder?
     return () => clearTimeout(timer);
   }, [text, pathname, router, searchParams]);
 
+  const openGlobalSearch = () => {
+    window.dispatchEvent(new Event("open-command-palette"));
+  };
+
   return (
-    <div className="relative w-full max-w-sm">
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+    <div className="relative flex items-center w-full bg-accent/10 rounded-xl px-3 h-11 transition-all focus-within:ring-2 focus-within:ring-accent">
+      <Search className="w-5 h-5 text-muted shrink-0" />
+      
       <input
+        ref={inputRef}
         type="text"
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder={placeholder}
-        className="w-full pl-9 pr-9 py-2 rounded-lg border border-border bg-surface focus:border-accent outline-none transition-colors text-sm"
+        className="flex-1 bg-transparent border-none px-3 outline-none text-sm text-foreground placeholder:text-muted/70"
       />
-      <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center">
+
+      <div className="flex items-center gap-2 shrink-0">
         {isPending ? (
           <Loader2 className="w-4 h-4 text-muted animate-spin" />
         ) : text ? (
-          <button onClick={() => setText("")} className="text-muted hover:text-foreground">
+          <button onClick={() => setText("")} className="text-muted hover:text-foreground transition-colors">
             <X className="w-4 h-4" />
           </button>
         ) : null}
+        
+        {/* Кнопка вызова палитры */}
+        <button 
+          onClick={openGlobalSearch}
+          className="hidden sm:flex items-center gap-1.5 text-xs text-muted/80 px-2.5 py-1.5 rounded-md border border-border/80 bg-background hover:bg-surface hover:text-foreground transition-all"
+          title="Глобальный поиск"
+        >
+          <span className="font-semibold text-[13px]">⌘</span>
+          <span className="font-semibold text-[13px]">K</span>
+        </button>
       </div>
     </div>
   );
