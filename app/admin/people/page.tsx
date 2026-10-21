@@ -3,25 +3,33 @@ import { Plus, Pencil, Trash2, User as UserIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { AdminSearchBar } from "@/components/AdminSearchBar";
 
-type SearchParams = Promise<{ q?: string }>;
+type SearchParams = Promise<{ q?: string; filter?: string }>;
 
 export default async function AdminPeoplePage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const { q } = await searchParams;
+  const { q, filter } = await searchParams;
   const query = (q ?? "").trim();
+  const currentFilter = filter || "";
+
+  const searchCondition = query
+    ? {
+        OR: [
+          { nameLower: { contains: query.toLowerCase() } },
+          { aliases: { some: { nameLower: { contains: query.toLowerCase() } } } },
+        ],
+      }
+    : {};
+
+    const filterCondition = 
+    currentFilter === "no_photo" ? { photoUrl: null } :
+    currentFilter === "no_bio" ? { bio: null } :
+    {};
 
   const people = await prisma.person.findMany({
-    where: query
-      ? {
-          OR: [
-            { nameLower: { contains: query.toLowerCase() } },
-            { aliases: { some: { nameLower: { contains: query.toLowerCase() } } } },
-          ],
-        }
-      : undefined,
+    where: { AND: [searchCondition, filterCondition] },
     include: { _count: { select: { credits: true } } },
     orderBy: { name: "asc" },
   });
@@ -36,10 +44,38 @@ export default async function AdminPeoplePage({
           </p>
         </div>
 
-        <div className="flex-1 flex justify-end order-2 md:order-none">
+        <div className="flex-1 flex justify-end order-2 md:order-0">
           <AdminSearchBar placeholder="Поиск по названию..." />
         </div>
-        
+
+              {/* Фильтры-чипсы */}
+      <div className="flex items-center gap-2 mb-6 flex-wrap">
+        <span className="text-xs text-muted mr-2">Фильтры:</span>
+        {[
+          { key: "no_photo", label: "Без фото" },
+          { key: "no_bio", label: "Без биографии" },
+        ].map((f) => {
+          const isActive = currentFilter === f.key;
+          const params = new URLSearchParams();
+          if (query) params.set("q", query);
+          if (!isActive) params.set("filter", f.key);
+          
+          return (
+            <Link
+              key={f.key}
+              href={`/admin/people?${params.toString()}`}
+              className={`px-3 py-1 rounded-full border text-xs transition-colors ${
+                isActive 
+                  ? "bg-accent text-white border-accent" 
+                  : "border-border text-muted hover:border-accent/40 hover:text-foreground"
+              }`}
+            >
+              {f.label}
+            </Link>
+          );
+        })}
+      </div>
+
         <Link
           href="/admin/people/new"
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:opacity-90 transition-opacity"

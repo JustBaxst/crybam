@@ -3,20 +3,30 @@ import { Plus, Pencil, UserCircle } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { AdminSearchBar } from "@/components/AdminSearchBar";
 
-type SearchParams = Promise<{ q?: string }>;
+type SearchParams = Promise<{ q?: string; filter?: string }>;
+
+
 
 export default async function AdminCharactersPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const { q } = await searchParams;
+  const { q, filter } = await searchParams;
   const query = (q ?? "").trim();
+  const currentFilter = filter || "";
+
+  const searchCondition = query
+    ? { nameLower: { contains: query.toLowerCase() } }
+    : {};
+
+    const filterCondition = 
+    currentFilter === "no_photo" ? { imageUrl: null } :
+    currentFilter === "no_desc" ? { description: null } :
+    {};
 
   const characters = await prisma.character.findMany({
-    where: query
-      ? { nameLower: { contains: query.toLowerCase() } }
-      : undefined,
+    where: { AND: [searchCondition, filterCondition] },
     include: {
       drama: { select: { id: true, title: true, year: true } },
       _count: { select: { credits: true } },
@@ -38,10 +48,38 @@ export default async function AdminCharactersPage({
           </p>
         </div>
 
-        <div className="flex-1 flex justify-end order-2 md:order-none">
+        <div className="flex-1 flex justify-end order-2 md:order-0">
           <AdminSearchBar placeholder="Поиск по названию..." />
         </div>
-        
+
+              {/* Фильтры-чипсы */}
+      <div className="flex items-center gap-2 mb-6 flex-wrap">
+        <span className="text-xs text-muted mr-2">Фильтры:</span>
+        {[
+          { key: "no_photo", label: "Без фото" },
+          { key: "no_desc", label: "Без описания" },
+        ].map((f) => {
+          const isActive = currentFilter === f.key;
+          const params = new URLSearchParams();
+          if (query) params.set("q", query);
+          if (!isActive) params.set("filter", f.key);
+          
+          return (
+            <Link
+              key={f.key}
+              href={`/admin/characters?${params.toString()}`}
+              className={`px-3 py-1 rounded-full border text-xs transition-colors ${
+                isActive 
+                  ? "bg-accent text-white border-accent" 
+                  : "border-border text-muted hover:border-accent/40 hover:text-foreground"
+              }`}
+            >
+              {f.label}
+            </Link>
+          );
+        })}
+      </div>
+
         <Link
           href="/admin/characters/new"
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:opacity-90 transition-opacity"
@@ -85,7 +123,7 @@ export default async function AdminCharactersPage({
               {characters.map((c) => (
                 <tr
                   key={c.id}
-                  className="border-b border-border last:border-b-0 hover:bg-foreground/[0.02] transition-colors"
+                  className="border-b border-border last:border-b-0 hover:bg-foreground/2 transition-colors"
                 >
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
