@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DramaTracker — дневник дорам",
+  title: "Crybam · 눈물밤 — дневник дорам",
   description: "Личный трекер дорам с эмоциями, отзывами и связями",
 };
 
