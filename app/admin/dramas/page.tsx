@@ -2,9 +2,31 @@ import Link from "next/link";
 import { Plus, Pencil, Trash2, Star } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { DeleteDramaButton } from "./DeleteDramaButton";
+import { AdminSearchBar } from "@/components/AdminSearchBar";
 
-export default async function AdminDramasPage() {
+type SearchParams = Promise<{ q?: string }>;
+
+export default async function AdminDramasPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const { q } = await searchParams;
+  const query = (q ?? "").trim();
+
   const dramas = await prisma.drama.findMany({
+    where: query
+      ? {
+          OR: [
+            { titleLower: { contains: query.toLowerCase() } },
+            {
+              titles: {
+                some: { titleLower: { contains: query.toLowerCase() } },
+              },
+            },
+          ],
+        }
+      : undefined,
     include: {
       platforms: { include: { platform: true } },    
       studios: { include: { studio: true } },        
@@ -17,6 +39,7 @@ export default async function AdminDramasPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
+
       {/* Шапка */}
       <div className="flex items-start justify-between gap-4 mb-8 flex-wrap">
         <div>
@@ -26,9 +49,14 @@ export default async function AdminDramasPage() {
             {plural(dramas.length, "дорама", "дорамы", "дорам")}
           </p>
         </div>
+
+      <div className="flex-1 flex justify-end order-2 md:order-none">
+          <AdminSearchBar placeholder="Поиск по названию..." />
+        </div>
+
         <Link
           href="/admin/dramas/new"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:opacity-90 transition-opacity"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:opacity-90 transition-opacity order-3 md:order-none"
         >
           <Plus className="w-4 h-4" />
           Добавить дораму

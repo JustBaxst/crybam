@@ -1,9 +1,22 @@
 import Link from "next/link";
 import { Plus, Pencil, UserCircle } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { AdminSearchBar } from "@/components/AdminSearchBar";
 
-export default async function AdminCharactersPage() {
+type SearchParams = Promise<{ q?: string }>;
+
+export default async function AdminCharactersPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const { q } = await searchParams;
+  const query = (q ?? "").trim();
+
   const characters = await prisma.character.findMany({
+    where: query
+      ? { nameLower: { contains: query.toLowerCase() } }
+      : undefined,
     include: {
       drama: { select: { id: true, title: true, year: true } },
       _count: { select: { credits: true } },
@@ -24,6 +37,11 @@ export default async function AdminCharactersPage() {
             {plural(characters.length, "персонаж", "персонажа", "персонажей")}
           </p>
         </div>
+
+        <div className="flex-1 flex justify-end order-2 md:order-none">
+          <AdminSearchBar placeholder="Поиск по названию..." />
+        </div>
+        
         <Link
           href="/admin/characters/new"
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:opacity-90 transition-opacity"

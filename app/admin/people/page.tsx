@@ -1,9 +1,27 @@
 import Link from "next/link";
 import { Plus, Pencil, Trash2, User as UserIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { AdminSearchBar } from "@/components/AdminSearchBar";
 
-export default async function AdminPeoplePage() {
+type SearchParams = Promise<{ q?: string }>;
+
+export default async function AdminPeoplePage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const { q } = await searchParams;
+  const query = (q ?? "").trim();
+
   const people = await prisma.person.findMany({
+    where: query
+      ? {
+          OR: [
+            { nameLower: { contains: query.toLowerCase() } },
+            { aliases: { some: { nameLower: { contains: query.toLowerCase() } } } },
+          ],
+        }
+      : undefined,
     include: { _count: { select: { credits: true } } },
     orderBy: { name: "asc" },
   });
@@ -17,6 +35,11 @@ export default async function AdminPeoplePage() {
             Всего: <span className="text-accent">{people.length}</span> человек
           </p>
         </div>
+
+        <div className="flex-1 flex justify-end order-2 md:order-none">
+          <AdminSearchBar placeholder="Поиск по названию..." />
+        </div>
+        
         <Link
           href="/admin/people/new"
           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:opacity-90 transition-opacity"
