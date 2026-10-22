@@ -3,11 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Search, Loader2, X } from "lucide-react";
+import { useIsMac } from "@/lib/useIsMac";
 
 export function AdminSearchBar({ placeholder = "Поиск..." }: { placeholder?: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const isMac = useIsMac();
   
   const [text, setText] = useState(searchParams.get("q") || "");
   const [isPending, setIsPending] = useState(false);
@@ -72,7 +74,9 @@ export function AdminSearchBar({ placeholder = "Поиск..." }: { placeholder?
           className="hidden sm:flex items-center gap-1.5 text-xs text-muted/80 px-2.5 py-1.5 rounded-md border border-border/80 bg-background hover:bg-surface hover:text-foreground transition-all"
           title="Глобальный поиск"
         >
-          <span className="font-semibold text-[13px]">⌘</span>
+          <span className="font-semibold text-[13px]">
+            {isMac ? "⌘" : "Ctrl"}
+          </span>
           <span className="font-semibold text-[13px]">K</span>
         </button>
       </div>
