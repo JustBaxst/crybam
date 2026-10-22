@@ -34,39 +34,30 @@ Crybam — это не просто трекер дорам. Это **личны
 > *Уютный дневник, который подстраивается под вас.*
 
 <div align="center">
-  <table border="0">
-    <tr>
-      <td align="center" width="50%">
-        <b>🏠 Главная панель</b><br />
-        <img src="./assets/dashboard.jpg" width="400" alt="Дашборд Crybam" />
-      </td>
-      <td align="center" width="50%">
-        <b>📚 Библиотека дорам</b><br />
-        <img src="./assets/library.jpg" width="400" alt="Библиотека дорам" />
-      </td>
-    </tr>
-    <tr>
-      <td align="center" width="50%">
-        <b>🎬 Страница дорамы</b><br />
-        <img src="./assets/drama_page.jpg" width="400" alt="Страница дорамы" />
-      </td>
-      <td align="center" width="50%">
-        <b>⚙️ Админ-панель</b><br />
-        <img src="./assets/admin.jpg" width="400" alt="Админ-панель" />
-      </td>
-    </tr>
-  </table>
-</div>
+  <h3>🏠 Главная панель</h3>
+  <img src="./assets/dashboard.jpg" width="800" alt="Дашборд Crybam" />
+  
+  <br /><br /><br />
 
-<br />
+  <h3>📚 Библиотека дорам</h3>
+  <img src="./assets/library.jpg" width="800" alt="Библиотека дорам" />
 
-<div align="center">
-  <b>🕯 Инерционная карусель «Особое место»</b><br />
-  <i>(Плавный скролл с инерцией и тактильным ощущением)</i><br /><br />
-  <!-- Если гифка тоже в формате .gif, оставляем так. Если .mp4, придется использовать тег <video> -->
+  <br /><br /><br />
+
+  <h3>🎬 Страница дорамы</h3>
+  <img src="./assets/drama_page.jpg" width="800" alt="Страница дорамы" />
+
+  <br /><br /><br />
+
+  <h3>⚙️ Админ-панель</h3>
+  <img src="./assets/admin.jpg" width="800" alt="Админ-панель" />
+
+  <br /><br /><br />
+
+  <h3>🕯 Особое место</h3>
+  <i>Инерционная карусель с плавным скроллом</i><br /><br />
   <img src="./assets/heart.gif" width="800" alt="Карусель Особое место" />
 </div>
-
 ---
 
 ### 🛠 Технический стек
