@@ -29,9 +29,43 @@ Crybam — это не просто трекер дорам. Это **личны
 
 ---
 
-### 📸 Скриншоты
+## 📸 Скриншоты
 
-*(Сюда Дима вставит 2-3 красивых скриншота тёмной и светлой темы)*
+> *Уютный дневник, который подстраивается под вас.*
+
+<div align="center">
+  <table border="0">
+    <tr>
+      <td align="center" width="50%">
+        <b>🏠 Главная панель</b><br />
+        <img src="./assets/dashboard.jpg" width="400" alt="Дашборд Crybam" />
+      </td>
+      <td align="center" width="50%">
+        <b>📚 Библиотека дорам</b><br />
+        <img src="./assets/library.jpg" width="400" alt="Библиотека дорам" />
+      </td>
+    </tr>
+    <tr>
+      <td align="center" width="50%">
+        <b>🎬 Страница дорамы</b><br />
+        <img src="./assets/drama_page.jpg" width="400" alt="Страница дорамы" />
+      </td>
+      <td align="center" width="50%">
+        <b>⚙️ Админ-панель</b><br />
+        <img src="./assets/admin.jpg" width="400" alt="Админ-панель" />
+      </td>
+    </tr>
+  </table>
+</div>
+
+<br />
+
+<div align="center">
+  <b>🕯 Инерционная карусель «Особое место»</b><br />
+  <i>(Плавный скролл с инерцией и тактильным ощущением)</i><br /><br />
+  <!-- Если гифка тоже в формате .gif, оставляем так. Если .mp4, придется использовать тег <video> -->
+  <img src="./assets/heart.gif" width="800" alt="Карусель Особое место" />
+</div>
 
 ---
 
