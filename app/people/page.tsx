@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Search, User as UserIcon, Film } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { getPersonSearchWhere } from "@/lib/search-queries";
 
 type SearchParams = Promise<{ q?: string }>;
 
@@ -13,14 +14,7 @@ export default async function PeoplePage({
   const query = (q ?? "").trim();
 
   const people = await prisma.person.findMany({
-    where: query
-      ? {
-          OR: [
-            { name: { contains: query } },
-            { nameNative: { contains: query } },
-          ],
-        }
-      : undefined,
+    where: getPersonSearchWhere(query),
     include: {
       _count: { select: { credits: true } },
     },
