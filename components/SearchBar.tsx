@@ -165,7 +165,7 @@ export function SearchBar() {
           </div>
 
           {/* Выпадающий список результатов */}
-          <div className="absolute top-full left-0 mt-2 w-87.5 sm:w-112.5 z-50 rounded-2xl border border-border bg-surface shadow-2xl overflow-hidden flex flex-col">
+          <div className="absolute top-full left-0 mt-2 w-full z-50 rounded-2xl border border-border bg-surface shadow-2xl overflow-hidden flex flex-col">
             <div className="max-h-[60vh] overflow-y-auto">
               {query.trim().length < 2 ? (
                 <div className="px-4 py-6 text-center text-sm text-muted">
