@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Star, Loader2, Film, User, UserCircle } from "lucide-react";
+import { Search, Star, Loader2, Film, User, UserCircle, X } from "lucide-react";
+import { useLockBodyScroll } from "@/lib/use-lock-body-scroll";
 
-// Новый тип данных
 type SearchResults = {
   dramas: { id: number; title: string; year: number | null; country: string | null; posterUrl: string | null; rating: number | null }[];
   people: { id: number; name: string; photoUrl: string | null }[];
@@ -17,9 +17,13 @@ export function SearchBar() {
   const [results, setResults] = useState<SearchResults>({ dramas: [], people: [], characters: [] });
   const [loading, setLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
+  
   const inputRef = useRef<HTMLInputElement>(null);
-  const modalRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  // Блокируем скролл фоновой страницы, когда поиск открыт
+  useLockBodyScroll(open);
 
   // Автофокус при открытии
   useEffect(() => {
@@ -31,12 +35,12 @@ export function SearchBar() {
     if (!open) return;
 
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") closeAndReset();
     };
 
     const onClickAnywhere = (e: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-        setOpen(false);
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        closeAndReset();
       }
     };
 
@@ -69,7 +73,7 @@ export function SearchBar() {
           people: data.people || [], 
           characters: data.characters || [] 
         });
-        setActiveIndex(-1); // Сбрасываем индекс при новом поиске
+        setActiveIndex(-1); 
       } catch {
         setResults({ dramas: [], people: [], characters: [] });
       } finally {
@@ -80,16 +84,14 @@ export function SearchBar() {
     return () => clearTimeout(timer);
   }, [query]);
 
-  // Создаем плоский список для навигации стрелками
   const flatList = [
-    ...results.dramas.map(d => ({ type: "drama", id: d.id, url: `/dramas/${d.id}` })),
-    ...results.people.map(p => ({ type: "person", id: p.id, url: `/people/${p.id}` })),
-    ...results.characters.map(c => ({ type: "character", id: c.id, url: `/dramas/${c.drama.id}` })), // Пока ведем на дораму
+    ...results.dramas.map(d => ({ url: `/dramas/${d.id}` })),
+    ...results.people.map(p => ({ url: `/people/${p.id}` })),
+    ...results.characters.map(c => ({ url: `/dramas/${c.drama.id}` })),
   ];
 
   const totalFound = flatList.length;
 
-  // Навигация стрелками
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -122,40 +124,48 @@ export function SearchBar() {
   };
 
   return (
-    <>
-      <button
-        onClick={() => setOpen(true)}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-surface hover:border-accent/40 transition-colors text-sm text-muted w-full max-w-xs"
-        aria-label="Поиск"
-      >
-        <Search className="w-4 h-4 shrink-0" />
-        <span>Поиск дорам, актёров...</span>
-      </button>
+    <div className="relative w-full max-w-xs" ref={containerRef}>
+      
+      {/* КОГДА ЗАКРЫТО: Показываем кнопку */}
+      {!open && (
+        <button
+          onClick={() => setOpen(true)}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-surface hover:border-accent/40 transition-colors text-sm text-muted w-full"
+          aria-label="Поиск"
+        >
+          <Search className="w-4 h-4 shrink-0" />
+          <span>Поиск дорам, актёров...</span>
+        </button>
+      )}
 
+      {/* КОГДА ОТКРЫТО: Показываем инпут на месте кнопки + дропдаун */}
       {open && (
-        <div className="fixed inset-0 z-100 bg-black/60 backdrop-blur-md flex items-start justify-center pt-[15vh]">
-          <div
-            ref={modalRef}
-            className="w-full max-w-xl mx-4 rounded-2xl border border-border bg-surface shadow-2xl overflow-hidden"
-          >
-            {/* Поле ввода */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
-              <Search className="w-5 h-5 text-muted shrink-0" />
-              <input
-                ref={inputRef}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={onKeyDown}
-                placeholder="Дорамы, актеры, персонажи..."
-                className="flex-1 bg-transparent outline-none text-base placeholder:text-muted"
-              />
-              {loading && <Loader2 className="w-4 h-4 text-muted animate-spin shrink-0" />}
-              <kbd className="hidden md:inline-block text-[10px] text-muted px-1.5 py-0.5 rounded border border-border">
+        <>
+          {/* Инпут (выглядит как кнопка, но с рамкой акцента) */}
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-accent bg-surface text-sm text-foreground w-full shadow-sm relative z-50">
+            <Search className="w-4 h-4 text-muted shrink-0" />
+            <input
+              ref={inputRef}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={onKeyDown}
+              placeholder="Дорамы, актеры, персонажи..."
+              className="flex-1 bg-transparent outline-none placeholder:text-muted"
+            />
+            {loading && <Loader2 className="w-4 h-4 text-muted animate-spin shrink-0" />}
+            {query ? (
+              <button onClick={() => setQuery("")} className="text-muted hover:text-foreground">
+                <X className="w-4 h-4" />
+              </button>
+            ) : (
+              <kbd className="hidden sm:inline-block text-[10px] text-muted px-1.5 py-0.5 rounded border border-border">
                 ESC
               </kbd>
-            </div>
+            )}
+          </div>
 
-            {/* Результаты */}
+          {/* Выпадающий список результатов */}
+          <div className="absolute top-full left-0 mt-2 w-87.5 sm:w-112.5 z-50 rounded-2xl border border-border bg-surface shadow-2xl overflow-hidden flex flex-col">
             <div className="max-h-[60vh] overflow-y-auto">
               {query.trim().length < 2 ? (
                 <div className="px-4 py-6 text-center text-sm text-muted">
@@ -167,7 +177,6 @@ export function SearchBar() {
                 </div>
               ) : (
                 <div className="p-1.5 space-y-2">
-                  
                   {/* СЕКЦИЯ: ДОРАМЫ */}
                   {results.dramas.length > 0 && (
                     <div>
@@ -207,7 +216,7 @@ export function SearchBar() {
                         <User className="w-3.5 h-3.5" /> Актёры
                       </div>
                       {results.people.map((r, i) => {
-                        const globalIdx = results.dramas.length + i; // Сдвиг индекса для стрелок
+                        const globalIdx = results.dramas.length + i;
                         return (
                           <button
                             key={`person-${r.id}`}
@@ -241,7 +250,7 @@ export function SearchBar() {
                             key={`char-${r.id}`}
                             type="button"
                             onMouseEnter={() => setActiveIndex(globalIdx)}
-                            onClick={() => goTo(`/dramas/${r.drama.id}`)} // Ведем на дораму
+                            onClick={() => goTo(`/dramas/${r.drama.id}`)}
                             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-left ${globalIdx === activeIndex ? "bg-accent/10" : "hover:bg-foreground/5"}`}
                           >
                             <div className="w-10 h-10 rounded-full bg-accent-soft/40 flex items-center justify-center shrink-0">
@@ -277,8 +286,8 @@ export function SearchBar() {
               </div>
             )}
           </div>
-        </div>
+        </>
       )}
-    </>
+    </div>
   );
 }
