@@ -1,6 +1,7 @@
 import { Search, Plus } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { CatalogCard } from "@/components/CatalogCard";
+import { getDramaSearchWhere } from "@/lib/search-queries";
 
 type SearchParams = Promise<{ q?: string; sort?: string }>; 
 
@@ -14,18 +15,7 @@ export default async function DramasCatalogPage({
   const currentSort = sort || "year_desc";
 
   const dramas = await prisma.drama.findMany({
-where: query
-  ? {
-      OR: [
-        { titleLower: { contains: query.toLowerCase() } },
-        {
-          titles: {
-            some: { titleLower: { contains: query.toLowerCase() } },
-          },
-        },
-      ],
-    }
-  : undefined,
+where: getDramaSearchWhere(query),
     include: {
       genres: { include: { genre: true } },
     },

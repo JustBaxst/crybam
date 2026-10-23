@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { DeleteDramaButton } from "./DeleteDramaButton";
 import { AdminSearchBar } from "@/components/AdminSearchBar";
 import { MobileSearchButton } from "@/components/MobileSearchButton";
+import { getDramaSearchWhere } from "@/lib/search-queries";
 
 type SearchParams = Promise<{ q?: string; filter?: string }>;
 
@@ -15,25 +16,20 @@ export default async function AdminDramasPage({
   const { q, filter } = await searchParams;
   const query = (q ?? "").trim();
   const currentFilter = filter || "";
-  const searchCondition = query
-    ? {
-        OR: [
-          { titleLower: { contains: query.toLowerCase() } },
-          { titles: { some: { titleLower: { contains: query.toLowerCase() } } } },
-        ],
-      }
-    : {};
+
+  const searchCondition = getDramaSearchWhere(query);
 
     const filterCondition = 
     currentFilter === "no_genres" ? { genres: { none: {} } } :
     currentFilter === "no_credits" ? { credits: { none: {} } } :
     currentFilter === "no_poster" ? { posterUrl: null } :
-    {};
+    undefined;
+
+     // Собираем всё в массив, отбрасывая undefined (пустые условия)
+  const whereConditions = [searchCondition, filterCondition].filter(Boolean) as any[];
 
   const dramas = await prisma.drama.findMany({
-    where: {
-      AND: [searchCondition, filterCondition],
-    },
+    where: whereConditions.length > 0 ? { AND: whereConditions } : undefined,
     include: {
       platforms: { include: { platform: true } },    
       studios: { include: { studio: true } },        

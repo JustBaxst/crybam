@@ -3,6 +3,7 @@ import { Plus, Pencil, Trash2, User as UserIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { AdminSearchBar } from "@/components/AdminSearchBar";
 import { MobileSearchButton } from "@/components/MobileSearchButton";
+import { getPersonSearchWhere } from "@/lib/search-queries";
 
 type SearchParams = Promise<{ q?: string; filter?: string }>;
 
@@ -15,22 +16,17 @@ export default async function AdminPeoplePage({
   const query = (q ?? "").trim();
   const currentFilter = filter || "";
 
-  const searchCondition = query
-    ? {
-        OR: [
-          { nameLower: { contains: query.toLowerCase() } },
-          { aliases: { some: { nameLower: { contains: query.toLowerCase() } } } },
-        ],
-      }
-    : {};
+ const searchCondition = getPersonSearchWhere(query);
 
-    const filterCondition = 
+ const filterCondition = 
     currentFilter === "no_photo" ? { photoUrl: null } :
     currentFilter === "no_bio" ? { bio: null } :
-    {};
+    undefined;
+
+  const whereConditions = [searchCondition, filterCondition].filter(Boolean) as any[];
 
   const people = await prisma.person.findMany({
-    where: { AND: [searchCondition, filterCondition] },
+    where: whereConditions.length > 0 ? { AND: whereConditions } : undefined,
     include: { _count: { select: { credits: true } } },
     orderBy: { name: "asc" },
   });

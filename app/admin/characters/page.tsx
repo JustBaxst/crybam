@@ -3,6 +3,7 @@ import { Plus, Pencil, UserCircle } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { AdminSearchBar } from "@/components/AdminSearchBar";
 import { MobileSearchButton } from "@/components/MobileSearchButton";
+import { getCharacterSearchWhere } from "@/lib/search-queries";
 
 type SearchParams = Promise<{ q?: string; filter?: string }>;
 
@@ -17,17 +18,17 @@ export default async function AdminCharactersPage({
   const query = (q ?? "").trim();
   const currentFilter = filter || "";
 
-  const searchCondition = query
-    ? { nameLower: { contains: query.toLowerCase() } }
-    : {};
+ const searchCondition = getCharacterSearchWhere(query);
 
-    const filterCondition = 
+ const filterCondition = 
     currentFilter === "no_photo" ? { imageUrl: null } :
     currentFilter === "no_desc" ? { description: null } :
-    {};
+    undefined;
+
+  const whereConditions = [searchCondition, filterCondition].filter(Boolean) as any[];
 
   const characters = await prisma.character.findMany({
-    where: { AND: [searchCondition, filterCondition] },
+    where: whereConditions.length > 0 ? { AND: whereConditions } : undefined,
     include: {
       drama: { select: { id: true, title: true, year: true } },
       _count: { select: { credits: true } },
