@@ -2,21 +2,19 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Star, Loader2 } from "lucide-react";
+import { Search, Star, Loader2, Film, User, UserCircle } from "lucide-react";
 
-type SearchResult = {
-  id: number;
-  title: string;
-  year: number | null;
-  country: string | null;
-  posterUrl: string | null;
-  rating: number | null;
+// Новый тип данных
+type SearchResults = {
+  dramas: { id: number; title: string; year: number | null; country: string | null; posterUrl: string | null; rating: number | null }[];
+  people: { id: number; name: string; photoUrl: string | null }[];
+  characters: { id: number; name: string; drama: { id: number; title: string } }[];
 };
 
 export function SearchBar() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<SearchResult[]>([]);
+  const [results, setResults] = useState<SearchResults>({ dramas: [], people: [], characters: [] });
   const [loading, setLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -55,7 +53,7 @@ export function SearchBar() {
     const trimmed = query.trim();
 
     if (trimmed.length < 2) {
-      setResults([]);
+      setResults({ dramas: [], people: [], characters: [] });
       setLoading(false);
       setActiveIndex(-1);
       return;
@@ -64,13 +62,16 @@ export function SearchBar() {
     setLoading(true);
     const timer = setTimeout(async () => {
       try {
-        const res = await fetch(
-          `/api/search?q=${encodeURIComponent(trimmed)}`
-        );
+        const res = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}`);
         const data = await res.json();
-        setResults(data.dramas ?? []);
+        setResults({ 
+          dramas: data.dramas || [], 
+          people: data.people || [], 
+          characters: data.characters || [] 
+        });
+        setActiveIndex(-1); // Сбрасываем индекс при новом поиске
       } catch {
-        setResults([]);
+        setResults({ dramas: [], people: [], characters: [] });
       } finally {
         setLoading(false);
       }
@@ -79,18 +80,27 @@ export function SearchBar() {
     return () => clearTimeout(timer);
   }, [query]);
 
+  // Создаем плоский список для навигации стрелками
+  const flatList = [
+    ...results.dramas.map(d => ({ type: "drama", id: d.id, url: `/dramas/${d.id}` })),
+    ...results.people.map(p => ({ type: "person", id: p.id, url: `/people/${p.id}` })),
+    ...results.characters.map(c => ({ type: "character", id: c.id, url: `/dramas/${c.drama.id}` })), // Пока ведем на дораму
+  ];
+
+  const totalFound = flatList.length;
+
   // Навигация стрелками
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setActiveIndex((i) => Math.min(i + 1, results.length - 1));
+      setActiveIndex((i) => Math.min(i + 1, totalFound - 1));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setActiveIndex((i) => Math.max(i - 1, -1));
     } else if (e.key === "Enter") {
       e.preventDefault();
-      if (activeIndex >= 0 && results[activeIndex]) {
-        router.push(`/dramas/${results[activeIndex].id}`);
+      if (activeIndex >= 0 && flatList[activeIndex]) {
+        router.push(flatList[activeIndex].url);
         closeAndReset();
       } else if (query.trim()) {
         router.push(`/dramas?q=${encodeURIComponent(query.trim())}`);
@@ -102,12 +112,12 @@ export function SearchBar() {
   const closeAndReset = () => {
     setOpen(false);
     setQuery("");
-    setResults([]);
+    setResults({ dramas: [], people: [], characters: [] });
     setActiveIndex(-1);
   };
 
-  const goTo = (id: number) => {
-    router.push(`/dramas/${id}`);
+  const goTo = (url: string) => {
+    router.push(url);
     closeAndReset();
   };
 
@@ -123,7 +133,7 @@ export function SearchBar() {
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-100 bg-black/60 backdrop-blur-md flex items-start justify-center pt-15vh">
+        <div className="fixed inset-0 z-100 bg-black/60 backdrop-blur-md flex items-start justify-center pt-[15vh]">
           <div
             ref={modalRef}
             className="w-full max-w-xl mx-4 rounded-2xl border border-border bg-surface shadow-2xl overflow-hidden"
@@ -136,12 +146,10 @@ export function SearchBar() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={onKeyDown}
-                placeholder="Название дорамы..."
+                placeholder="Дорамы, актеры, персонажи..."
                 className="flex-1 bg-transparent outline-none text-base placeholder:text-muted"
               />
-              {loading && (
-                <Loader2 className="w-4 h-4 text-muted animate-spin shrink-0" />
-              )}
+              {loading && <Loader2 className="w-4 h-4 text-muted animate-spin shrink-0" />}
               <kbd className="hidden md:inline-block text-[10px] text-muted px-1.5 py-0.5 rounded border border-border">
                 ESC
               </kbd>
@@ -151,74 +159,115 @@ export function SearchBar() {
             <div className="max-h-[60vh] overflow-y-auto">
               {query.trim().length < 2 ? (
                 <div className="px-4 py-6 text-center text-sm text-muted">
-                  Начни печатать, чтобы найти дораму
+                  Начни печатать, чтобы найти...
                 </div>
-              ) : results.length === 0 && !loading ? (
+              ) : totalFound === 0 && !loading ? (
                 <div className="px-4 py-6 text-center text-sm text-muted">
                   По запросу «{query}» ничего не найдено
                 </div>
               ) : (
-                <div className="p-1.5">
-                  {results.map((r, i) => (
-                    <button
-                      key={r.id}
-                      type="button"
-                      onMouseEnter={() => setActiveIndex(i)}
-                      onClick={() => goTo(r.id)}
-                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-left ${
-                        i === activeIndex ? "bg-accent/10" : "hover:bg-foreground/5"
-                      }`}
-                    >
-                      {/* Мини-постер */}
-                      <div className="w-10 h-14 rounded-md bg-accent-soft/40 flex items-center justify-center text-xl shrink-0 overflow-hidden">
-                        {r.posterUrl ? (
-                          <img
-                            src={r.posterUrl}
-                            alt={r.title}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <span className="text-muted">🎬</span>
-                        )}
+                <div className="p-1.5 space-y-2">
+                  
+                  {/* СЕКЦИЯ: ДОРАМЫ */}
+                  {results.dramas.length > 0 && (
+                    <div>
+                      <div className="px-3 py-1 text-xs font-semibold text-muted flex items-center gap-1.5">
+                        <Film className="w-3.5 h-3.5" /> Дорамы
                       </div>
+                      {results.dramas.map((r, i) => (
+                        <button
+                          key={`drama-${r.id}`}
+                          type="button"
+                          onMouseEnter={() => setActiveIndex(i)}
+                          onClick={() => goTo(`/dramas/${r.id}`)}
+                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-left ${i === activeIndex ? "bg-accent/10" : "hover:bg-foreground/5"}`}
+                        >
+                          <div className="w-10 h-14 rounded-md bg-accent-soft/40 flex items-center justify-center text-xl shrink-0 overflow-hidden">
+                            {r.posterUrl ? <img src={r.posterUrl} alt={r.title} className="w-full h-full object-cover" /> : <span className="text-muted">🎬</span>}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium truncate">{r.title}</p>
+                            <p className="text-xs text-muted mt-0.5">{[r.year, r.country].filter(Boolean).join(" · ")}</p>
+                          </div>
+                          {r.rating != null && (
+                            <div className="flex items-center gap-1 text-xs shrink-0">
+                              <Star className="w-3.5 h-3.5 fill-current text-yellow-400" />
+                              <span className="font-semibold">{r.rating.toFixed(1)}</span>
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
 
-                      {/* Инфо */}
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium truncate">
-                          {r.title}
-                        </p>
-                        <p className="text-xs text-muted mt-0.5">
-                          {[r.year, r.country].filter(Boolean).join(" · ")}
-                        </p>
+                  {/* СЕКЦИЯ: АКТЕРЫ */}
+                  {results.people.length > 0 && (
+                    <div>
+                      <div className="px-3 py-1 text-xs font-semibold text-muted flex items-center gap-1.5 pt-2">
+                        <User className="w-3.5 h-3.5" /> Актёры
                       </div>
+                      {results.people.map((r, i) => {
+                        const globalIdx = results.dramas.length + i; // Сдвиг индекса для стрелок
+                        return (
+                          <button
+                            key={`person-${r.id}`}
+                            type="button"
+                            onMouseEnter={() => setActiveIndex(globalIdx)}
+                            onClick={() => goTo(`/people/${r.id}`)}
+                            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-left ${globalIdx === activeIndex ? "bg-accent/10" : "hover:bg-foreground/5"}`}
+                          >
+                            <div className="w-10 h-10 rounded-full bg-accent-soft/40 flex items-center justify-center shrink-0 overflow-hidden">
+                              {r.photoUrl ? <img src={r.photoUrl} alt={r.name} className="w-full h-full object-cover" /> : <UserCircle className="w-5 h-5 text-muted" />}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-medium truncate">{r.name}</p>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
 
-                      {/* Рейтинг */}
-                      {r.rating != null && (
-                        <div className="flex items-center gap-1 text-xs shrink-0">
-                          <Star className="w-3.5 h-3.5 fill-current text-yellow-400" />
-                          <span className="font-semibold">
-                            {r.rating.toFixed(1)}
-                          </span>
-                        </div>
-                      )}
-                    </button>
-                  ))}
+                  {/* СЕКЦИЯ: ПЕРСОНАЖИ */}
+                  {results.characters.length > 0 && (
+                    <div>
+                      <div className="px-3 py-1 text-xs font-semibold text-muted flex items-center gap-1.5 pt-2">
+                        <UserCircle className="w-3.5 h-3.5" /> Персонажи
+                      </div>
+                      {results.characters.map((r, i) => {
+                        const globalIdx = results.dramas.length + results.people.length + i;
+                        return (
+                          <button
+                            key={`char-${r.id}`}
+                            type="button"
+                            onMouseEnter={() => setActiveIndex(globalIdx)}
+                            onClick={() => goTo(`/dramas/${r.drama.id}`)} // Ведем на дораму
+                            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-left ${globalIdx === activeIndex ? "bg-accent/10" : "hover:bg-foreground/5"}`}
+                          >
+                            <div className="w-10 h-10 rounded-full bg-accent-soft/40 flex items-center justify-center shrink-0">
+                              <UserCircle className="w-5 h-5 text-muted" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-medium truncate">{r.name}</p>
+                              <p className="text-[10px] text-muted truncate">из дорамы «{r.drama.title}»</p>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
             {/* Подвал */}
-            {query.trim().length >= 2 && results.length > 0 && (
+            {query.trim().length >= 2 && totalFound > 0 && (
               <div className="px-4 py-2.5 border-t border-border flex items-center justify-between text-xs text-muted">
-                <span>
-                  Найдено: <span className="text-accent">{results.length}</span>
-                </span>
+                <span>Найдено: <span className="text-accent">{totalFound}</span></span>
                 <button
                   type="button"
                   onClick={() => {
-                    router.push(
-                      `/dramas?q=${encodeURIComponent(query.trim())}`
-                    );
+                    router.push(`/dramas?q=${encodeURIComponent(query.trim())}`);
                     closeAndReset();
                   }}
                   className="text-accent hover:underline"

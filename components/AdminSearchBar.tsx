@@ -5,15 +5,33 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Search, Loader2, X } from "lucide-react";
 import { useIsMac } from "@/lib/useIsMac";
 
-export function AdminSearchBar({ placeholder = "Поиск..." }: { placeholder?: string }) {
+
+
+export function AdminSearchBar({ 
+  placeholder = "Поиск...", 
+  showGlobalSearch = false 
+}: { 
+  placeholder?: string; 
+  showGlobalSearch?: boolean;
+}) {
+
+
+
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  
+
   const isMac = useIsMac();
   
   const [text, setText] = useState(searchParams.get("q") || "");
   const [isPending, setIsPending] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+
+
+
 
   // Слушаем закрытие глобальной палитры, чтобы вернуть фокус
   useEffect(() => {
@@ -46,7 +64,7 @@ export function AdminSearchBar({ placeholder = "Поиск..." }: { placeholder?
     window.dispatchEvent(new Event("open-command-palette"));
   };
 
-  return (
+    return (
     <div className="relative flex items-center w-full bg-accent/10 rounded-xl px-3 h-11 transition-all focus-within:ring-2 focus-within:ring-accent">
       <Search className="w-5 h-5 text-muted shrink-0" />
       
@@ -59,7 +77,7 @@ export function AdminSearchBar({ placeholder = "Поиск..." }: { placeholder?
         className="flex-1 bg-transparent border-none px-3 outline-none text-sm text-foreground placeholder:text-muted/70"
       />
 
-      <div className="flex items-center gap-2 shrink-0">
+    <div className="flex items-center gap-2 shrink-0">
         {isPending ? (
           <Loader2 className="w-4 h-4 text-muted animate-spin" />
         ) : text ? (
@@ -69,16 +87,16 @@ export function AdminSearchBar({ placeholder = "Поиск..." }: { placeholder?
         ) : null}
         
         {/* Кнопка вызова палитры */}
-        <button 
-          onClick={openGlobalSearch}
-          className="hidden sm:flex items-center gap-1.5 text-xs text-muted/80 px-2.5 py-1.5 rounded-md border border-border/80 bg-background hover:bg-surface hover:text-foreground transition-all"
-          title="Глобальный поиск"
-        >
-          <span className="font-semibold text-[13px]">
-            {isMac ? "⌘" : "Ctrl"}
-          </span>
-          <span className="font-semibold text-[13px]">K</span>
-        </button>
+        {showGlobalSearch && (
+          <button 
+            onClick={openGlobalSearch}
+            className="hidden sm:flex items-center gap-1.5 text-xs text-muted/80 px-2.5 py-1.5 rounded-md border border-border/80 bg-background hover:bg-surface hover:text-foreground transition-all"
+            title="Глобальный поиск"
+          >
+            <span className="font-semibold text-[13px]">{isMac ? "⌘" : "Ctrl"}</span>
+            <span className="font-semibold text-[13px]">K</span>
+          </button>
+        )}
       </div>
     </div>
   );

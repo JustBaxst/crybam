@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       select: { 
         id: true, 
         name: true, 
-        drama: { select: { title: true } } 
+        drama: { select: { id: true, title: true } } 
       },
       take: 5,
     }),

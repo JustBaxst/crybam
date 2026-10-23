@@ -71,9 +71,9 @@ return (
       {/* НИЖНИЙ РЯД: Поиск и Фильтры */}
       <div className="flex flex-col gap-3">
         <div className="w-full max-w-2xl">
-          <AdminSearchBar placeholder="Поиск по названиям..." />
+          <AdminSearchBar placeholder="Поиск по названиям..." showGlobalSearch />
         </div>
-        
+         
         {/* Чипсы (скроллятся на мобилке) */}
         <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-1 [&::-webkit-scrollbar]:hidden">
           <span className="text-xs text-muted shrink-0 mr-1">Фильтры:</span>

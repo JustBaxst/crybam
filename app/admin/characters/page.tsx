@@ -68,7 +68,7 @@ export default async function AdminCharactersPage({
       {/* НИЖНИЙ РЯД: Поиск и Фильтры */}
       <div className="flex flex-col gap-3">
         <div className="w-full max-w-2xl">
-          <AdminSearchBar placeholder="Поиск по имени персонажа..." />
+          <AdminSearchBar placeholder="Поиск по имени персонажа..." showGlobalSearch />
         </div>
         
         <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-1 [&::-webkit-scrollbar]:hidden">

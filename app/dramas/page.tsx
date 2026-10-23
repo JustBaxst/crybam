@@ -2,6 +2,7 @@ import { Search, Plus } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { CatalogCard } from "@/components/CatalogCard";
 import { getDramaSearchWhere } from "@/lib/search-queries";
+import { AdminSearchBar } from "@/components/AdminSearchBar";
 
 type SearchParams = Promise<{ q?: string; sort?: string }>; 
 
@@ -75,24 +76,9 @@ where: getDramaSearchWhere(query),
       </div>
 
       {/* Поиск */}
-      <form method="GET" className="mb-8">
-        <div className="relative max-w-xl">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
-          <input
-            type="text"
-            name="q"
-            defaultValue={query}
-            placeholder="Поиск по названию..."
-            className="w-full pl-10 pr-24 py-2.5 rounded-lg border border-border bg-surface focus:border-accent outline-none transition-colors text-sm"
-          />
-          <button
-            type="submit"
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-md bg-accent text-white text-xs font-medium hover:opacity-90 transition-opacity"
-          >
-            Найти
-          </button>
-        </div>
-      </form>
+            <div className="mb-8 max-w-2xl">
+        <AdminSearchBar placeholder="Поиск по имени..." />
+      </div>
 
       {/* Сетка */}
       {dramas.length === 0 ? (
