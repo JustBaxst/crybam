@@ -95,29 +95,33 @@ export default async function PersonPage({ params }: { params: Params }) {
             )} 
           />
 
-          {/* Новые поля: Пол, Рост, Место рождения */}
+          {/* Новые поля: Пол, Рост, Место рождения и др. */}
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4 text-sm text-muted">
             {person.gender && (
-              <span className="flex items-center gap-1.5 capitalize">
+              <span className="flex items-center gap-1.5">
                 <UserIcon className="w-4 h-4 text-accent" />
+                <span className="text-muted/70">Пол:</span>
                 {person.gender === 'male' ? 'Мужской' : person.gender === 'female' ? 'Женский' : 'Другой'}
               </span>
             )}
             {person.height && (
               <span className="flex items-center gap-1.5">
                 <Ruler className="w-4 h-4 text-accent" />
+                <span className="text-muted/70">Рост:</span>
                 {person.height} см
               </span>
             )}
             {person.birthPlace && (
               <span className="flex items-center gap-1.5">
                 <MapPin className="w-4 h-4 text-accent" />
+                <span className="text-muted/70">Место рождения:</span>
                 {person.birthPlace}
               </span>
             )}
             {person.birthDate && (
               <span className="flex items-center gap-1.5">
                 <Calendar className="w-4 h-4 text-accent" />
+                <span className="text-muted/70">Дата рождения:</span>
                 {new Date(person.birthDate).toLocaleDateString("ru-RU", {
                   day: "numeric",
                   month: "long",
@@ -131,6 +135,7 @@ export default async function PersonPage({ params }: { params: Params }) {
             {person.agency && (
               <span className="flex items-center gap-1.5">
                 <Briefcase className="w-4 h-4 text-accent" />
+                <span className="text-muted/70">Агентство:</span>
                 {person.agency}
               </span>
             )}

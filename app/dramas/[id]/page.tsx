@@ -141,40 +141,43 @@ export default async function DramaPage({ params }: { params: Params }) {
             </div>
           )}
 
-          {/* Факты, даты, каналы и озвучка */}
+                    {/* Факты, даты, каналы и озвучка */}
           <div className="mt-5 flex flex-col gap-y-2.5 text-sm text-muted">
             {/* Первая строка: год, страна, серии и длительность */}
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
               {drama.year && (
                 <span className="flex items-center gap-1.5">
                   <Calendar className="w-4 h-4 text-accent" />
-                  {drama.year} г.
+                  <span className="text-muted/70">Год:</span>
+                  {drama.year}
                 </span>
               )}
               {drama.country && (
                 <span className="flex items-center gap-1.5">
                   <MapPin className="w-4 h-4 text-accent" />
+                  <span className="text-muted/70">Страна:</span>
                   {drama.country}
                 </span>
               )}
               {drama.episodes && (
                 <span className="flex items-center gap-1.5">
                   <Film className="w-4 h-4 text-accent" />
-                  {drama.episodes}{" "}
-                  {plural(drama.episodes, "серия", "серии", "серий")}
+                  <span className="text-muted/70">Серий:</span>
+                  {drama.episodes}
                 </span>
               )}
               {drama.seasons && (
                 <span className="flex items-center gap-1.5">
                   <Video className="w-4 h-4 text-accent" />
-                  {drama.seasons}{" "}
-                  {plural(drama.seasons, "сезон", "сезона", "сезонов")}
+                  <span className="text-muted/70">Сезонов:</span>
+                  {drama.seasons}
                 </span>
               )}
               {drama.episodeDuration && (
                 <span className="flex items-center gap-1.5">
                   <Clock className="w-4 h-4 text-accent" />
-                  ~{drama.episodeDuration} мин/серия
+                  <span className="text-muted/70">Длительность:</span>
+                  ~{drama.episodeDuration} мин
                 </span>
               )}
 
@@ -195,6 +198,7 @@ export default async function DramaPage({ params }: { params: Params }) {
             {(drama.airedFrom || drama.airedTo) && (
               <div className="flex items-center gap-1.5">
                 <Calendar className="w-4 h-4 text-accent" />
+                <span className="text-muted/70">Эфир:</span>
                 <span>
                   {formatDate(drama.airedFrom)}
                   {drama.airedTo && ` — ${formatDate(drama.airedTo)}`}
@@ -205,30 +209,24 @@ export default async function DramaPage({ params }: { params: Params }) {
             {platforms.length > 0 && (
               <div className="flex items-center gap-1.5">
                 <Tv className="w-4 h-4 text-accent" />
-                <span>
-                  <span className="text-foreground/80">Канал:</span>{" "}
-                  {platforms.join(", ")}
-                </span>
+                <span className="text-muted/70">Канал:</span>
+                <span>{platforms.join(", ")}</span>
               </div>
             )}
 
             {productionStudios.length > 0 && (
               <div className="flex items-center gap-1.5">
                 <Video className="w-4 h-4 text-accent" />
-                <span>
-                  <span className="text-foreground/80">Производство:</span>{" "}
-                  {productionStudios.join(", ")}
-                </span>
+                <span className="text-muted/70">Производство:</span>
+                <span>{productionStudios.join(", ")}</span>
               </div>
             )}
 
             {drama.dubbingStudios && (
               <div className="flex items-center gap-1.5">
                 <Languages className="w-4 h-4 text-accent" />
-                <span>
-                  <span className="text-foreground/80">Озвучка:</span>{" "}
-                  {drama.dubbingStudios}
-                </span>
+                <span className="text-muted/70">Озвучка:</span>
+                <span>{drama.dubbingStudios}</span>
               </div>
             )}
           </div>
