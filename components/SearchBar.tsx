@@ -68,7 +68,7 @@ export function SearchBar() {
           `/api/search?q=${encodeURIComponent(trimmed)}`
         );
         const data = await res.json();
-        setResults(data.results ?? []);
+        setResults(data.dramas ?? []);
       } catch {
         setResults([]);
       } finally {

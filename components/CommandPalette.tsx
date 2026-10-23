@@ -63,7 +63,7 @@ export function CommandPalette() {
     setLoading(true);
     const timer = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/admin-search?q=${encodeURIComponent(query)}`);
+        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
         const data = await res.json();
         setResults(data);
       } catch (err) {
