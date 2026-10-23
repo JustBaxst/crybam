@@ -6,7 +6,12 @@ import {
   Briefcase,
   Film,
   User as UserIcon,
+  MapPin,
+  Ruler,
+  Link as LinkIcon,
 } from "lucide-react";
+import { FaInstagram, FaYoutube, FaTwitter, FaTiktok } from "react-icons/fa6";
+import { FaWeibo } from "react-icons/fa";
 import { prisma } from "@/lib/prisma";
 import { AlternativeTitles } from "@/app/dramas/[id]/AlternativeTitles";
 
@@ -21,7 +26,8 @@ export default async function PersonPage({ params }: { params: Params }) {
   const person = await prisma.person.findUnique({
     where: { id },
     include: {
-      aliases: true, // Обязательно подтягиваем имена
+      aliases: true,
+      socialLinks: true, // ← Подтягиваем соцсети
       credits: {
         include: {
           drama: true,
@@ -58,7 +64,8 @@ export default async function PersonPage({ params }: { params: Params }) {
 
       {/* Шапка */}
       <div className="flex flex-col md:flex-row gap-6 items-start">
-        <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-accent-soft flex items-center justify-center text-6xl shrink-0 overflow-hidden">
+        {/* ФОТО ТЕПЕРЬ ПРЯМОУГОЛЬНОЕ (2:3) */}
+        <div className="w-32 h-48 md:w-40 md:h-60 rounded-2xl bg-accent-soft flex items-center justify-center text-6xl shrink-0 overflow-hidden shadow-lg">
           {person.photoUrl ? (
             <img
               src={person.photoUrl}
@@ -73,7 +80,7 @@ export default async function PersonPage({ params }: { params: Params }) {
         <div className="flex-1 min-w-0">
           <h1 className="text-3xl font-bold leading-tight">{person.name}</h1>
 
-          {/* ЕДИНЫЙ БЛОК ПИЛЮЛЬ (сюда попадает и nameNative, и aliases) */}
+          {/* Блок пилюль */}
           <AlternativeTitles 
             label="Другие имена:"
             titles={[
@@ -88,7 +95,26 @@ export default async function PersonPage({ params }: { params: Params }) {
             )} 
           />
 
+          {/* Новые поля: Пол, Рост, Место рождения */}
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4 text-sm text-muted">
+            {person.gender && (
+              <span className="flex items-center gap-1.5 capitalize">
+                <UserIcon className="w-4 h-4 text-accent" />
+                {person.gender === 'male' ? 'Мужской' : person.gender === 'female' ? 'Женский' : 'Другой'}
+              </span>
+            )}
+            {person.height && (
+              <span className="flex items-center gap-1.5">
+                <Ruler className="w-4 h-4 text-accent" />
+                {person.height} см
+              </span>
+            )}
+            {person.birthPlace && (
+              <span className="flex items-center gap-1.5">
+                <MapPin className="w-4 h-4 text-accent" />
+                {person.birthPlace}
+              </span>
+            )}
             {person.birthDate && (
               <span className="flex items-center gap-1.5">
                 <Calendar className="w-4 h-4 text-accent" />
@@ -110,6 +136,34 @@ export default async function PersonPage({ params }: { params: Params }) {
             )}
           </div>
 
+          {/* Соцсети */}
+          {person.socialLinks.length > 0 && (
+            <div className="flex items-center gap-3 mt-4">
+              <span className="text-xs text-muted">Соцсети:</span>
+              {person.socialLinks.map((link) => {
+                const Icon = 
+                  link.platform.toLowerCase() === 'instagram' ? FaInstagram :
+                  link.platform.toLowerCase() === 'youtube' ? FaYoutube :
+                  link.platform.toLowerCase() === 'twitter' ? FaTwitter :
+                  link.platform.toLowerCase() === 'tiktok' ? FaTiktok :
+                  link.platform.toLowerCase() === 'weibo' ? FaWeibo :
+                  LinkIcon;
+                return (
+                  <a
+                    key={link.id}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-surface border border-border text-muted hover:text-accent hover:border-accent/40 transition-all"
+                    title={link.platform}
+                  >
+                    <Icon className="w-4 h-4" />
+                  </a>
+                );
+              })}
+            </div>
+          )}
+
           {person.bio && (
             <p className="text-sm text-muted mt-5 leading-relaxed whitespace-pre-wrap">
               {person.bio}
@@ -118,7 +172,7 @@ export default async function PersonPage({ params }: { params: Params }) {
         </div>
       </div>
 
-      {/* Фильмография */}
+      {/* Фильмография (без изменений) */}
       <section className="mt-12">
         <h2 className="text-lg font-semibold flex items-center gap-2 mb-6">
           <Film className="w-5 h-5 text-accent" />

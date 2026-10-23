@@ -225,7 +225,7 @@ export function SearchBar() {
                             onClick={() => goTo(`/people/${r.id}`)}
                             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-left ${globalIdx === activeIndex ? "bg-accent/10" : "hover:bg-foreground/5"}`}
                           >
-                            <div className="w-10 h-10 rounded-full bg-accent-soft/40 flex items-center justify-center shrink-0 overflow-hidden">
+                            <div className="w-10 h-14 rounded-md bg-accent-soft/40 flex items-center justify-center shrink-0 overflow-hidden">
                               {r.photoUrl ? <img src={r.photoUrl} alt={r.name} className="w-full h-full object-cover" /> : <UserCircle className="w-5 h-5 text-muted" />}
                             </div>
                             <div className="min-w-0 flex-1">
@@ -253,7 +253,7 @@ export function SearchBar() {
                             onClick={() => goTo(`/dramas/${r.drama.id}`)}
                             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-left ${globalIdx === activeIndex ? "bg-accent/10" : "hover:bg-foreground/5"}`}
                           >
-                            <div className="w-10 h-10 rounded-full bg-accent-soft/40 flex items-center justify-center shrink-0">
+                            <div className="w-10 h-14 rounded-md bg-accent-soft/40 flex items-center justify-center shrink-0">
                               <UserCircle className="w-5 h-5 text-muted" />
                             </div>
                             <div className="min-w-0 flex-1">
