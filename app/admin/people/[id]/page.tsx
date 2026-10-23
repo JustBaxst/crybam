@@ -15,7 +15,7 @@ export default async function EditPersonPage({ params }: { params: Params }) {
 
   const person = await prisma.person.findUnique({ 
     where: { id },
-    include: { aliases: true } 
+    include: { aliases: true, socialLinks: true } 
   });
   
   if (!person) notFound();

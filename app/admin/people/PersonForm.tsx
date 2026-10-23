@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Save, User, FileText, Image } from "lucide-react";
+import { Save, User, FileText, Image, Link2 } from "lucide-react";
 import { createPerson, updatePerson } from "./actions";
 import { FormSection } from "@/components/FormSection";
 
@@ -12,7 +12,10 @@ type PersonData = {
   agency?: string | null;
   photoUrl?: string | null;
   bio?: string | null;
-  aliases?: { name: string }[];
+  gender?: string | null;
+  height?: number | null;
+  birthPlace?: string | null;
+  socialLinks?: { platform: string; url: string }[];
 };
 
 export function PersonForm({ person }: { person?: PersonData }) {
@@ -88,6 +91,42 @@ export function PersonForm({ person }: { person?: PersonData }) {
             />
           </div>
         </div>
+
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <label className={labelCls}>Пол</label>
+            <select
+              name="gender"
+              defaultValue={person?.gender ?? ""}
+              className={inputCls}
+            >
+              <option value="">— не указан —</option>
+              <option value="male">Мужской</option>
+              <option value="female">Женский</option>
+              <option value="other">Другой</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>Рост (см)</label>
+            <input
+              type="number"
+              name="height"
+              defaultValue={person?.height ?? ""}
+              placeholder="180"
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Место рождения</label>
+            <input
+              type="text"
+              name="birthPlace"
+              defaultValue={person?.birthPlace ?? ""}
+              placeholder="Сеул, Южная Корея"
+              className={inputCls}
+            />
+          </div>
+        </div>
       </FormSection>
 
       {/* ─── БИОГРАФИЯ ─── */}
@@ -108,11 +147,11 @@ export function PersonForm({ person }: { person?: PersonData }) {
         </div>
       </FormSection>
 
-      {/* ─── МЕДИА ─── */}
+      {/* ─── МЕДИА И ССЫЛКИ ─── */}
       <FormSection
         Icon={Image}
-        title="Медиа"
-        description="Фото актёра"
+        title="Медиа и ссылки"
+        description="Фото и соцсети актёра"
       >
         <div>
           <label className={labelCls}>URL фотографии</label>
@@ -122,6 +161,19 @@ export function PersonForm({ person }: { person?: PersonData }) {
             defaultValue={person?.photoUrl ?? ""}
             placeholder="https://..."
             className={inputCls}
+          />
+        </div>
+        
+        <div>
+          <label className={labelCls}>
+            Соцсети <span className="text-muted/60 font-normal">(формат: платформа|ссылка, каждая с новой строки)</span>
+          </label>
+          <textarea
+            name="socialLinks"
+            defaultValue={person?.socialLinks?.map((l) => `${l.platform}|${l.url}`).join("\n") ?? ""}
+            rows={3}
+            placeholder="instagram|https://instagram.com/...&#10;youtube|https://youtube.com/..."
+            className={`${inputCls} resize-y`}
           />
         </div>
       </FormSection>
@@ -139,11 +191,7 @@ export function PersonForm({ person }: { person?: PersonData }) {
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
         >
           <Save className="w-4 h-4" />
-          {isPending
-            ? "Сохранение..."
-            : person
-            ? "Сохранить"
-            : "Создать"}
+          {isPending ? "Сохранение..." : person ? "Сохранить" : "Создать"}
         </button>
       </div>
     </form>

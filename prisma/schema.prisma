@@ -6,6 +6,23 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
+// ─────────────────────────────────────────────
+// ENUMS (Пол, Отношения между персонажами)
+// ─────────────────────────────────────────────
+enum Gender {
+  male
+  female
+  other
+}
+
+enum RelationType {
+  family
+  romance
+  friendship
+  rivalry
+}
+
 // ─────────────────────────────────────────────
 // Пользователь
 // ─────────────────────────────────────────────
@@ -179,11 +196,15 @@ model Person {
   birthDate  DateTime?
   agency     String?
   bio        String?
+  gender     Gender?
+  height     Int?
+  birthPlace String?
   createdAt  DateTime  @default(now())
 
   credits           Credit[]
   favoriteBy        UserFavoriteActor[]
   nominationEntries NominationEntry[]
+  socialLinks       PersonSocialLink[]
 
   @@index([name])
   @@index([nameLower]) 
@@ -222,6 +243,14 @@ model Character {
   nameLower   String   @default("")
   description String?
   imageUrl    String?
+  gender        Gender?
+  height        String?
+  age           String?
+  birthDate     String?
+  occupation    String?
+  zodiacWestern String?
+  zodiacChinese String?
+
   createdAt   DateTime @default(now())
 
   credits           Credit[]
@@ -229,6 +258,7 @@ model Character {
   relationsB        CharacterRelation[] @relation("CharacterTo")
   favoriteBy        UserFavoriteCharacter[]
   nominationEntries NominationEntry[]
+  aliases           CharacterAlias[]
 
   @@index([dramaId])
   @@index([nameLower]) 
@@ -244,6 +274,7 @@ model CharacterRelation {
   from     Character @relation("CharacterFrom", fields: [fromId], references: [id], onDelete: Cascade)
   to       Character @relation("CharacterTo", fields: [toId], references: [id], onDelete: Cascade)
 
+  relationType RelationType @default(family)
   relation String
   note     String?
 
@@ -448,5 +479,37 @@ model PersonAlias {
   createdAt DateTime @default(now())
 
   @@index([personId])
+  @@index([nameLower])
+}
+
+// ─────────────────────────────────────────────
+// Соцсети актеров
+// ─────────────────────────────────────────────
+model PersonSocialLink {
+  id       Int    @id @default(autoincrement())
+  personId Int
+  person   Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  platform String // instagram | youtube | twitter | weibo | tiktok
+  url      String
+  handle   String? // @nickname
+
+  @@index([personId])
+}
+
+// ─────────────────────────────────────────────
+// Альтернативные имена персонажей
+// ─────────────────────────────────────────────
+model CharacterAlias {
+  id          Int       @id @default(autoincrement())
+  characterId Int
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  name        String
+  nameLower   String    @default("")
+
+  createdAt   DateTime  @default(now())
+
+  @@index([characterId])
   @@index([nameLower])
 }
