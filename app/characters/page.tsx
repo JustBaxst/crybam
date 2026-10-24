@@ -62,11 +62,11 @@ export default async function CharactersCatalogPage({
                 {/* Фото персонажа (или заглушка) */}
                 <div className="aspect-2/3 bg-accent-soft/30 flex items-center justify-center overflow-hidden relative">
                   {char.imageUrl ? (
-                    <img
-                    src={char.imageUrl}
-                    alt={char.name}
-                    className="w-full h-full object-cover"
-                    />
+<img
+  src={char.imageUrl}
+  alt={char.name}
+  className="w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-[1.03]"
+/>
                   ) : (
                     <UserCircle className="w-16 h-16 text-muted/50" />
                   )}
