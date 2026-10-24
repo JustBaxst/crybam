@@ -1,9 +1,13 @@
 import Link from "next/link";
-import { Plus, Pencil, Trash2, User as UserIcon } from "lucide-react";
+import { Plus, Film, FileText, UserIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { AdminSearchBar } from "@/components/AdminSearchBar";
 import { MobileSearchButton } from "@/components/MobileSearchButton";
 import { getPersonSearchWhere } from "@/lib/search-queries";
+import { StatusDot } from "@/components/admin/StatusDot";
+import { AliasBadge } from "@/components/admin/AliasBadge";
+import { PersonActions } from "./PersonActions";
+import { Tooltip } from "@/components/Tooltip";
 
 type SearchParams = Promise<{ q?: string; filter?: string }>;
 
@@ -16,9 +20,9 @@ export default async function AdminPeoplePage({
   const query = (q ?? "").trim();
   const currentFilter = filter || "";
 
- const searchCondition = getPersonSearchWhere(query);
+  const searchCondition = getPersonSearchWhere(query);
 
- const filterCondition = 
+  const filterCondition = 
     currentFilter === "no_photo" ? { photoUrl: null } :
     currentFilter === "no_bio" ? { bio: null } :
     undefined;
@@ -27,12 +31,28 @@ export default async function AdminPeoplePage({
 
   const people = await prisma.person.findMany({
     where: whereConditions.length > 0 ? { AND: whereConditions } : undefined,
-    include: { _count: { select: { credits: true } } },
+    include: { 
+      aliases: true, 
+      _count: { select: { credits: true } } 
+    },
     orderBy: { name: "asc" },
   });
 
+  // Функция для вычисления возраста
+  const getAge = (date: Date | null) => {
+    if (!date) return null;
+    return Math.floor((Date.now() - new Date(date).getTime()) / 31557600000);
+  };
+
+  const getGenderLabel = (g: string | null) => {
+    if (g === "male") return "Мужской";
+    if (g === "female") return "Женский";
+    if (g === "other") return "Другой";
+    return null;
+  };
+
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col gap-6">
+    <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col gap-6">
       
       {/* ВЕРХНИЙ РЯД */}
       <div className="flex items-center justify-between gap-4">
@@ -57,14 +77,14 @@ export default async function AdminPeoplePage({
         </div>
       </div>
 
-      {/* НИЖНИЙ РЯД: Поиск и Фильтры */}
+      {/* НИЖНИЙ РЯД */}
       <div className="flex flex-col gap-3">
         <div className="w-full max-w-2xl">
           <AdminSearchBar placeholder="Поиск по имени..." showGlobalSearch />
         </div>
-        
+         
+        {/* Чипсы */}
         <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-1 [&::-webkit-scrollbar]:hidden">
-          <span className="text-xs text-muted shrink-0 mr-1">Фильтры:</span>
           {[
             { key: "no_photo", label: "Без фото" },
             { key: "no_bio", label: "Без биографии" },
@@ -94,41 +114,84 @@ export default async function AdminPeoplePage({
       {people.length === 0 ? (
         <p className="text-muted">В базе пока нет актёров.</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {people.map((p) => (
-            <div key={p.id} className="rounded-xl border border-border bg-surface p-4 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-accent-soft flex items-center justify-center text-xl shrink-0 overflow-hidden">
-                {p.photoUrl ? (
-                  <img src={p.photoUrl} alt={p.name} className="w-full h-full object-cover" />
-                ) : (
-                  <UserIcon className="w-6 h-6 text-accent" />
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold text-sm truncate">{p.name}</p>
-                <p className="text-xs text-muted mt-0.5">
-                  {p._count.credits} {plural(p._count.credits, "роль", "роли", "ролей")}
-                </p>
-              </div>
-              <Link
-                href={`/admin/people/${p.id}`}
-                className="w-8 h-8 rounded-md border border-border hover:border-accent/40 hover:text-accent flex items-center justify-center transition-colors shrink-0"
-                title="Редактировать"
-              >
-                <Pencil className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          ))}
+        <div className="rounded-2xl border border-border bg-surface overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-225">
+              <thead>
+                <tr className="border-b border-border bg-background/50">
+                  <th className="text-left px-4 py-3 text-xs font-medium text-muted uppercase tracking-wide">Объект</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-muted uppercase tracking-wide">Алиасы</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-muted uppercase tracking-wide">Ключевые факты</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-muted uppercase tracking-wide">Наполнение</th>
+                  <th className="text-right px-4 py-3 text-xs font-medium text-muted uppercase tracking-wide">Действия</th>
+                </tr>
+              </thead>
+              <tbody>
+                {people.map((p) => {
+                  const age = getAge(p.birthDate);
+                  const gender = getGenderLabel(p.gender);
+                  const facts = [gender, age ? `${age} лет` : null, p.agency].filter(Boolean).join(" · ");
+
+                  return (
+                    <tr key={p.id} className="border-b border-border last:border-b-0 hover:bg-foreground/2 transition-colors">
+                      {/* КОЛОНКА 1: Объект */}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <StatusDot 
+                            items={[
+                              { label: "Фото/Алиасы", isFilled: !!p.photoUrl || p.aliases.length > 0, isCritical: true },
+                              { label: "Биография", isFilled: !!p.bio },
+                            ]}
+                          />
+                          <div className="w-10 h-14 rounded-md bg-accent-soft/40 flex items-center justify-center shrink-0 overflow-hidden">
+                            {p.photoUrl ? (
+                              <img src={p.photoUrl} alt={p.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <UserIcon className="w-5 h-5 text-muted" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold truncate">{p.name}</p>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* КОЛОНКА 2: Алиасы */}
+                      <td className="px-4 py-3">
+                        <AliasBadge aliases={p.aliases.map(a => a.name)} />
+                      </td>
+
+                      {/* КОЛОНКА 3: Ключевые факты */}
+                      <td className="px-4 py-3 text-sm text-muted">
+                        {facts || "—"}
+                      </td>
+
+                      {/* КОЛОНКА 4: Наполнение */}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <Tooltip content={`Ролей: ${p._count.credits}`}>
+                            <span className={`flex items-center gap-1 text-xs ${p._count.credits > 0 ? "text-green-500" : "text-muted/30"}`}>
+                              <Film className="w-3.5 h-3.5" /> {p._count.credits}
+                            </span>
+                          </Tooltip>
+                          <Tooltip content={p.bio ? "Биография есть" : "Нет биографии"}>
+                            <FileText className={`w-3.5 h-3.5 ${p.bio ? "text-green-500" : "text-muted/30"}`} />
+                          </Tooltip>
+                        </div>
+                      </td>
+
+                      {/* КОЛОНКА 5: Действия */}
+                      <td className="px-4 py-3">
+                        <PersonActions personId={p.id} personName={p.name} />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
   );
-}
-
-function plural(n: number, one: string, few: string, many: string) {
-  const mod10 = n % 10;
-  const mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return one;
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return few;
-  return many;
 }

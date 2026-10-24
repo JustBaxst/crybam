@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { PersonForm } from "../PersonForm";
-import { DeletePersonButton } from "./DeletePersonButton";
+import { DeletePersonButton } from "../DeletePersonButton";
 import { PersonAliasEditButton } from "../PersonAliasEditButton";
 import { AdminBreadcrumbs } from "@/components/AdminBreadcrumbs";
 
