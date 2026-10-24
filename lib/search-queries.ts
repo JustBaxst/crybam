@@ -31,13 +31,16 @@ export function getPersonSearchWhere(query: string): Prisma.PersonWhereInput | u
 }
 
 /**
- * Возвращает условие для поиска по персонажам
+ * Возвращает условие для поиска по персонажам (основное имя и альтернативные)
  */
 export function getCharacterSearchWhere(query: string): Prisma.CharacterWhereInput | undefined {
   const q = query.trim().toLowerCase();
   if (!q) return undefined;
 
   return {
-    nameLower: { contains: q },
+    OR: [
+      { nameLower: { contains: q } },
+      { aliases: { some: { nameLower: { contains: q } } } }, 
+    ],
   };
 }

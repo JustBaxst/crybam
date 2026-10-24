@@ -199,6 +199,7 @@ model Person {
   gender     Gender?
   height     Int?
   birthPlace String?
+  nationality String?
   bloodType     String?
   mbti          String?
   zodiacWestern String?

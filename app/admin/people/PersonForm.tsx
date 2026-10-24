@@ -15,6 +15,7 @@ type PersonData = {
   gender?: string | null;
   height?: number | null;
   birthPlace?: string | null;
+  nationality?: string | null;
   socialLinks?: { platform: string; url: string }[];
   bloodType: string | null;
   mbti: string | null;
@@ -99,7 +100,19 @@ export function PersonForm({ person }: { person?: PersonData }) {
         </div>
 
         {/* Пол, рост, место рождения (3 колонки) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+          <div>
+            <label className={labelCls}>Национальность</label>
+            <input
+              type="text"
+              name="nationality"
+              defaultValue={person?.nationality ?? ""}
+              placeholder="Кореянка"
+              className={inputCls}
+            />
+          </div>
+          
           <div>
             <label className={labelCls}>Пол</label>
             <select

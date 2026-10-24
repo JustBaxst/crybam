@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft, Calendar, Briefcase, Film, User as UserIcon, MapPin,
-  Ruler, Link as LinkIcon, Droplet, Brain, Sparkles
+  Ruler, Link as LinkIcon, Droplet, Brain, Sparkles, Flag 
 } from "lucide-react";
 import { FaInstagram, FaYoutube, FaTwitter, FaTiktok, FaWikipediaW, 
   FaGlobe, FaFacebook, FaLinkedin, FaTelegram, FaDiscord, 
@@ -177,6 +177,15 @@ export default async function PersonPage({ params }: { params: Params }) {
                 )}
               </span>
             )}
+
+            {person.nationality && (
+              <span className="flex items-center gap-1.5">
+                <Flag className="w-4 h-4 text-accent" />
+                <span className="text-muted/70">Национальность:</span>
+                {person.nationality}
+              </span>
+            )}
+            
             {person.agency && (
               <span className="flex items-center gap-1.5">
                 <Briefcase className="w-4 h-4 text-accent" />
