@@ -102,3 +102,82 @@ export async function deleteCharacter(formData: FormData) {
   revalidatePath("/admin/characters");
   redirect("/admin/characters");
 }
+export async function addCharacterRelation(formData: FormData) {
+  await requireModerator();
+
+  const fromId = Number(formData.get("fromId"));
+  const toId = Number(formData.get("toId"));
+  const relationType = String(formData.get("relationType") ?? "") as any;
+  const relation = String(formData.get("relation") ?? "").trim();
+
+  if (!fromId || !toId || fromId === toId) {
+    return { error: "Выберите разных персонажей" };
+  }
+  if (!relation) return { error: "Укажите название связи (например, 'отец')" };
+
+  // Проверяем, что оба персонажа из одной дорамы
+  const [fromChar, toChar] = await Promise.all([
+    prisma.character.findUnique({ where: { id: fromId }, select: { dramaId: true } }),
+    prisma.character.findUnique({ where: { id: toId }, select: { dramaId: true } }),
+  ]);
+
+  if (!fromChar || !toChar) return { error: "Персонаж не найден" };
+  if (fromChar.dramaId !== toChar.dramaId) {
+    return { error: "Нельзя связать персонажей из разных дорам" };
+  }
+
+  try {
+    await prisma.characterRelation.create({
+      data: { fromId, toId, relationType, relation },
+    });
+  } catch (e: any) {
+    if (e.code === 'P2002') return { error: "Такая связь уже существует" };
+    return { error: "Ошибка при сохранении" };
+  }
+
+  revalidatePath(`/admin/characters/${fromId}`);
+  revalidatePath(`/admin/characters/${toId}`);
+  return { success: true };
+}
+
+export async function deleteCharacterRelation(formData: FormData) {
+  await requireModerator();
+
+  const relationId = Number(formData.get("relationId"));
+  const characterId = Number(formData.get("characterId"));
+
+  if (!relationId) return { error: "Неверный ID" };
+
+  await prisma.characterRelation.delete({ where: { id: relationId } });
+
+  revalidatePath(`/admin/characters/${characterId}`);
+  return { success: true };
+}
+export async function updateCharacterAliases(formData: FormData) {
+  await requireModerator();
+
+  const characterId = Number(formData.get("characterId"));
+  if (!Number.isInteger(characterId) || characterId <= 0) {
+    return { error: "Неверный ID" };
+  }
+
+  const aliasesRaw = String(formData.get("aliases") ?? "").trim();
+  const aliasNames = aliasesRaw ? aliasesRaw.split(/\n/).map((s) => s.trim()).filter(Boolean) : [];
+
+  await prisma.$transaction(async (tx) => {
+    await tx.characterAlias.deleteMany({ where: { characterId } });
+    if (aliasNames.length > 0) {
+      await tx.characterAlias.createMany({
+        data: aliasNames.map((alias) => ({
+          characterId,
+          name: alias,
+          nameLower: alias.toLowerCase(),
+        })),
+      });
+    }
+  });
+
+  revalidatePath(`/admin/characters/${characterId}`);
+  // Если у персонажа появится публичная страница, добавим и её revalidatePath
+  return { success: true };
+}
