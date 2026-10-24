@@ -33,7 +33,13 @@ export default async function AdminPeoplePage({
     where: whereConditions.length > 0 ? { AND: whereConditions } : undefined,
     include: { 
       aliases: true, 
-      _count: { select: { credits: true } } 
+      _count: { select: { credits: true } },
+      credits: {
+        include: {
+          drama: { select: { title: true } },
+          character: { select: { name: true } }
+        }
+      }
     },
     orderBy: { name: "asc" },
   });
@@ -132,6 +138,17 @@ export default async function AdminPeoplePage({
                   const gender = getGenderLabel(p.gender);
                   const facts = [gender, age ? `${age} лет` : null, p.agency].filter(Boolean).join(" · ");
 
+                  const roleCount = p.credits.length;
+                  const roleNames = p.credits.slice(0, 5).map(c => {
+                    return c.character?.name 
+                      ? `${c.drama.title} (${c.character.name})` 
+                      : c.drama.title;
+                  });
+                  const roleRest = roleCount > 5 ? `\n...и еще ${roleCount - 5}` : "";
+                  const roleTooltip = roleCount === 0 
+                    ? "Нет ролей" 
+                    : `Ролей (${roleCount}):\n${roleNames.join("\n")}${roleRest}`;
+
                   return (
                     <tr key={p.id} className="border-b border-border last:border-b-0 hover:bg-foreground/2 transition-colors">
                       {/* КОЛОНКА 1: Объект */}
@@ -169,9 +186,9 @@ export default async function AdminPeoplePage({
                       {/* КОЛОНКА 4: Наполнение */}
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <Tooltip content={`Ролей: ${p._count.credits}`}>
-                            <span className={`flex items-center gap-1 text-xs ${p._count.credits > 0 ? "text-green-500" : "text-muted/30"}`}>
-                              <Film className="w-3.5 h-3.5" /> {p._count.credits}
+                          <Tooltip content={<span className="whitespace-pre-wrap">{roleTooltip}</span>}>
+                            <span className={`flex items-center gap-1 text-xs ${roleCount > 0 ? "text-green-500" : "text-muted/30"}`}>
+                              <Film className="w-3.5 h-3.5" /> {roleCount}
                             </span>
                           </Tooltip>
                           <Tooltip content={p.bio ? "Биография есть" : "Нет биографии"}>
