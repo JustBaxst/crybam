@@ -51,6 +51,7 @@ export function DeleteDramaModal({
           <button
             type="button"
             onClick={onClose}
+            autoFocus
             disabled={isPending}
             className="px-4 py-2 rounded-lg border border-border text-sm hover:border-accent/40 transition-colors disabled:opacity-50"
           >
