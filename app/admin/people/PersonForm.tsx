@@ -137,14 +137,14 @@ export function PersonForm({ person }: { person?: PersonData }) {
 
         {/* Группа крови, MBTI, Зодиаки (4 колонки) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div>
+                    <div>
             <label className={labelCls}>Группа крови</label>
             <select name="bloodType" defaultValue={person?.bloodType ?? ""} className={inputCls}>
               <option value="">— нет —</option>
-              <option value="A">A</option>
-              <option value="B">B</option>
-              <option value="AB">AB</option>
-              <option value="O">O</option>
+              <option value="O(I)">O(I)</option>
+              <option value="A(II)">A(II)</option>
+              <option value="B(III)">B(III)</option>
+              <option value="AB(IV)">AB(IV)</option>
             </select>
           </div>
           <div>

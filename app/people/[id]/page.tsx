@@ -1,14 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  ArrowLeft,
-  Calendar,
-  Briefcase,
-  Film,
-  User as UserIcon,
-  MapPin,
-  Ruler,
-  Link as LinkIcon,
+  ArrowLeft, Calendar, Briefcase, Film, User as UserIcon, MapPin,
+  Ruler, Link as LinkIcon, Droplet, Brain, Sparkles
 } from "lucide-react";
 import { FaInstagram, FaYoutube, FaTwitter, FaTiktok, FaWikipediaW, 
   FaGlobe, FaFacebook, FaLinkedin, FaTelegram, FaDiscord, 
@@ -146,7 +140,7 @@ export default async function PersonPage({ params }: { params: Params }) {
             )} 
           />
 
-          {/* Новые поля: Пол, Рост, Место рождения и др. */}
+     {/* Новые поля: Пол, Рост, Место рождения и др. */}
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4 text-sm text-muted">
             {person.gender && (
               <span className="flex items-center gap-1.5">
@@ -188,6 +182,34 @@ export default async function PersonPage({ params }: { params: Params }) {
                 <Briefcase className="w-4 h-4 text-accent" />
                 <span className="text-muted/70">Агентство:</span>
                 {person.agency}
+              </span>
+            )}
+                   {person.bloodType && (
+              <span className="flex items-center gap-1.5">
+                <Droplet className="w-4 h-4 text-accent" />
+                <span className="text-muted/70">Группа крови:</span>
+                {person.bloodType}
+              </span>
+            )}
+            {person.mbti && (
+              <span className="flex items-center gap-1.5">
+                <Brain className="w-4 h-4 text-accent" />
+                <span className="text-muted/70">MBTI:</span>
+                {person.mbti}
+              </span>
+            )}
+            {person.zodiacWestern && (
+              <span className="flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-accent" />
+                <span className="text-muted/70">Зодиак:</span>
+                {person.zodiacWestern}
+              </span>
+            )}
+            {person.zodiacChinese && (
+              <span className="flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-accent" />
+                <span className="text-muted/70">Кит. зодиак:</span>
+                {person.zodiacChinese}
               </span>
             )}
           </div>

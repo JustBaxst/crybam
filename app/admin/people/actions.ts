@@ -56,13 +56,13 @@ export async function createPerson(formData: FormData) {
       gender: genderRaw,
       height: num("height"),
       birthPlace: str("birthPlace"),
-      socialLinks: {
-        create: socialLinks,
-      },
       bloodType: str("bloodType"),
       mbti: str("mbti"),
       zodiacWestern: str("zodiacWestern"),
       zodiacChinese: str("zodiacChinese"),
+      socialLinks: {
+        create: socialLinks,
+      },
     },
   });
 
@@ -109,6 +109,10 @@ export async function updatePerson(formData: FormData) {
         gender: genderRaw,
         height: num("height"),
         birthPlace: str("birthPlace"),
+        bloodType: str("bloodType"),
+        mbti: str("mbti"),
+        zodiacWestern: str("zodiacWestern"),
+        zodiacChinese: str("zodiacChinese"),
       },
     });
 
