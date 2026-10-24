@@ -1,6 +1,5 @@
 "use client";
 
-import { SmartLink } from "@/components/SmartLink";
 import { useEffect, useRef, useState } from "react";
 import {
   ChevronDown,
@@ -15,9 +14,9 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
-import { ComingSoon } from "@/components/ComingSoon";
+import { MenuLink } from "@/components/MenuLink";
+import { SmartLink } from "./SmartLink";
 
-// Добавили флаг isWip для разделов, которые еще в разработке
 const userSections = [
   { href: "/library",       Icon: Library,    label: "Библиотека",        hint: "Списки дорам", isWip: false },
   { href: "/heart",         Icon: Heart,      label: "Особое место",      hint: "Дорамы с цитатами", isWip: false },
@@ -29,10 +28,7 @@ const userSections = [
 ];
 
 type UserMenuProps = {
-  user: {
-    name: string;
-    role: string;
-  } | null;
+  user: { name: string; role: string } | null;
 };
 
 export function UserMenu({ user }: UserMenuProps) {  
@@ -79,23 +75,12 @@ export function UserMenu({ user }: UserMenuProps) {
 
       {open && (
         <div className="absolute right-0 top-full mt-2 z-50 w-72 rounded-xl border border-border bg-surface shadow-xl overflow-hidden">
-          {userSections.map(({ href, Icon, label, hint, isWip }) => (
-            <SmartLink
-              key={href}
-              href={href}
-              isWip={isWip}
-              onClick={() => setOpen(false)}
-              className="flex items-start gap-3 px-4 py-3 hover:bg-foreground/5 transition-colors border-b border-border last:border-b-0"
-            >
-              <Icon className="w-5 h-5 mt-0.5 shrink-0 text-accent" />
-              <div className="min-w-0 flex-1">
-                <div className="text-sm font-medium flex items-center gap-1.5">
-                  {label}
-                  {isWip && <ComingSoon />} 
-                </div>
-                <div className="text-xs text-muted mt-0.5">{hint}</div>
-              </div>
-            </SmartLink>
+          {userSections.map((item) => (
+            <MenuLink 
+              key={item.href} 
+              {...item} 
+              onClick={() => setOpen(false)} 
+            />
           ))}
 
           <div className="border-t border-border">
@@ -108,7 +93,6 @@ export function UserMenu({ user }: UserMenuProps) {
               Настройки
             </SmartLink>
             
-            {/* Кнопка Выйти: убрали disabled, добавили onClick и ховер-эффект */}
             <button
               onClick={() => {
                 alert("Авторизация появится в следующем обновлении! 🚀");

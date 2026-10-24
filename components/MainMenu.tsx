@@ -2,8 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Tv, Theater, MessagesSquare, Newspaper, UserCircle } from "lucide-react";
-import { ComingSoon } from "@/components/ComingSoon";
-import { SmartLink } from "./SmartLink";
+import { MenuLink } from "@/components/MenuLink"; // ← Импортируем наш новый компонент
 
 const items = [
   { href: "/dramas",     Icon: Tv,             label: "Дорамы",     hint: "Все дорамы в базе", isWip: false },
@@ -52,23 +51,12 @@ export function MainMenu() {
 
       {open && (
         <div className="absolute left-0 top-full mt-2 z-50 w-72 rounded-xl border border-border bg-surface shadow-xl overflow-hidden">
-          {items.map(({ href, Icon, label, hint, isWip }) => (
-            <SmartLink
-              key={href}
-              href={href}
-              isWip={isWip}
-              onClick={() => setOpen(false)}
-              className="flex items-start gap-3 px-4 py-3 hover:bg-foreground/5 transition-colors border-b border-border last:border-b-0"
-            >
-              <Icon className="w-5 h-5 mt-0.5 shrink-0 text-accent" />
-              <div className="min-w-0 flex-1">
-                <div className="text-sm font-medium flex items-center gap-1.5">
-                  {label}
-                  {isWip && <ComingSoon />}
-                </div>
-                <div className="text-xs text-muted mt-0.5">{hint}</div>
-              </div>
-            </SmartLink>
+          {items.map((item) => (
+            <MenuLink 
+              key={item.href} 
+              {...item} 
+              onClick={() => setOpen(false)} 
+            />
           ))}
         </div>
       )}
