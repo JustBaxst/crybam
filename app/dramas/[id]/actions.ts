@@ -446,6 +446,8 @@ export async function updateTitles(formData: FormData) {
     const detectLanguage = (text: string) => {
       if (/[\uAC00-\uD7AF]/.test(text)) return "ko"; // Корейский
       if (/[а-яА-Я]/.test(text)) return "ru";       // Русский
+      if (/[\u4e00-\u9fa5]/.test(text)) return "zh"; // Китайский
+      if (/[\u3040-\u30ff]/.test(text)) return "ja"; // Японский
       if (/[a-zA-Z]/.test(text)) return "en";       // Английский
       return "unknown";
     };

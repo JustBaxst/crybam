@@ -6,6 +6,15 @@ import { prisma } from "@/lib/prisma";
 import { requireModerator } from "@/lib/auth";
 import { Gender } from "@prisma/client";
 
+const detectLanguage = (text: string) => {
+  if (/[\uAC00-\uD7AF]/.test(text)) return "ko";
+  if (/[а-яА-Я]/.test(text)) return "ru";
+  if (/[\u4e00-\u9fa5]/.test(text)) return "zh";
+  if (/[\u3040-\u30ff]/.test(text)) return "ja";
+  if (/[a-zA-Z]/.test(text)) return "en";
+  return "unknown";
+};
+
 export async function createCharacter(formData: FormData) {
   await requireModerator();
 
@@ -172,6 +181,7 @@ export async function updateCharacterAliases(formData: FormData) {
           characterId,
           name: alias,
           nameLower: alias.toLowerCase(),
+          language: detectLanguage(alias),
         })),
       });
     }

@@ -84,7 +84,7 @@ export default async function CharacterPage({ params }: { params: Params }) {
             titles={character.aliases.map((a) => ({ 
               id: a.id, 
               title: a.name, 
-              language: "unknown" // В базе персонажей нет языка для алиасов, ставим заглушку
+              language: a.language
             }))} 
           />
 
