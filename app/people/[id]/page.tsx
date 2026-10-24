@@ -178,14 +178,14 @@ export default async function PersonPage({ params }: { params: Params }) {
               </span>
             )}
 
-            {person.nationality && (
+                       {person.nationality && (
               <span className="flex items-center gap-1.5">
                 <Flag className="w-4 h-4 text-accent" />
                 <span className="text-muted/70">Национальность:</span>
                 {person.nationality}
               </span>
             )}
-            
+
             {person.agency && (
               <span className="flex items-center gap-1.5">
                 <Briefcase className="w-4 h-4 text-accent" />

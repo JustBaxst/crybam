@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { Save, User, FileText, Image, Link2 } from "lucide-react";
 import { createPerson, updatePerson } from "./actions";
 import { FormSection } from "@/components/FormSection";
+import { COUNTRIES } from "@/lib/constants";
 
 type PersonData = {
   id?: number;
@@ -102,17 +103,20 @@ export function PersonForm({ person }: { person?: PersonData }) {
         {/* Пол, рост, место рождения (3 колонки) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 
-          <div>
-            <label className={labelCls}>Национальность</label>
-            <input
-              type="text"
+                    <div>
+            <label className={labelCls}>Страна / Национальность</label>
+            <select
               name="nationality"
               defaultValue={person?.nationality ?? ""}
-              placeholder="Кореянка"
               className={inputCls}
-            />
+            >
+              <option value="">— не указана —</option>
+              {COUNTRIES.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
           </div>
-          
+
           <div>
             <label className={labelCls}>Пол</label>
             <select
