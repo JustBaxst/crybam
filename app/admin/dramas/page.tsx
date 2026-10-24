@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { AdminSearchBar } from "@/components/AdminSearchBar";
 import { MobileSearchButton } from "@/components/MobileSearchButton";
 import { getDramaSearchWhere } from "@/lib/search-queries";
+import { MetricsIcons } from "@/components/admin/MetricsIcons";
 import { StatusDot } from "@/components/admin/StatusDot";
 import { AliasBadge } from "@/components/admin/AliasBadge";
 import { DramaActions } from "./DramaActions";
@@ -34,6 +35,8 @@ export default async function AdminDramasPage({
     where: whereConditions.length > 0 ? { AND: whereConditions } : undefined,
     include: {
       titles: true, // ← Для AliasBadge
+      genres: { include: { genre: true } },
+      credits: { include: { person: true } },
       _count: {
         select: { credits: true, genres: true },
       },
@@ -148,9 +151,10 @@ export default async function AdminDramasPage({
                       <div className="flex items-center gap-3">
                         <StatusDot 
                           items={[
-                            { label: "Постер", isFilled: !!d.posterUrl, isCritical: true },
-                            { label: "Жанры", isFilled: d._count.genres > 0 },
-                            { label: "Актеры", isFilled: d._count.credits > 0 },
+                            // Если есть постер ИЛИ есть альтернативные названия (titles.length > 1) - то не критично
+                            { label: "Постер/Альт.названия", isFilled: !!d.posterUrl || d.titles.length > 1, isCritical: true },
+                            { label: "Жанры", isFilled: d.genres.length > 0 },
+                            { label: "Актеры", isFilled: d.credits.length > 0 },
                             { label: "Описание", isFilled: !!d.synopsis },
                           ]}
                         />
@@ -183,23 +187,13 @@ export default async function AdminDramasPage({
                       {[d.year, d.country].filter(Boolean).join(" · ") || "—"}
                     </td>
 
-                    {/* КОЛОНКА 4: Наполнение */}
+                                        {/* КОЛОНКА 4: Наполнение */}
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-3 text-muted">
-                        <Tooltip content="Актеры">
-                          <span className="flex items-center gap-1 text-xs">
-                            <Film className="w-3.5 h-3.5" /> {d._count.credits}
-                          </span>
-                        </Tooltip>
-                        <Tooltip content="Жанры">
-                          <span className="flex items-center gap-1 text-xs">
-                            <Tag className="w-3.5 h-3.5" /> {d._count.genres}
-                          </span>
-                        </Tooltip>
-                        <Tooltip content={d.synopsis ? "Описание есть" : "Нет описания"}>
-                          <FileText className={`w-3.5 h-3.5 ${d.synopsis ? "text-green-500/70" : "text-muted/30"}`} />
-                        </Tooltip>
-                      </div>
+                      <MetricsIcons 
+                        credits={d.credits} 
+                        genres={d.genres} 
+                        hasSynopsis={!!d.synopsis} 
+                      />
                     </td>
 
                     {/* КОЛОНКА 5: Действия */}
