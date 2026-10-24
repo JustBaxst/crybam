@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { SmartLink } from "@/components/SmartLink";
 import { useEffect, useRef, useState } from "react";
 import {
   ChevronDown,
@@ -80,9 +80,10 @@ export function UserMenu({ user }: UserMenuProps) {
       {open && (
         <div className="absolute right-0 top-full mt-2 z-50 w-72 rounded-xl border border-border bg-surface shadow-xl overflow-hidden">
           {userSections.map(({ href, Icon, label, hint, isWip }) => (
-            <Link
+            <SmartLink
               key={href}
               href={href}
+              isWip={isWip}
               onClick={() => setOpen(false)}
               className="flex items-start gap-3 px-4 py-3 hover:bg-foreground/5 transition-colors border-b border-border last:border-b-0"
             >
@@ -90,22 +91,22 @@ export function UserMenu({ user }: UserMenuProps) {
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-medium flex items-center gap-1.5">
                   {label}
-                  {isWip && <ComingSoon />} {/* ← БЕЙДЖ WIP ТУТ */}
+                  {isWip && <ComingSoon />} 
                 </div>
                 <div className="text-xs text-muted mt-0.5">{hint}</div>
               </div>
-            </Link>
+            </SmartLink>
           ))}
 
           <div className="border-t border-border">
-            <Link
+            <SmartLink
               href="/settings"
               onClick={() => setOpen(false)}
               className="flex items-center gap-3 px-4 py-3 hover:bg-foreground/5 transition-colors text-sm text-muted"
             >
               <Settings className="w-5 h-5 shrink-0" />
               Настройки
-            </Link>
+            </SmartLink>
             
             {/* Кнопка Выйти: убрали disabled, добавили onClick и ховер-эффект */}
             <button

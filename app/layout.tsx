@@ -4,6 +4,7 @@ import { Header } from "@/components/Header";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Footer } from "@/components/Footer";
 import { getCurrentUser } from "@/lib/auth";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -47,6 +48,13 @@ export default async function RootLayout({
           <main>{children}</main>
           <Footer />
         </ThemeProvider>
+        
+      <Toaster 
+        theme="dark" 
+        position="bottom-right" 
+        richColors 
+        closeButton
+      />
       </body>
     </html>
   );

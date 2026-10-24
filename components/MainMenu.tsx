@@ -1,14 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Tv, Theater, MessagesSquare, Newspaper, UserCircle } from "lucide-react";
 import { ComingSoon } from "@/components/ComingSoon";
+import { SmartLink } from "./SmartLink";
 
 const items = [
   { href: "/dramas",     Icon: Tv,             label: "Дорамы",     hint: "Все дорамы в базе", isWip: false },
   { href: "/people",     Icon: Theater,        label: "Актёры",     hint: "Все актёры в базе", isWip: false },
-  { href: "/characters", Icon: UserCircle,          label: "Персонажи",  hint: "Все персонажи дорам", isWip: false },
+  { href: "/characters", Icon: UserCircle,     label: "Персонажи",  hint: "Все персонажи дорам", isWip: false },
   { href: "/community",  Icon: MessagesSquare, label: "Сообщества", hint: "Обсуждения и друзья", isWip: true },
   { href: "/news",       Icon: Newspaper,      label: "Новости",    hint: "Что нового на сайте", isWip: true },
 ];
@@ -53,9 +53,10 @@ export function MainMenu() {
       {open && (
         <div className="absolute left-0 top-full mt-2 z-50 w-72 rounded-xl border border-border bg-surface shadow-xl overflow-hidden">
           {items.map(({ href, Icon, label, hint, isWip }) => (
-            <Link
+            <SmartLink
               key={href}
               href={href}
+              isWip={isWip}
               onClick={() => setOpen(false)}
               className="flex items-start gap-3 px-4 py-3 hover:bg-foreground/5 transition-colors border-b border-border last:border-b-0"
             >
@@ -67,7 +68,7 @@ export function MainMenu() {
                 </div>
                 <div className="text-xs text-muted mt-0.5">{hint}</div>
               </div>
-            </Link>
+            </SmartLink>
           ))}
         </div>
       )}
