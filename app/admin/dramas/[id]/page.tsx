@@ -313,7 +313,7 @@ export default async function AdminDramaEditPage({
                   <div className="flex items-center gap-2 flex-wrap">
                     {/* АКТЕР - ССЫЛКА В АДМИНКУ */}
                     <Link 
-                      href={`/admin/people/${a.person.id}`}
+                      href={`/admin/people/${a.person.id}?fromDrama=${drama.id}`} 
                       className="text-sm font-semibold truncate hover:text-accent transition-colors"
                     >
                       {a.person.name}

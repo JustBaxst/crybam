@@ -24,13 +24,14 @@ type PersonData = {
   zodiacChinese: string | null;
 };
 
-export function PersonForm({ person }: { person?: PersonData }) {
+export function PersonForm({ person, fromDrama }: { person?: PersonData; fromDrama?: string }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    if (fromDrama) formData.set("fromDrama", fromDrama);
 
     startTransition(async () => {
       const action = person ? updatePerson : createPerson;
