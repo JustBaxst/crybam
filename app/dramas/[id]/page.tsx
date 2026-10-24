@@ -461,38 +461,44 @@ export default async function DramaPage({ params }: { params: Params }) {
             emptyText="Актёры пока не заполнены"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {actors.map((a) => (
-                <Link
+                            {actors.map((a) => (
+                <div
                   key={a.id}
-                  href={`/people/${a.person.id}`}
-                  className={`flex items-start gap-3 rounded-xl border border-border bg-surface p-3 hover:border-accent/50 transition-colors border-l-4 ${importanceBorderColor(a.importance)}`}
+                  className={`flex items-start gap-3 rounded-xl border border-border bg-surface p-3 border-l-4 ${importanceBorderColor(a.importance)}`}
                 >
-                  <div className="w-12 h-12 rounded-full bg-accent-soft/50 flex items-center justify-center text-xl shrink-0">
-                    👤
-                  </div>
+                  {/* Фото и имя актера - ссылка */}
+                  <Link href={`/people/${a.person.id}`} className="shrink-0 flex items-center gap-3 group">
+                    <div className="w-12 h-12 rounded-full bg-accent-soft/50 flex items-center justify-center text-xl overflow-hidden">
+                       {a.person.photoUrl ? <img src={a.person.photoUrl} className="w-full h-full object-cover" /> : "👤"}
+                    </div>
+                  </Link>
+                  
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-semibold truncate">
+                      <Link href={`/people/${a.person.id}`} className="text-sm font-semibold truncate hover:text-accent transition-colors">
                         {a.person.name}
-                      </p>
+                      </Link>
                       {a.importance === "lead" && (
                         <span className="text-[10px] px-1.5 py-0.5 rounded-full border border-yellow-400/40 bg-yellow-400/10 text-yellow-400">
                           Главная
                         </span>
                       )}
                     </div>
+                    
+                    {/* Имя персонажа - ссылка на страницу персонажа */}
                     {a.character?.name && (
-                      <p className="text-xs text-accent mt-0.5 truncate">
+                      <Link href={`/characters/${a.character.id}`} className="text-xs text-accent mt-0.5 truncate hover:underline inline-block">
                         → {a.character.name}
-                      </p>
+                      </Link>
                     )}
+                    
                     {a.character?.description && (
                       <p className="text-xs text-muted mt-0.5 line-clamp-2">
                         {a.character.description}
                       </p>
                     )}
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           </InfoBlock>

@@ -302,7 +302,7 @@ export default async function AdminDramaEditPage({
           </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {actors.map((a) => (
+                        {actors.map((a) => (
               <div
                 key={a.id}
                 className={`flex items-start gap-3 rounded-xl border border-border bg-background p-3 border-l-4 ${importanceBorderColor(a.importance)}`}
@@ -312,20 +312,30 @@ export default async function AdminDramaEditPage({
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-sm font-semibold truncate">
+                    {/* АКТЕР - ССЫЛКА В АДМИНКУ */}
+                    <Link 
+                      href={`/admin/people/${a.person.id}`}
+                      className="text-sm font-semibold truncate hover:text-accent transition-colors"
+                    >
                       {a.person.name}
-                    </p>
+                    </Link>
                     {a.importance === "lead" && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded-full border border-yellow-400/40 bg-yellow-400/10 text-yellow-400">
                         Главная
                       </span>
                     )}
                   </div>
+                  
+                  {/* ПЕРСОНАЖ - ССЫЛКА В АДМИНКУ */}
                   {a.character?.name && (
-                    <p className="text-xs text-accent mt-0.5 truncate">
+                    <Link 
+                      href={`/admin/characters/${a.character.id}`}
+                      className="inline-flex items-center text-xs text-accent mt-0.5 truncate hover:underline"
+                    >
                       → {a.character.name}
-                    </p>
+                    </Link>
                   )}
+                  
                   {a.character?.description && (
                     <p className="text-xs text-muted mt-0.5 line-clamp-2">
                       {a.character.description}
