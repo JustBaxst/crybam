@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Tv, Theater, MessagesSquare, Newspaper, UserCircle } from "lucide-react"; // ← Добавили Masks
+import { ChevronDown, Tv, Theater, MessagesSquare, Newspaper, UserCircle } from "lucide-react";
+import { ComingSoon } from "@/components/ComingSoon";
 
 const items = [
-  { href: "/dramas",     Icon: Tv,             label: "Дорамы",     hint: "Все дорамы в базе" },
-  { href: "/people",     Icon: Theater,        label: "Актёры",     hint: "Все актёры в базе" },
-  { href: "/characters", Icon: UserCircle,          label: "Персонажи",  hint: "Все персонажи дорам" }, // ← НОВЫЙ ПУНКТ
-  { href: "/community",  Icon: MessagesSquare, label: "Сообщества", hint: "Обсуждения и друзья" },
-  { href: "/news",       Icon: Newspaper,      label: "Новости",    hint: "Что нового на сайте" },
+  { href: "/dramas",     Icon: Tv,             label: "Дорамы",     hint: "Все дорамы в базе", isWip: false },
+  { href: "/people",     Icon: Theater,        label: "Актёры",     hint: "Все актёры в базе", isWip: false },
+  { href: "/characters", Icon: UserCircle,          label: "Персонажи",  hint: "Все персонажи дорам", isWip: false },
+  { href: "/community",  Icon: MessagesSquare, label: "Сообщества", hint: "Обсуждения и друзья", isWip: true },
+  { href: "/news",       Icon: Newspaper,      label: "Новости",    hint: "Что нового на сайте", isWip: true },
 ];
 
 export function MainMenu() {
@@ -51,7 +52,7 @@ export function MainMenu() {
 
       {open && (
         <div className="absolute left-0 top-full mt-2 z-50 w-72 rounded-xl border border-border bg-surface shadow-xl overflow-hidden">
-          {items.map(({ href, Icon, label, hint }) => (
+          {items.map(({ href, Icon, label, hint, isWip }) => (
             <Link
               key={href}
               href={href}
@@ -59,8 +60,11 @@ export function MainMenu() {
               className="flex items-start gap-3 px-4 py-3 hover:bg-foreground/5 transition-colors border-b border-border last:border-b-0"
             >
               <Icon className="w-5 h-5 mt-0.5 shrink-0 text-accent" />
-              <div className="min-w-0">
-                <div className="text-sm font-medium">{label}</div>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-medium flex items-center gap-1.5">
+                  {label}
+                  {isWip && <ComingSoon />}
+                </div>
                 <div className="text-xs text-muted mt-0.5">{hint}</div>
               </div>
             </Link>
