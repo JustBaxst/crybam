@@ -250,7 +250,7 @@ export function SearchBar() {
                             key={`char-${r.id}`}
                             type="button"
                             onMouseEnter={() => setActiveIndex(globalIdx)}
-                            onClick={() => goTo(`/dramas/${r.drama.id}`)}
+                            onClick={() => goTo(`/characters/${r.id}`)}
                             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-left ${globalIdx === activeIndex ? "bg-accent/10" : "hover:bg-foreground/5"}`}
                           >
                             <div className="w-10 h-14 rounded-md bg-accent-soft/40 flex items-center justify-center shrink-0">
