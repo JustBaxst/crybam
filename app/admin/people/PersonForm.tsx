@@ -16,6 +16,10 @@ type PersonData = {
   height?: number | null;
   birthPlace?: string | null;
   socialLinks?: { platform: string; url: string }[];
+  bloodType: string | null;
+  mbti: string | null;
+  zodiacWestern: string | null;
+  zodiacChinese: string | null;
 };
 
 export function PersonForm({ person }: { person?: PersonData }) {
@@ -50,12 +54,13 @@ export function PersonForm({ person }: { person?: PersonData }) {
     >
       {person?.id && <input type="hidden" name="personId" value={person.id} />}
 
-      {/* ─── ОСНОВНОЕ ─── */}
+            {/* ─── ОСНОВНОЕ ─── */}
       <FormSection
         Icon={User}
         title="Основное"
         description="Имя и информация о человеке"
       >
+        {/* Имя */}
         <div>
           <label className={labelCls}>
             Имя <span className="text-accent">*</span>
@@ -70,7 +75,8 @@ export function PersonForm({ person }: { person?: PersonData }) {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        {/* Дата рождения и агентство (2 колонки) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className={labelCls}>Дата рождения</label>
             <input
@@ -92,7 +98,8 @@ export function PersonForm({ person }: { person?: PersonData }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        {/* Пол, рост, место рождения (3 колонки) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className={labelCls}>Пол</label>
             <select
@@ -125,6 +132,48 @@ export function PersonForm({ person }: { person?: PersonData }) {
               placeholder="Сеул, Южная Корея"
               className={inputCls}
             />
+          </div>
+        </div>
+
+        {/* Группа крови, MBTI, Зодиаки (4 колонки) */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div>
+            <label className={labelCls}>Группа крови</label>
+            <select name="bloodType" defaultValue={person?.bloodType ?? ""} className={inputCls}>
+              <option value="">— нет —</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="AB">AB</option>
+              <option value="O">O</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>MBTI</label>
+            <input
+              type="text"
+              name="mbti"
+              defaultValue={person?.mbti ?? ""}
+              placeholder="INFP"
+              className={`${inputCls} uppercase`}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Западный зодиак</label>
+            <select name="zodiacWestern" defaultValue={person?.zodiacWestern ?? ""} className={inputCls}>
+              <option value="">— нет —</option>
+              {["Овен", "Телец", "Близнецы", "Рак", "Лев", "Дева", "Весы", "Скорпион", "Стрелец", "Козерог", "Водолей", "Рыбы"].map(z => (
+                <option key={z} value={z}>{z}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>Китайский зодиак</label>
+            <select name="zodiacChinese" defaultValue={person?.zodiacChinese ?? ""} className={inputCls}>
+              <option value="">— нет —</option>
+              {["Крыса", "Бык", "Тигр", "Кролик", "Дракон", "Змея", "Лошадь", "Коза", "Обезьяна", "Петух", "Собака", "Свинья"].map(z => (
+                <option key={z} value={z}>{z}</option>
+              ))}
+            </select>
           </div>
         </div>
       </FormSection>

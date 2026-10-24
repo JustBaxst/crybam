@@ -16,6 +16,7 @@ export default async function EditCharacterPage({ params }: { params: Params }) 
     where: { id },
     include: {
       drama: { select: { id: true, title: true, year: true } },
+      aliases: true, // ← ДОБАВИЛИ ПОДТЯГИВАНИЕ ИМЕН
     },
   });
 
@@ -41,9 +42,10 @@ export default async function EditCharacterPage({ params }: { params: Params }) 
         />
       </div>
 
-      <div className="mb-6">
+      <div className="mb-6 flex items-center gap-4 flex-wrap">
         <h1 className="text-2xl font-bold">{character.name}</h1>
-        <p className="text-sm text-muted mt-1">
+        {/* Сюда мы позже добавим кнопку "Другие имена" (модалку) */}
+        <p className="text-sm text-muted w-full mt-1">
           Из дорамы{" "}
           <Link
             href={`/admin/dramas/${character.drama.id}`}

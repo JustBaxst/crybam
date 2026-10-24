@@ -199,6 +199,10 @@ model Person {
   gender     Gender?
   height     Int?
   birthPlace String?
+  bloodType     String?
+  mbti          String?
+  zodiacWestern String?
+  zodiacChinese String?
   createdAt  DateTime  @default(now())
 
   credits           Credit[]
@@ -248,8 +252,6 @@ model Character {
   age           String?
   birthDate     String?
   occupation    String?
-  zodiacWestern String?
-  zodiacChinese String?
 
   createdAt   DateTime @default(now())
 

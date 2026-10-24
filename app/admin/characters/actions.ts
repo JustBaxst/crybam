@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireModerator } from "@/lib/auth";
+import { Gender } from "@prisma/client";
 
 export async function createCharacter(formData: FormData) {
   await requireModerator();
@@ -16,12 +17,21 @@ export async function createCharacter(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   if (!name) return { error: "Имя персонажа обязательно" };
 
+  const str = (n: string) => String(formData.get(n) ?? "").trim() || null;
+  const genderRaw = str("gender") as Gender | null;
+
   const character = await prisma.character.create({
     data: {
       dramaId,
       name,
-      description: String(formData.get("description") ?? "").trim() || null,
-      imageUrl: String(formData.get("imageUrl") ?? "").trim() || null,
+      nameLower: name.toLowerCase(),
+      description: str("description"),
+      imageUrl: str("imageUrl"),
+      gender: genderRaw,
+      height: str("height"),
+      age: str("age"),
+      birthDate: str("birthDate"),
+      occupation: str("occupation"),
     },
   });
 
@@ -41,12 +51,21 @@ export async function updateCharacter(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   if (!name) return { error: "Имя персонажа обязательно" };
 
+  const str = (n: string) => String(formData.get(n) ?? "").trim() || null;
+  const genderRaw = str("gender") as Gender | null;
+
   await prisma.character.update({
     where: { id: characterId },
     data: {
       name,
-      description: String(formData.get("description") ?? "").trim() || null,
-      imageUrl: String(formData.get("imageUrl") ?? "").trim() || null,
+      nameLower: name.toLowerCase(),
+      description: str("description"),
+      imageUrl: str("imageUrl"),
+      gender: genderRaw,
+      height: str("height"),
+      age: str("age"),
+      birthDate: str("birthDate"),
+      occupation: str("occupation"),
     },
   });
 

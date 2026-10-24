@@ -16,7 +16,7 @@ import { FaInstagram, FaYoutube, FaTwitter, FaTiktok, FaWikipediaW,
   FaSpotify, FaSoundcloud, FaImdb, FaGithub, FaMedium, FaWeibo, FaYandex } from "react-icons/fa6";
 import { 
   SiThreads, SiBluesky, SiLine, SiWechat, 
-  SiBilibili, SiNaver, SiKakao, SiApplemusic,
+  SiBilibili, SiNaver, SiKakaotalk, SiApplemusic,
   SiTumblr, SiVimeo, SiDailymotion, SiPatreon,
   SiMastodon, SiSubstack, SiFlickr 
 } from "react-icons/si";
@@ -53,7 +53,7 @@ const SOCIAL_ICONS: Record<string, React.ComponentType<{ className?: string }>> 
   wechat: SiWechat,
   bilibili: SiBilibili,
   naver: SiNaver,
-  kakao: SiKakao,
+  kakao: SiKakaotalk,
   applemusic: SiApplemusic,
   yandexmusic: FaYandex,
   douyin: FaTiktok,

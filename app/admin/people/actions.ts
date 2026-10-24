@@ -59,6 +59,10 @@ export async function createPerson(formData: FormData) {
       socialLinks: {
         create: socialLinks,
       },
+      bloodType: str("bloodType"),
+      mbti: str("mbti"),
+      zodiacWestern: str("zodiacWestern"),
+      zodiacChinese: str("zodiacChinese"),
     },
   });
 

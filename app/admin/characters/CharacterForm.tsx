@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Save, UserCircle, FileText, Image } from "lucide-react";
+import { Save, UserCircle, FileText, Image, Users, Sparkles } from "lucide-react";
 import { createCharacter, updateCharacter } from "./actions";
 import { FormSection } from "@/components/FormSection";
 
@@ -11,6 +11,13 @@ type CharacterData = {
   name?: string | null;
   description?: string | null;
   imageUrl?: string | null;
+  gender?: string | null;
+  height?: string | null;
+  age?: string | null;
+  birthDate?: string | null;
+  occupation?: string | null;
+  zodiacWestern?: string | null;
+  zodiacChinese?: string | null;
 };
 
 type DramaOption = {
@@ -108,6 +115,65 @@ export function CharacterForm({
             placeholder="Мун Ган Тэ"
             className={inputCls}
           />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Пол</label>
+            <select
+              name="gender"
+              defaultValue={character?.gender ?? ""}
+              className={inputCls}
+            >
+              <option value="">— не указан —</option>
+              <option value="male">Мужской</option>
+              <option value="female">Женский</option>
+              <option value="other">Другой</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>Профессия / Роль</label>
+            <input
+              type="text"
+              name="occupation"
+              defaultValue={character?.occupation ?? ""}
+              placeholder="Наследный принц, Детектив..."
+              className={inputCls}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <label className={labelCls}>Рост</label>
+            <input
+              type="text"
+              name="height"
+              defaultValue={character?.height ?? ""}
+              placeholder="178 см"
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Возраст</label>
+            <input
+              type="text"
+              name="age"
+              defaultValue={character?.age ?? ""}
+              placeholder="25 (или 1000+)"
+              className={inputCls}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>День рождения</label>
+            <input
+              type="text"
+              name="birthDate"
+              defaultValue={character?.birthDate ?? ""}
+              placeholder="14 февраля"
+              className={inputCls}
+            />
+          </div>
         </div>
       </FormSection>
 
