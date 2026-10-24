@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Tv, Theater, MessagesSquare, Newspaper, UserCircle } from "lucide-react";
-import { MenuLink } from "@/components/MenuLink"; // ← Импортируем наш новый компонент
+import { MenuLink } from "@/components/MenuLink"; 
 
 const items = [
   { href: "/dramas",     Icon: Tv,             label: "Дорамы",     hint: "Все дорамы в базе", isWip: false },
