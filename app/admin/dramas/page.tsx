@@ -155,7 +155,10 @@ export default async function AdminDramasPage({
                       <div className="flex items-center gap-3">
                         <StatusDot
                           items={[
-                            { label: "Постер/Альт.названия", isFilled: !!d.posterUrl || d.titles.length > 1, isCritical: true },
+                            // Постер критичен, только если нет альтернативных названий
+                            { label: "Постер", isFilled: !!d.posterUrl, isCritical: d.titles.length <= 1 },
+                            // Альт. названия не критичны
+                            { label: "Альт. названия", isFilled: d.titles.length > 1, isCritical: false },
                             { label: "Жанры", isFilled: d._count.genres > 0 },
                             { label: "Актеры", isFilled: d._count.credits > 0 },
                             { label: "Описание", isFilled: !!d.synopsis },

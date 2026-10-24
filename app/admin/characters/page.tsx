@@ -141,7 +141,10 @@ export default async function AdminCharactersPage({
                       <div className="flex items-center gap-3">
                         <StatusDot
                           items={[
-                            { label: "Фото/Алиасы", isFilled: !!c.imageUrl || c.aliases.length > 0, isCritical: true },
+                            // Фото критично, только если нет альтернативных имен
+                            { label: "Фото", isFilled: !!c.imageUrl, isCritical: c.aliases.length === 0 },
+                            // Алиасы не критичны, но если их нет, будет желтая точка (потому что есть пропуск)
+                            { label: "Алиасы", isFilled: c.aliases.length > 0, isCritical: false },
                             { label: "Описание", isFilled: !!c.description },
                           ]}
                         />
