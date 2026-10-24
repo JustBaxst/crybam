@@ -28,10 +28,10 @@ export function CatalogCard({
   return (
     <Link
       href={`/dramas/${dramaId}`}
-      className="rounded-xl overflow-hidden border border-border bg-surface hover:border-accent/50 transition-colors duration-200 flex flex-col h-full" // ← ДОБАВЛЕНО h-full
+      className="group rounded-xl overflow-hidden border border-border bg-surface hover:border-accent/50 transition-colors duration-200 flex flex-col h-full" // ← ДОБАВЛЕНО h-full
     >
       {/* Постер */}
-      <div className="relative aspect-[2/3] bg-accent-soft overflow-hidden">
+      <div className="relative aspect-2/3 bg-accent-soft overflow-hidden">
         <PosterImage posterUrl={posterUrl} title={title} year={year} className="absolute inset-0" />
         
         {rating != null && (

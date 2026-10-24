@@ -30,10 +30,10 @@ export function DramaCard({
   return (
     <Link
       href={`/dramas/${dramaId}`}
-      className="rounded-xl overflow-hidden border border-border bg-surface hover:border-accent/50 transition-colors duration-200 flex flex-col"
+      className="group rounded-xl overflow-hidden border border-border bg-surface hover:border-accent/50 transition-colors duration-200 flex flex-col"
     >
             {/* Постер */}
-      <div className="relative aspect-[2/3] bg-accent-soft overflow-hidden">
+      <div className="relative aspect-2/3 bg-accent-soft overflow-hidden">
   <PosterImage posterUrl={posterUrl ?? null} title={title} year={year} className="absolute inset-0" />
 
         <div className="absolute top-2 left-2 inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full border border-border bg-background/80 font-medium">

@@ -31,6 +31,7 @@ export async function DramaGrid() {
   cryTag={isCryTag(entry.cryTag) ? entry.cryTag : undefined}
   status={entry.status}
   impression={entry.impression}
+  posterUrl={entry.drama.posterUrl}
 />
       ))}
     </div>

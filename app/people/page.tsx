@@ -63,17 +63,18 @@ export default async function PeoplePage({
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
           {people.map((p) => (
-            <Link
+                        <Link
               key={p.id}
               href={`/people/${p.id}`}
               className="rounded-xl border border-border bg-surface overflow-hidden hover:border-accent/50 transition-colors group"
             >
-              <div className="aspect-square bg-accent-soft/30 flex items-center justify-center text-5xl overflow-hidden">
+              {/* Сделал aspect-[2/3], чтобы было как у дорам и персонажей */}
+              <div className="aspect-2/3 bg-accent-soft/30 flex items-center justify-center text-5xl overflow-hidden">
                 {p.photoUrl ? (
                   <img
                     src={p.photoUrl}
                     alt={p.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-[1.03]" // ← добавили зум
                   />
                 ) : (
                   <UserIcon className="w-12 h-12 text-muted" />

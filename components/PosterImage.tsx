@@ -27,7 +27,7 @@ export function PosterImage({ posterUrl, title, year, className = "" }: PosterIm
     <img
       src={posterUrl}
       alt={title}
-      className={`w-full h-full object-cover ${className}`}
+      className={`w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-[1.03] ${className}`}
       onError={() => setError(true)}
       loading="lazy"
     />
