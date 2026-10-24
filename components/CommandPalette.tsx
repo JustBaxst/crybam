@@ -8,7 +8,7 @@ import { Search, Film, User, UserCircle, Loader2 } from "lucide-react";
 type SearchResults = {
   dramas: { id: number; title: string; year: number | null }[];
   people: { id: number; name: string }[];
-  characters: { id: number; name: string; drama: { title: string } }[];
+  characters: { id: number; name: string; imageUrl: string | null; drama: { title: string } }[];
 };
 
 export function CommandPalette() {
@@ -152,10 +152,12 @@ export function CommandPalette() {
                     onSelect={() => handleSelect(`/admin/characters/${c.id}`)}
                     className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground cursor-pointer aria-selected:bg-accent/10 aria-selected:text-accent"
                   >
-                    <UserCircle className="w-4 h-4 text-muted" />
-                    <div className="flex-1 min-w-0">
-                      <p className="truncate">{c.name}</p>
-                      <p className="text-[10px] text-muted truncate">{c.drama.title}</p>
+                      <div className="w-8 h-10 rounded bg-accent-soft/40 flex items-center justify-center shrink-0 overflow-hidden">
+                      {c.imageUrl ? (
+                        <img src={c.imageUrl} alt={c.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <UserCircle className="w-4 h-4 text-muted" />
+                      )}
                     </div>
                   </Command.Item>
                 ))}

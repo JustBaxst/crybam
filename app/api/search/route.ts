@@ -39,6 +39,7 @@ export async function GET(request: NextRequest) {
       select: { 
         id: true, 
         name: true, 
+        imageUrl: true,
         drama: { select: { id: true, title: true } } 
       },
       take: 5,
