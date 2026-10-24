@@ -86,6 +86,12 @@ export async function updateCharacter(formData: FormData) {
   revalidatePath("/admin/characters");
   revalidatePath(`/admin/characters/${characterId}`);
   if (character) revalidatePath(`/admin/dramas/${character.dramaId}`);
+
+  const fromDrama = formData.get("fromDrama");
+  
+  if (fromDrama) {
+    redirect(`/admin/dramas/${fromDrama}`);
+  }
   return { success: true };
 }
 

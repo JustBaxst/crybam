@@ -328,7 +328,7 @@ export default async function AdminDramaEditPage({
                   {/* ПЕРСОНАЖ - ССЫЛКА В АДМИНКУ */}
                   {a.character?.name && (
                     <Link 
-                      href={`/admin/characters/${a.character.id}`}
+                      href={`/admin/characters/${a.character.id}?fromDrama=${drama.id}`}
                       className="inline-flex items-center text-xs text-accent mt-0.5 truncate hover:underline"
                     >
                       → {a.character.name}

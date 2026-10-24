@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { CharacterForm } from "../CharacterForm";
 import { DeleteCharacterButton } from "./DeleteCharacterButton";
@@ -8,10 +9,19 @@ import { CharacterAliasEditButton } from "../CharacterAliasEditButton";
 import { AdminBreadcrumbs } from "@/components/AdminBreadcrumbs";
 
 type Params = Promise<{ id: string }>;
+type SearchParams = Promise<{ fromDrama?: string }>;
 
-export default async function EditCharacterPage({ params }: { params: Params }) {
+export default async function EditCharacterPage({ 
+  params, 
+  searchParams 
+}: { 
+  params: Params;
+  searchParams: SearchParams;
+}) {
   const { id: rawId } = await params;
+  const { fromDrama } = await searchParams;
   const id = Number(rawId);
+  
   if (!Number.isInteger(id) || id <= 0) notFound();
 
   const character = await prisma.character.findUnique({
@@ -24,13 +34,11 @@ export default async function EditCharacterPage({ params }: { params: Params }) 
 
   if (!character) notFound();
 
-  // Получаем связи, где этот персонаж является источником (from)
   const relations = await prisma.characterRelation.findMany({
     where: { fromId: id },
     include: { to: { select: { id: true, name: true } } },
   });
 
-  // Получаем список других персонажей из этой же дорамы
   const availableCharacters = await prisma.character.findMany({
     where: { dramaId: character.dramaId, id: { not: id } },
     select: { id: true, name: true },
@@ -51,7 +59,18 @@ export default async function EditCharacterPage({ params }: { params: Params }) 
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-10">
-      {/* Хлебные крошки */}
+      
+      {/* Кнопка возврата, если мы пришли из дорамы */}
+      {fromDrama && (
+        <Link
+          href={`/admin/dramas/${fromDrama}`}
+          className="inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-lg bg-accent/10 text-accent text-sm font-medium hover:bg-accent/20 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Вернуться к дораме
+        </Link>
+      )}
+
       <AdminBreadcrumbs 
         items={[
           { label: "Персонажи", href: "/admin/characters" },
@@ -59,8 +78,7 @@ export default async function EditCharacterPage({ params }: { params: Params }) 
         ]} 
       />
 
-      {/* Шапка с именем, кнопкой "Другие имена" и удалением */}
-      <div className="mb-8 flex items-start justify-between gap-4 flex-wrap">
+      <div className="mb-8 flex items-start justify-between gap-4 flex-wrap mt-2">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-4 flex-wrap">
             <h1 className="text-2xl font-bold">{character.name}</h1>
@@ -88,10 +106,9 @@ export default async function EditCharacterPage({ params }: { params: Params }) 
         </div>
       </div>
 
-      {/* Форма персонажа */}
-      <CharacterForm character={character} dramas={dramas} />
+      {/* Передаем fromDrama в форму */}
+      <CharacterForm character={character} dramas={dramas} fromDrama={fromDrama} />
 
-      {/* Блок связей */}
       <CharacterRelations
         characterId={character.id}
         relations={formattedRelations}
