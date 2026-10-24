@@ -12,6 +12,7 @@ const mobileNavItems = [
   { href: "/",                  label: "Дашборд" },
   { href: "/dramas",            label: "Дорамы" },
   { href: "/people",            label: "Актёры" },
+  { href: "/characters",        label: "Персонажи" },
   { href: "/community",         label: "Сообщества" },
   { href: "/news",              label: "Новости" },
   { href: "/library",           label: "Библиотека" },

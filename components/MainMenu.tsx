@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Tv, Theater, MessagesSquare, Newspaper } from "lucide-react";
+import { ChevronDown, Tv, Theater, MessagesSquare, Newspaper, UserCircle } from "lucide-react"; // ← Добавили Masks
 
 const items = [
-  { href: "/dramas",    Icon: Tv,             label: "Дорамы",     hint: "Все дорамы в базе" },
-  { href: "/people",    Icon: Theater,        label: "Актёры",     hint: "Все актёры в базе" },
-  { href: "/community", Icon: MessagesSquare, label: "Сообщества", hint: "Обсуждения и друзья" },
-  { href: "/news",      Icon: Newspaper,      label: "Новости",    hint: "Что нового на сайте" },
+  { href: "/dramas",     Icon: Tv,             label: "Дорамы",     hint: "Все дорамы в базе" },
+  { href: "/people",     Icon: Theater,        label: "Актёры",     hint: "Все актёры в базе" },
+  { href: "/characters", Icon: UserCircle,          label: "Персонажи",  hint: "Все персонажи дорам" }, // ← НОВЫЙ ПУНКТ
+  { href: "/community",  Icon: MessagesSquare, label: "Сообщества", hint: "Обсуждения и друзья" },
+  { href: "/news",       Icon: Newspaper,      label: "Новости",    hint: "Что нового на сайте" },
 ];
 
 export function MainMenu() {
