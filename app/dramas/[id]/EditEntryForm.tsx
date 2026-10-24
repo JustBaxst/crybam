@@ -13,21 +13,8 @@ import { updateEntry } from "./actions";
 import { FormSection } from "@/components/FormSection";
 import type { CryTag } from "@/lib/cry-tags";
 import { useLockBodyScroll } from "@/lib/use-lock-body-scroll";
+import type { EntryData } from "@/lib/types";
 
-type EntryData = {
-  status: string;
-  rating: number | null;
-  cryTag: string | null;
-  impression: string | null;
-  review: string | null;
-  quote: string | null;
-  notes: string | null;
-  progress: number | null;
-  rewatchCount: number;
-  startedAt: Date | null;
-  watchedAt: Date | null;
-  isFavorite: boolean;
-};
 
 const CRY_OPTIONS: { value: CryTag; label: string }[] = [
   { value: "safe", label: "❤️ Безопасно" },

@@ -3,20 +3,8 @@
 import { useState } from "react";
 import { Pencil } from "lucide-react";
 import { EditEntryForm } from "./EditEntryForm";
+import type { EntryData } from "@/lib/types";
 
-type EntryData = {
-  status: string;
-  rating: number | null;
-  cryTag: string | null;
-  impression: string | null;
-  review: string | null;
-  quote: string | null;
-  notes: string | null;
-  progress: number | null;
-  rewatchCount: number;
-  startedAt: Date | null;
-  watchedAt: Date | null;
-};
 
 export function EditEntryButton({
   dramaId,
