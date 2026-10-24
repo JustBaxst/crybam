@@ -1,6 +1,4 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { PersonForm } from "../PersonForm";
 import { DeletePersonButton } from "./DeletePersonButton";
@@ -23,26 +21,29 @@ export default async function EditPersonPage({ params }: { params: Params }) {
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-10">
-      <div className="flex items-center justify-between mb-6">
+      {/* Крошки теперь на своей строке */}
       <AdminBreadcrumbs 
         items={[
-          { label: "Персонажи", href: "/admin/characters" },
+          { label: "Актёры", href: "/admin/people" }, // ← ИСПРАВЛЕНО
           { label: person.name }
         ]} 
       />
-        <DeletePersonButton personId={person.id} personName={person.name} />
-      </div>
       
-      {/* Шапка с именем и кнопкой */}
-      <div className="flex items-center gap-4 mb-6 flex-wrap">
-        <h1 className="text-2xl font-bold">{person.name}</h1>
-        <PersonAliasEditButton 
-          personId={person.id} 
-          currentAliases={person.aliases.map((a) => a.name)} 
-        />
+      {/* Шапка с именем, кнопкой удаления и алиасами */}
+      <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
+        <div className="flex items-center gap-4 flex-wrap min-w-0">
+          <h1 className="text-2xl font-bold">{person.name}</h1>
+          <PersonAliasEditButton 
+            personId={person.id} 
+            currentAliases={person.aliases.map((a) => a.name)} 
+          />
+        </div>
+        
+        <div className="shrink-0">
+          <DeletePersonButton personId={person.id} personName={person.name} />
+        </div>
       </div>
 
-      {/* Сама форма редактирования (она была случайно удалена) */}
       <PersonForm person={person} />
     </div>
   );

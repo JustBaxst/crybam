@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  ArrowLeft,
   Film,
   Tag as TagIcon,
   Users,
@@ -94,7 +93,7 @@ export default async function AdminDramaEditPage({
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-10">
-      
+
       <AdminBreadcrumbs 
         items={[
           { label: "Дорамы", href: "/admin/dramas" },
