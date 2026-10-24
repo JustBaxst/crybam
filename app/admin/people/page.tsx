@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Film, FileText, UserIcon } from "lucide-react";
+import { Plus, Film, FileText, User as UserIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { AdminSearchBar } from "@/components/AdminSearchBar";
 import { MobileSearchButton } from "@/components/MobileSearchButton";
@@ -38,7 +38,8 @@ export default async function AdminPeoplePage({
         include: {
           drama: { select: { title: true } },
           character: { select: { name: true } }
-        }
+        },
+        take: 5 
       }
     },
     orderBy: { name: "asc" },
@@ -138,13 +139,13 @@ export default async function AdminPeoplePage({
                   const gender = getGenderLabel(p.gender);
                   const facts = [gender, age ? `${age} лет` : null, p.agency].filter(Boolean).join(" · ");
 
-                  const roleCount = p.credits.length;
-                  const roleNames = p.credits.slice(0, 5).map(c => {
+                  const roleCount = p._count.credits; // ← Берем из _count (общее число)
+                  const roleNames = p.credits.map(c => { // ← Итерируемся по урезанному массиву (макс 5)
                     return c.character?.name 
                       ? `${c.drama.title} (${c.character.name})` 
                       : c.drama.title;
                   });
-                  const roleRest = roleCount > 5 ? `\n...и еще ${roleCount - 5}` : "";
+                  const roleRest = roleCount > p.credits.length ? `\n...и еще ${roleCount - p.credits.length}` : "";
                   const roleTooltip = roleCount === 0 
                     ? "Нет ролей" 
                     : `Ролей (${roleCount}):\n${roleNames.join("\n")}${roleRest}`;

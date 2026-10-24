@@ -6,37 +6,39 @@ type Genre = { genre: { name: string } };
 
 export function MetricsIcons({ 
   credits, 
+  totalCredits,
   genres, 
+  totalGenres,
   hasSynopsis 
 }: { 
   credits: Actor[]; 
+  totalCredits: number;
   genres: Genre[]; 
+  totalGenres: number;
   hasSynopsis: boolean;
 }) {
   // Логика для актеров
-  const actorCount = credits.length;
   const actorColor = 
-    actorCount === 0 ? "text-muted/30" : 
-    actorCount <= 2 ? "text-muted" : 
-    actorCount <= 10 ? "text-yellow-500" : "text-green-500";
+    totalCredits === 0 ? "text-muted/30" : 
+    totalCredits <= 2 ? "text-muted" : 
+    totalCredits <= 10 ? "text-yellow-500" : "text-green-500";
   
-  const actorNames = credits.slice(0, 8).map(c => c.person.name);
-  const actorRest = actorCount > 8 ? `\n...и еще ${actorCount - 8}` : "";
-  const actorTooltip = actorCount === 0 
+  const actorNames = credits.map(c => c.person.name);
+  const actorRest = totalCredits > credits.length ? `\n...и еще ${totalCredits - credits.length}` : "";
+  const actorTooltip = totalCredits === 0 
     ? "Нет актеров" 
-    : `Актеров (${actorCount}):\n${actorNames.join("\n")}${actorRest}`;
+    : `Актеров (${totalCredits}):\n${actorNames.join("\n")}${actorRest}`;
 
   // Логика для жанров
-  const genreCount = genres.length;
   const genreColor = 
-    genreCount === 0 ? "text-muted/30" : 
-    genreCount <= 2 ? "text-muted" : "text-green-500";
+    totalGenres === 0 ? "text-muted/30" : 
+    totalGenres <= 2 ? "text-muted" : "text-green-500";
   
-  const genreNames = genres.slice(0, 5).map(g => g.genre.name);
-  const genreRest = genreCount > 5 ? `\n...и еще ${genreCount - 5}` : "";
-  const genreTooltip = genreCount === 0 
+  const genreNames = genres.map(g => g.genre.name);
+  const genreRest = totalGenres > genres.length ? `\n...и еще ${totalGenres - genres.length}` : "";
+  const genreTooltip = totalGenres === 0 
     ? "Нет жанров" 
-    : `Жанры (${genreCount}):\n${genreNames.join("\n")}${genreRest}`;
+    : `Жанры (${totalGenres}):\n${genreNames.join("\n")}${genreRest}`;
 
   // Логика для описания
   const descColor = hasSynopsis ? "text-green-500" : "text-muted/30";
@@ -46,13 +48,13 @@ export function MetricsIcons({
     <div className="flex items-center gap-3">
       <Tooltip content={<span className="whitespace-pre-wrap">{actorTooltip}</span>}>
         <span className={`flex items-center gap-1 text-xs ${actorColor}`}>
-          <Film className="w-3.5 h-3.5" /> {actorCount}
+          <Film className="w-3.5 h-3.5" /> {totalCredits}
         </span>
       </Tooltip>
       
       <Tooltip content={<span className="whitespace-pre-wrap">{genreTooltip}</span>}>
         <span className={`flex items-center gap-1 text-xs ${genreColor}`}>
-          <Tag className="w-3.5 h-3.5" /> {genreCount}
+          <Tag className="w-3.5 h-3.5" /> {totalGenres}
         </span>
       </Tooltip>
       

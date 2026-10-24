@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Star, Film, Tag, FileText } from "lucide-react";
+import { Plus, Star } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { AdminSearchBar } from "@/components/AdminSearchBar";
 import { MobileSearchButton } from "@/components/MobileSearchButton";
@@ -8,7 +8,6 @@ import { MetricsIcons } from "@/components/admin/MetricsIcons";
 import { StatusDot } from "@/components/admin/StatusDot";
 import { AliasBadge } from "@/components/admin/AliasBadge";
 import { DramaActions } from "./DramaActions";
-import { Tooltip } from "@/components/Tooltip";
 
 type SearchParams = Promise<{ q?: string; filter?: string }>;
 
@@ -31,14 +30,21 @@ export default async function AdminDramasPage({
 
   const whereConditions = [searchCondition, filterCondition].filter(Boolean) as any[];
 
+  // ОПТИМИЗИРОВАННЫЙ ЗАПРОС
   const dramas = await prisma.drama.findMany({
     where: whereConditions.length > 0 ? { AND: whereConditions } : undefined,
     include: {
-      titles: true, // ← Для AliasBadge
-      genres: { include: { genre: true } },
-      credits: { include: { person: true } },
+      titles: true,
       _count: {
         select: { credits: true, genres: true },
+      },
+      genres: { 
+        include: { genre: true },
+        take: 5 // Берем только 5 для тултипа
+      },
+      credits: { 
+        include: { person: true },
+        take: 8 // Берем только 8 для тултипа
       },
     },
     orderBy: [{ year: "desc" }, { title: "asc" }],
@@ -76,7 +82,7 @@ export default async function AdminDramasPage({
           <AdminSearchBar placeholder="Поиск по названиям..." showGlobalSearch />
         </div>
          
-        {/* Чипсы (без слова "Фильтры:") */}
+        {/* Чипсы */}
         <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-1 [&::-webkit-scrollbar]:hidden">
           {[
             { key: "no_genres", label: "Без жанров" },
@@ -118,7 +124,6 @@ export default async function AdminDramasPage({
         </div>
       ) : (
         <div className="rounded-2xl border border-border bg-surface overflow-hidden">
-          {/* Оборачиваем таблицу для горизонтального скролла на узких экранах */}
           <div className="overflow-x-auto">
             <table className="w-full min-w-225">
               <thead>
@@ -151,10 +156,9 @@ export default async function AdminDramasPage({
                       <div className="flex items-center gap-3">
                         <StatusDot 
                           items={[
-                            // Если есть постер ИЛИ есть альтернативные названия (titles.length > 1) - то не критично
                             { label: "Постер/Альт.названия", isFilled: !!d.posterUrl || d.titles.length > 1, isCritical: true },
-                            { label: "Жанры", isFilled: d.genres.length > 0 },
-                            { label: "Актеры", isFilled: d.credits.length > 0 },
+                            { label: "Жанры", isFilled: d._count.genres > 0 },
+                            { label: "Актеры", isFilled: d._count.credits > 0 },
                             { label: "Описание", isFilled: !!d.synopsis },
                           ]}
                         />
@@ -187,11 +191,13 @@ export default async function AdminDramasPage({
                       {[d.year, d.country].filter(Boolean).join(" · ") || "—"}
                     </td>
 
-                                        {/* КОЛОНКА 4: Наполнение */}
+                    {/* КОЛОНКА 4: Наполнение (Используем _count и take) */}
                     <td className="px-4 py-3">
                       <MetricsIcons 
                         credits={d.credits} 
+                        totalCredits={d._count.credits}
                         genres={d.genres} 
+                        totalGenres={d._count.genres}
                         hasSynopsis={!!d.synopsis} 
                       />
                     </td>
