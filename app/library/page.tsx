@@ -75,17 +75,17 @@ export default async function LibraryPage({
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-8">
           {entries.map((entry) => (
             <DramaCard
-  key={entry.id}
-  dramaId={entry.drama.id}
-  title={entry.drama.title}
-  year={entry.drama.year ?? 0}
-  country={entry.drama.country ?? "—"}
-  rating={entry.rating ?? 0}
-  cryTag={isCryTag(entry.cryTag) ? entry.cryTag : undefined}
-  status={entry.status}
-  impression={entry.impression}
-  posterUrl={entry.drama.posterUrl}
-/>
+              key={entry.id}
+              dramaId={entry.drama.id}
+              title={entry.drama.title}
+              year={entry.drama.year ?? 0}
+              country={entry.drama.country ?? "—"}
+              rating={entry.rating ?? 0}
+              cryTag={isCryTag(entry.cryTag) ? entry.cryTag : undefined}
+              status={entry.status}
+              impression={entry.impression}
+              posterUrl={entry.drama.posterUrl}
+            />
           ))}
         </div>
       ) : (

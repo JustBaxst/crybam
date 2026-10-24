@@ -19,7 +19,7 @@ export function DeletePersonModal({
   const handleDelete = () => {
     const formData = new FormData();
     formData.set("personId", String(personId));
-    
+
     startTransition(async () => {
       const result = await deletePerson(formData);
       if (result?.error) {

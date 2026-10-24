@@ -9,13 +9,13 @@ type SmartLinkProps = ComponentProps<typeof Link> & {
   wipMessage?: string;
 };
 
-export function SmartLink({ 
-  href, 
-  isWip, 
-  wipMessage, 
-  children, 
-  onClick, 
-  ...props 
+export function SmartLink({
+  href,
+  isWip,
+  wipMessage,
+  children,
+  onClick,
+  ...props
 }: SmartLinkProps) {
   return (
     <Link

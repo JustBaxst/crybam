@@ -9,20 +9,20 @@ import { UserMenu } from "@/components/UserMenu";
 import { AppearanceMenu } from "@/components/AppearanceMenu";
 
 const mobileNavItems = [
-  { href: "/",                  label: "Дашборд" },
-  { href: "/dramas",            label: "Дорамы" },
-  { href: "/people",            label: "Актёры" },
-  { href: "/characters",        label: "Персонажи" },
-  { href: "/community",         label: "Сообщества" },
-  { href: "/news",              label: "Новости" },
-  { href: "/library",           label: "Библиотека" },
-  { href: "/heart",             label: "Особое место" },
-  { href: "/nominations",       label: "Номинации" },
-  { href: "/me/actors",         label: "Любимые актёры" },
-  { href: "/me/characters",     label: "Любимые персонажи" },
-  { href: "/stats",             label: "Статистика" },
-  { href: "/graph",             label: "Граф связей" },
-  { href: "/settings",          label: "Настройки" },
+  { href: "/", label: "Дашборд" },
+  { href: "/dramas", label: "Дорамы" },
+  { href: "/people", label: "Актёры" },
+  { href: "/characters", label: "Персонажи" },
+  { href: "/community", label: "Сообщества" },
+  { href: "/news", label: "Новости" },
+  { href: "/library", label: "Библиотека" },
+  { href: "/heart", label: "Особое место" },
+  { href: "/nominations", label: "Номинации" },
+  { href: "/me/actors", label: "Любимые актёры" },
+  { href: "/me/characters", label: "Любимые персонажи" },
+  { href: "/stats", label: "Статистика" },
+  { href: "/graph", label: "Граф связей" },
+  { href: "/settings", label: "Настройки" },
 ];
 
 type HeaderProps = {
@@ -64,7 +64,7 @@ export function Header({ user }: HeaderProps) {  // ← ДОБАВЛЕНО user
           </div>
 
           <div className="hidden md:flex items-center gap-2">
-            {isAdmin && (  
+            {isAdmin && (
               <Link
                 href="/admin"
                 className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border hover:border-accent/40 transition-colors text-sm text-accent font-medium"
@@ -74,8 +74,8 @@ export function Header({ user }: HeaderProps) {  // ← ДОБАВЛЕНО user
                 <Shield className="w-4 h-4" />
                 <span className="hidden lg:inline">Админ-панель</span>
               </Link>
-            )}  
-            <UserMenu user={user} /> 
+            )}
+            <UserMenu user={user} />
             <AppearanceMenu />
           </div>
 

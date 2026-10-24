@@ -120,8 +120,8 @@ export function CreditsEditor({
                 type === "actor"
                   ? "Актёры"
                   : type === "director"
-                  ? "Режиссёры"
-                  : "Сценаристы";
+                    ? "Режиссёры"
+                    : "Сценаристы";
               return (
                 <div key={type}>
                   <p className="text-xs font-medium text-muted uppercase tracking-wider mb-2">
@@ -201,11 +201,10 @@ export function CreditsEditor({
                   key={o.value}
                   type="button"
                   onClick={() => setRoleType(o.value)}
-                  className={`px-3 py-1.5 rounded-lg border text-sm transition-colors ${
-                    roleType === o.value
+                  className={`px-3 py-1.5 rounded-lg border text-sm transition-colors ${roleType === o.value
                       ? "border-accent bg-accent/15 text-accent"
                       : "border-border text-muted hover:border-accent/40"
-                  }`}
+                    }`}
                 >
                   {o.label}
                 </button>
@@ -222,11 +221,10 @@ export function CreditsEditor({
                     key={o.value}
                     type="button"
                     onClick={() => setImportance(o.value)}
-                    className={`px-3 py-1.5 rounded-lg border text-sm transition-colors ${
-                      importance === o.value
+                    className={`px-3 py-1.5 rounded-lg border text-sm transition-colors ${importance === o.value
                         ? "border-accent bg-accent/15 text-accent"
                         : "border-border text-muted hover:border-accent/40"
-                    }`}
+                      }`}
                   >
                     {o.label}
                   </button>
@@ -240,8 +238,8 @@ export function CreditsEditor({
               {roleType === "actor"
                 ? "Имя актёра"
                 : roleType === "director"
-                ? "Имя режиссёра"
-                : "Имя сценариста"}
+                  ? "Имя режиссёра"
+                  : "Имя сценариста"}
             </label>
             <input
               type="text"
@@ -342,11 +340,10 @@ function InlineEdit({
               key={o.value}
               type="button"
               onClick={() => setImportance(o.value)}
-              className={`px-3 py-1 rounded-lg border text-xs transition-colors ${
-                importance === o.value
+              className={`px-3 py-1 rounded-lg border text-xs transition-colors ${importance === o.value
                   ? "border-accent bg-accent/15 text-accent"
                   : "border-border text-muted hover:border-accent/40"
-              }`}
+                }`}
             >
               {o.label}
             </button>

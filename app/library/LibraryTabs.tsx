@@ -10,11 +10,11 @@ export type LibraryStatus =
   | "dropped";
 
 const TABS: { key: LibraryStatus; label: string }[] = [
-  { key: "watched",  label: "Просмотрено" },
+  { key: "watched", label: "Просмотрено" },
   { key: "watching", label: "Смотрю" },
-  { key: "planned",  label: "В планах" },
-  { key: "on_hold",  label: "Отложено" },
-  { key: "dropped",  label: "Брошено" },
+  { key: "planned", label: "В планах" },
+  { key: "on_hold", label: "Отложено" },
+  { key: "dropped", label: "Брошено" },
 ];
 
 export function LibraryTabs({
@@ -35,19 +35,17 @@ export function LibraryTabs({
             <Link
               key={tab.key}
               href={`/library?status=${tab.key}&view=${view}`}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                isActive
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${isActive
                   ? "border-accent text-accent"
                   : "border-transparent text-muted hover:text-foreground hover:border-border"
-              }`}
+                }`}
             >
               <span>{tab.label}</span>
               <span
-                className={`text-xs px-1.5 py-0.5 rounded-full ${
-                  isActive
+                className={`text-xs px-1.5 py-0.5 rounded-full ${isActive
                     ? "bg-accent/15 text-accent"
                     : "bg-border/40 text-muted"
-                }`}
+                  }`}
               >
                 {counts[tab.key]}
               </span>

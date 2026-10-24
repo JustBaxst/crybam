@@ -50,7 +50,7 @@ export function SoundtrackPlayer({ track }: { track: any }) {
         <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
           <Music className="w-5 h-5 text-accent" />
         </div>
-                <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <p className="text-sm font-semibold truncate">{track.title}</p>
             {track.kind && (
@@ -93,10 +93,10 @@ export function SoundtrackPlayer({ track }: { track: any }) {
                 </button>
               </div>
             </div>
-            
-                        <div className="p-4 bg-black/50">
+
+            <div className="p-4 bg-black/50">
               {embedUrl ? (
-                                    track.provider === "spotify" ? (
+                track.provider === "spotify" ? (
                   <div className="relative w-full h-88 overflow-hidden rounded-xl">
                     <iframe
                       src={`https://open.spotify.com/embed/track/${track.embedId}?utm_source=generator&theme=1`}

@@ -4,7 +4,7 @@ import { useRef, useEffect } from "react";
 
 export function HorizontalScroll({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
-  
+
   // Все состояния храним в useRef, чтобы избежать ре-рендеров React при движении мыши
   const isDown = useRef(false);
   const startX = useRef(0);
@@ -24,7 +24,7 @@ export function HorizontalScroll({ children }: { children: React.ReactNode }) {
   // Управляем классами напрямую через DOM (это работает моментально)
   const updateClasses = (scrolling: boolean, dragging: boolean) => {
     if (!ref.current) return;
-    
+
     if (scrolling) ref.current.classList.add("is-scrolling");
     else ref.current.classList.remove("is-scrolling");
 
@@ -40,12 +40,12 @@ export function HorizontalScroll({ children }: { children: React.ReactNode }) {
   const onMouseDown = (e: React.MouseEvent) => {
     isDown.current = true;
     hasDragged.current = false;
-    
+
     startX.current = e.pageX - (ref.current?.offsetLeft || 0);
     scrollLeft.current = ref.current?.scrollLeft || 0;
     lastX.current = e.pageX;
     velocity.current = 0;
-    
+
     stopInertia();
     updateClasses(true, true);
   };
@@ -65,7 +65,7 @@ export function HorizontalScroll({ children }: { children: React.ReactNode }) {
         if (ref.current) {
           ref.current.scrollLeft -= velocity.current;
         }
-        velocity.current *= 0.96; 
+        velocity.current *= 0.96;
         animationFrame.current = requestAnimationFrame(applyInertia);
       } else {
         updateClasses(false, false);
@@ -85,7 +85,7 @@ export function HorizontalScroll({ children }: { children: React.ReactNode }) {
 
     const x = e.pageX - (ref.current?.offsetLeft || 0);
     const walk = x - startX.current;
-    
+
     // Если сдвинули больше чем на 3 пикселя — это свайп, а не клик
     if (Math.abs(walk) > 3) hasDragged.current = true;
 

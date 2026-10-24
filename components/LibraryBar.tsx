@@ -14,12 +14,12 @@ const STATUSES: {
   dot: string;
   text: string;
 }[] = [
-  { key: "watched",  label: "Просмотрено", bg: "bg-accent/85", dot: "bg-accent/85", text: "text-accent" },
-  { key: "watching", label: "Смотрю",      bg: "bg-accent/70", dot: "bg-accent/70", text: "text-accent/80" },
-  { key: "planned",  label: "В планах",    bg: "bg-accent/45", dot: "bg-accent/45", text: "text-accent/70" },
-  { key: "on_hold",  label: "Отложено",    bg: "bg-accent/25", dot: "bg-accent/25", text: "text-accent/60" },
-  { key: "dropped",  label: "Брошено",     bg: "bg-accent/12", dot: "bg-accent/12", text: "text-accent/50" },
-];
+    { key: "watched", label: "Просмотрено", bg: "bg-accent/85", dot: "bg-accent/85", text: "text-accent" },
+    { key: "watching", label: "Смотрю", bg: "bg-accent/70", dot: "bg-accent/70", text: "text-accent/80" },
+    { key: "planned", label: "В планах", bg: "bg-accent/45", dot: "bg-accent/45", text: "text-accent/70" },
+    { key: "on_hold", label: "Отложено", bg: "bg-accent/25", dot: "bg-accent/25", text: "text-accent/60" },
+    { key: "dropped", label: "Брошено", bg: "bg-accent/12", dot: "bg-accent/12", text: "text-accent/50" },
+  ];
 
 export function LibraryBar({ counts }: Props) {
   const total = STATUSES.reduce((sum, s) => sum + (counts[s.key] ?? 0), 0);

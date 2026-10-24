@@ -33,7 +33,7 @@ export function CatalogCard({
       {/* Постер */}
       <div className="relative aspect-2/3 bg-accent-soft overflow-hidden">
         <PosterImage posterUrl={posterUrl} title={title} year={year} className="absolute inset-0" />
-        
+
         {rating != null && (
           <div className="absolute top-2 left-2 inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full border border-border bg-background/80 font-medium">
             <Star className="w-3.5 h-3.5 fill-current text-yellow-400 shrink-0" />

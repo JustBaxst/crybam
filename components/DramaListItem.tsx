@@ -32,11 +32,11 @@ export function DramaListItem({
     >
       {/* Мини-постер (ДОБАВЛЕНО) */}
       <div className="relative w-10 h-14 rounded-md overflow-hidden bg-accent-soft shrink-0">
-        <PosterImage 
-          posterUrl={posterUrl ?? null} 
-          title={title} 
-          year={year} 
-          className="absolute inset-0" 
+        <PosterImage
+          posterUrl={posterUrl ?? null}
+          title={title}
+          year={year}
+          className="absolute inset-0"
         />
       </div>
 

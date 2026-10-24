@@ -79,13 +79,13 @@ export default async function CharacterPage({ params }: { params: Params }) {
           <h1 className="text-3xl font-bold leading-tight">{character.name}</h1>
 
           {/* Альтернативные имена */}
-          <AlternativeTitles 
+          <AlternativeTitles
             label="Другие имена:"
-            titles={character.aliases.map((a) => ({ 
-              id: a.id, 
-              title: a.name, 
+            titles={character.aliases.map((a) => ({
+              id: a.id,
+              title: a.name,
               language: a.language
-            }))} 
+            }))}
           />
 
           {/* Характеристики */}

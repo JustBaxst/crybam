@@ -84,9 +84,9 @@ export function CommandPalette() {
   if (!open) return null;
 
   return (
-    
+
     <div onClick={() => setOpen(false)} className="fixed inset-0 z-100 bg-black/60 backdrop-blur-sm flex items-start justify-center pt-[15vh]">
-      <div 
+      <div
         className="w-full max-w-xl mx-4 rounded-2xl border border-border bg-surface shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
@@ -152,7 +152,7 @@ export function CommandPalette() {
                     onSelect={() => handleSelect(`/admin/characters/${c.id}`)}
                     className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground cursor-pointer aria-selected:bg-accent/10 aria-selected:text-accent"
                   >
-                      <div className="w-8 h-10 rounded bg-accent-soft/40 flex items-center justify-center shrink-0 overflow-hidden">
+                    <div className="w-8 h-10 rounded bg-accent-soft/40 flex items-center justify-center shrink-0 overflow-hidden">
                       {c.imageUrl ? (
                         <img src={c.imageUrl} alt={c.name} className="w-full h-full object-cover" />
                       ) : (

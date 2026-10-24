@@ -42,7 +42,7 @@ export function TitlesEditor({
         </div>
         <div className="p-6 overflow-y-auto space-y-4">
           <div>
-                    <label className="block text-sm font-medium mb-2">Названия (каждое с новой строки)</label>
+            <label className="block text-sm font-medium mb-2">Названия (каждое с новой строки)</label>
             <textarea
               name="titles"
               defaultValue={currentTitles.join("\n")}

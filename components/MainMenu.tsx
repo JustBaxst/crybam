@@ -2,14 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Tv, Theater, MessagesSquare, Newspaper, UserCircle } from "lucide-react";
-import { MenuLink } from "@/components/MenuLink"; 
+import { MenuLink } from "@/components/MenuLink";
 
 const items = [
-  { href: "/dramas",     Icon: Tv,             label: "Дорамы",     hint: "Все дорамы в базе", isWip: false },
-  { href: "/people",     Icon: Theater,        label: "Актёры",     hint: "Все актёры в базе", isWip: false },
-  { href: "/characters", Icon: UserCircle,     label: "Персонажи",  hint: "Все персонажи дорам", isWip: false },
-  { href: "/community",  Icon: MessagesSquare, label: "Сообщества", hint: "Обсуждения и друзья", isWip: true },
-  { href: "/news",       Icon: Newspaper,      label: "Новости",    hint: "Что нового на сайте", isWip: true },
+  { href: "/dramas", Icon: Tv, label: "Дорамы", hint: "Все дорамы в базе", isWip: false },
+  { href: "/people", Icon: Theater, label: "Актёры", hint: "Все актёры в базе", isWip: false },
+  { href: "/characters", Icon: UserCircle, label: "Персонажи", hint: "Все персонажи дорам", isWip: false },
+  { href: "/community", Icon: MessagesSquare, label: "Сообщества", hint: "Обсуждения и друзья", isWip: true },
+  { href: "/news", Icon: Newspaper, label: "Новости", hint: "Что нового на сайте", isWip: true },
 ];
 
 export function MainMenu() {
@@ -52,10 +52,10 @@ export function MainMenu() {
       {open && (
         <div className="absolute left-0 top-full mt-2 z-50 w-72 rounded-xl border border-border bg-surface shadow-xl overflow-hidden">
           {items.map((item) => (
-            <MenuLink 
-              key={item.href} 
-              {...item} 
-              onClick={() => setOpen(false)} 
+            <MenuLink
+              key={item.href}
+              {...item}
+              onClick={() => setOpen(false)}
             />
           ))}
         </div>

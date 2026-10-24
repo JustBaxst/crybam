@@ -3,11 +3,11 @@
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-export function WipLink({ 
-  children, 
-  message = "Этот раздел ещё в разработке 🚧" 
-}: { 
-  children: React.ReactNode; 
+export function WipLink({
+  children,
+  message = "Этот раздел ещё в разработке 🚧"
+}: {
+  children: React.ReactNode;
   message?: string;
 }) {
   const router = useRouter();

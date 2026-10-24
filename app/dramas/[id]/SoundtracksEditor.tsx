@@ -78,7 +78,7 @@ export function SoundtracksEditor({
               <label className={labelCls}>Исполнитель</label>
               <input type="text" name="artist" placeholder="Chanyeol, Punch" className={inputCls} />
             </div>
-                        <div>
+            <div>
               <label className={labelCls}>Тип трека</label>
               <select name="kind" className={inputCls} defaultValue="ost_part">
                 <option value="ost_part">OST Part (сингл)</option>

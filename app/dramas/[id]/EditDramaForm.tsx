@@ -129,7 +129,7 @@ export function EditDramaForm({
                   className={inputCls}
                 />
               </div>
-                            <div>
+              <div>
                 <label className={labelCls}>Страна</label>
                 <select
                   name="country"
@@ -194,24 +194,24 @@ export function EditDramaForm({
             <div className="grid grid-cols-2 gap-4">
 
               <div className="grid grid-cols-2 gap-4">
-  <div>
-    <label className={labelCls}>Статус выхода</label>
-    <select name="airStatus" defaultValue={drama.airStatus || "released"} className={inputCls}>
-      <option value="released">Вышла (Завершена)</option>
-      <option value="ongoing">Выходит прямо сейчас</option>
-      <option value="announced">Анонсирована</option>
-    </select>
-  </div>
-  <div>
-    <label className={labelCls}>Метка плача (до отзывов)</label>
-    <select name="curatorCryTag" defaultValue={drama.curatorCryTag || ""} className={inputCls}>
-      <option value="">— не указана —</option>
-      <option value="safe">❤️ Безопасно</option>
-      <option value="bittersweet">❤️‍🩹 Слёзы счастья</option>
-      <option value="sad">💔 Рыдай</option>
-    </select>
-  </div>
-</div>
+                <div>
+                  <label className={labelCls}>Статус выхода</label>
+                  <select name="airStatus" defaultValue={drama.airStatus || "released"} className={inputCls}>
+                    <option value="released">Вышла (Завершена)</option>
+                    <option value="ongoing">Выходит прямо сейчас</option>
+                    <option value="announced">Анонсирована</option>
+                  </select>
+                </div>
+                <div>
+                  <label className={labelCls}>Метка плача (до отзывов)</label>
+                  <select name="curatorCryTag" defaultValue={drama.curatorCryTag || ""} className={inputCls}>
+                    <option value="">— не указана —</option>
+                    <option value="safe">❤️ Безопасно</option>
+                    <option value="bittersweet">❤️‍🩹 Слёзы счастья</option>
+                    <option value="sad">💔 Рыдай</option>
+                  </select>
+                </div>
+              </div>
               <div>
                 <label className={labelCls}>Дата начала эфира</label>
                 <input
@@ -246,27 +246,27 @@ export function EditDramaForm({
               </p>
             </div>
 
-            <div>                                                           
-          <label className={labelCls}>Платформы (через запятую)</label> 
-          <input                                                      
-            type="text"                                               
-            name="platforms"                                          
-            defaultValue={drama.platforms.join(", ")}                 
-            placeholder="Netflix, Viki, Кинопоиск"                    
-            className={inputCls}                                      
-          />                                                          
-        </div>                                                        
+            <div>
+              <label className={labelCls}>Платформы (через запятую)</label>
+              <input
+                type="text"
+                name="platforms"
+                defaultValue={drama.platforms.join(", ")}
+                placeholder="Netflix, Viki, Кинопоиск"
+                className={inputCls}
+              />
+            </div>
 
-        <div>                                                           
-          <label className={labelCls}>Производство (через запятую)</label> 
-          <input                                                      
-            type="text"                                               
-            name="studios"                                            
-            defaultValue={drama.studios.join(", ")}                   
-            placeholder="tvN, JTBC, Studio Dragon"                    
-            className={inputCls}                                      
-          />                                                          
-        </div>                                                        
+            <div>
+              <label className={labelCls}>Производство (через запятую)</label>
+              <input
+                type="text"
+                name="studios"
+                defaultValue={drama.studios.join(", ")}
+                placeholder="tvN, JTBC, Studio Dragon"
+                className={inputCls}
+              />
+            </div>
           </FormSection>
 
           {/* ─── РЕЙТИНГИ ─── */}

@@ -22,24 +22,24 @@ export default async function AdminPeoplePage({
 
   const searchCondition = getPersonSearchWhere(query);
 
-  const filterCondition = 
+  const filterCondition =
     currentFilter === "no_photo" ? { photoUrl: null } :
-    currentFilter === "no_bio" ? { bio: null } :
-    undefined;
+      currentFilter === "no_bio" ? { bio: null } :
+        undefined;
 
   const whereConditions = [searchCondition, filterCondition].filter(Boolean) as any[];
 
   const people = await prisma.person.findMany({
     where: whereConditions.length > 0 ? { AND: whereConditions } : undefined,
-    include: { 
-      aliases: true, 
+    include: {
+      aliases: true,
       _count: { select: { credits: true } },
       credits: {
         include: {
           drama: { select: { title: true } },
           character: { select: { name: true } }
         },
-        take: 5 
+        take: 5
       }
     },
     orderBy: { name: "asc" },
@@ -60,7 +60,7 @@ export default async function AdminPeoplePage({
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col gap-6">
-      
+
       {/* ВЕРХНИЙ РЯД */}
       <div className="flex items-center justify-between gap-4">
         <div>
@@ -71,7 +71,7 @@ export default async function AdminPeoplePage({
             </span>
           </h1>
         </div>
-        
+
         <div className="flex items-center gap-3">
           <MobileSearchButton />
           <Link
@@ -89,7 +89,7 @@ export default async function AdminPeoplePage({
         <div className="w-full max-w-2xl">
           <AdminSearchBar placeholder="Поиск по имени..." showGlobalSearch />
         </div>
-         
+
         {/* Чипсы */}
         <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-1 [&::-webkit-scrollbar]:hidden">
           {[
@@ -100,16 +100,15 @@ export default async function AdminPeoplePage({
             const params = new URLSearchParams();
             if (query) params.set("q", query);
             if (!isActive) params.set("filter", f.key);
-            
+
             return (
               <Link
                 key={f.key}
                 href={`/admin/people?${params.toString()}`}
-                className={`px-3 py-1 rounded-full text-xs transition-colors shrink-0 border-none ${
-                  isActive 
-                    ? "bg-accent text-white" 
+                className={`px-3 py-1 rounded-full text-xs transition-colors shrink-0 border-none ${isActive
+                    ? "bg-accent text-white"
                     : "bg-transparent text-muted hover:bg-surface hover:text-foreground"
-                }`}
+                  }`}
               >
                 {f.label}
               </Link>
@@ -141,13 +140,13 @@ export default async function AdminPeoplePage({
 
                   const roleCount = p._count.credits; // ← Берем из _count (общее число)
                   const roleNames = p.credits.map(c => { // ← Итерируемся по урезанному массиву (макс 5)
-                    return c.character?.name 
-                      ? `${c.drama.title} (${c.character.name})` 
+                    return c.character?.name
+                      ? `${c.drama.title} (${c.character.name})`
                       : c.drama.title;
                   });
                   const roleRest = roleCount > p.credits.length ? `\n...и еще ${roleCount - p.credits.length}` : "";
-                  const roleTooltip = roleCount === 0 
-                    ? "Нет ролей" 
+                  const roleTooltip = roleCount === 0
+                    ? "Нет ролей"
                     : `Ролей (${roleCount}):\n${roleNames.join("\n")}${roleRest}`;
 
                   return (
@@ -155,7 +154,7 @@ export default async function AdminPeoplePage({
                       {/* КОЛОНКА 1: Объект */}
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <StatusDot 
+                          <StatusDot
                             items={[
                               { label: "Фото/Алиасы", isFilled: !!p.photoUrl || p.aliases.length > 0, isCritical: true },
                               { label: "Биография", isFilled: !!p.bio },

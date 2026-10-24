@@ -124,36 +124,36 @@ export function YearHeatmap({ activities }: Props) {
   return (
     <div className="relative">
       {/* Шапка: переключатель года + сумма */}
-<div className="flex items-center mb-3 pl-10 gap-3">
-  <button
-    onClick={() => {
-      const i = years.indexOf(year);
-      if (i < years.length - 1) setYear(years[i + 1]);
-    }}
-    disabled={year === years[years.length - 1]}
-    className="w-6 h-6 rounded-md border border-border hover:border-accent/40 transition-colors flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
-    aria-label="Предыдущий год"
-  >
-    <ChevronLeft className="w-3.5 h-3.5" />
-  </button>
-  <span className="text-sm font-semibold text-accent min-w-44px text-center">
-    {year}
-  </span>
-  <button
-    onClick={() => {
-      const i = years.indexOf(year);
-      if (i > 0) setYear(years[i - 1]);
-    }}
-    disabled={year === years[0]}
-    className="w-6 h-6 rounded-md border border-border hover:border-accent/40 transition-colors flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
-    aria-label="Следующий год"
-  >
-    <ChevronRight className="w-3.5 h-3.5" />
-  </button>
-  <span className="text-sm text-muted">
-    · <span className="text-accent font-medium">{totalEpisodes}</span> серий
-  </span>
-</div>
+      <div className="flex items-center mb-3 pl-10 gap-3">
+        <button
+          onClick={() => {
+            const i = years.indexOf(year);
+            if (i < years.length - 1) setYear(years[i + 1]);
+          }}
+          disabled={year === years[years.length - 1]}
+          className="w-6 h-6 rounded-md border border-border hover:border-accent/40 transition-colors flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
+          aria-label="Предыдущий год"
+        >
+          <ChevronLeft className="w-3.5 h-3.5" />
+        </button>
+        <span className="text-sm font-semibold text-accent min-w-44px text-center">
+          {year}
+        </span>
+        <button
+          onClick={() => {
+            const i = years.indexOf(year);
+            if (i > 0) setYear(years[i - 1]);
+          }}
+          disabled={year === years[0]}
+          className="w-6 h-6 rounded-md border border-border hover:border-accent/40 transition-colors flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
+          aria-label="Следующий год"
+        >
+          <ChevronRight className="w-3.5 h-3.5" />
+        </button>
+        <span className="text-sm text-muted">
+          · <span className="text-accent font-medium">{totalEpisodes}</span> серий
+        </span>
+      </div>
 
       <div className="overflow-x-auto pb-2">
         <div className="inline-block min-w-full">

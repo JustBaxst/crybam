@@ -9,25 +9,25 @@ type TitleData = {
   language: string | null;
 };
 
-export function AlternativeTitles({ 
-  titles, 
-  label = "Другие названия:" 
-}: { 
-  titles: TitleData[]; 
-  label?: string 
+export function AlternativeTitles({
+  titles,
+  label = "Другие названия:"
+}: {
+  titles: TitleData[];
+  label?: string
 }) {
   if (titles.length === 0) return null;
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
     // Вместо зеленой рамки показываем красивый тост
-    toast.success(`«${text}» скопировано`); 
+    toast.success(`«${text}» скопировано`);
   };
 
   return (
     <div className="relative flex flex-wrap items-center gap-2 mt-3 text-sm text-muted">
       <span className="text-xs text-muted/70">{label}</span>
-      
+
       {titles.map((t) => (
         <Tooltip key={t.id} content={t.title}>
           <button

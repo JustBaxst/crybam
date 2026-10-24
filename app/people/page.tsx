@@ -42,7 +42,7 @@ export default async function PeoplePage({
         </p>
       </div>
 
-            <div className="mb-8 max-w-2xl">
+      <div className="mb-8 max-w-2xl">
         <AdminSearchBar placeholder="Поиск по имени..." />
       </div>
 
@@ -63,7 +63,7 @@ export default async function PeoplePage({
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
           {people.map((p) => (
-                        <Link
+            <Link
               key={p.id}
               href={`/people/${p.id}`}
               className="rounded-xl border border-border bg-surface overflow-hidden hover:border-accent/50 transition-colors group"

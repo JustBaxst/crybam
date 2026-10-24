@@ -2,17 +2,19 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft, Calendar, Briefcase, Film, User as UserIcon, MapPin,
-  Ruler, Link as LinkIcon, Droplet, Brain, Sparkles, Flag 
+  Ruler, Link as LinkIcon, Droplet, Brain, Sparkles, Flag
 } from "lucide-react";
-import { FaInstagram, FaYoutube, FaTwitter, FaTiktok, FaWikipediaW, 
-  FaGlobe, FaFacebook, FaLinkedin, FaTelegram, FaDiscord, 
-  FaRedditAlien, FaPinterest, FaSnapchat, FaTwitch, FaVk, 
-  FaSpotify, FaSoundcloud, FaImdb, FaGithub, FaMedium, FaWeibo, FaYandex } from "react-icons/fa6";
-import { 
-  SiThreads, SiBluesky, SiLine, SiWechat, 
+import {
+  FaInstagram, FaYoutube, FaTwitter, FaTiktok, FaWikipediaW,
+  FaGlobe, FaFacebook, FaLinkedin, FaTelegram, FaDiscord,
+  FaRedditAlien, FaPinterest, FaSnapchat, FaTwitch, FaVk,
+  FaSpotify, FaSoundcloud, FaImdb, FaGithub, FaMedium, FaWeibo, FaYandex
+} from "react-icons/fa6";
+import {
+  SiThreads, SiBluesky, SiLine, SiWechat,
   SiBilibili, SiNaver, SiKakaotalk, SiApplemusic,
   SiTumblr, SiVimeo, SiDailymotion, SiPatreon,
-  SiMastodon, SiSubstack, SiFlickr 
+  SiMastodon, SiSubstack, SiFlickr
 } from "react-icons/si";
 import { prisma } from "@/lib/prisma";
 import { AlternativeTitles } from "@/app/dramas/[id]/AlternativeTitles";
@@ -92,9 +94,9 @@ export default async function PersonPage({ params }: { params: Params }) {
 
   const age = person.birthDate
     ? Math.floor(
-        (Date.now() - new Date(person.birthDate).getTime()) /
-          (365.25 * 24 * 60 * 60 * 1000)
-      )
+      (Date.now() - new Date(person.birthDate).getTime()) /
+      (365.25 * 24 * 60 * 60 * 1000)
+    )
     : null;
 
   return (
@@ -126,21 +128,21 @@ export default async function PersonPage({ params }: { params: Params }) {
           <h1 className="text-3xl font-bold leading-tight">{person.name}</h1>
 
           {/* Блок пилюль */}
-          <AlternativeTitles 
+          <AlternativeTitles
             label="Другие имена:"
             titles={[
               ...(person.nameNative ? [{ id: -1, title: person.nameNative, language: "ko" }] : []),
-              ...person.aliases.map((a) => ({ 
-                id: a.id, 
-                title: a.name, 
-                language: a.language 
+              ...person.aliases.map((a) => ({
+                id: a.id,
+                title: a.name,
+                language: a.language
               }))
-            ].filter((v, i, a) => 
+            ].filter((v, i, a) =>
               a.findIndex(t => t.title === v.title) === i
-            )} 
+            )}
           />
 
-     {/* Новые поля: Пол, Рост, Место рождения и др. */}
+          {/* Новые поля: Пол, Рост, Место рождения и др. */}
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4 text-sm text-muted">
             {person.gender && (
               <span className="flex items-center gap-1.5">
@@ -178,7 +180,7 @@ export default async function PersonPage({ params }: { params: Params }) {
               </span>
             )}
 
-                       {person.nationality && (
+            {person.nationality && (
               <span className="flex items-center gap-1.5">
                 <Flag className="w-4 h-4 text-accent" />
                 <span className="text-muted/70">Национальность:</span>
@@ -193,7 +195,7 @@ export default async function PersonPage({ params }: { params: Params }) {
                 {person.agency}
               </span>
             )}
-                   {person.bloodType && (
+            {person.bloodType && (
               <span className="flex items-center gap-1.5">
                 <Droplet className="w-4 h-4 text-accent" />
                 <span className="text-muted/70">Группа крови:</span>

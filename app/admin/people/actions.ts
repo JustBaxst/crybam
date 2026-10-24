@@ -130,7 +130,7 @@ export async function updatePerson(formData: FormData) {
       });
     }
   });
-const fromDrama = formData.get("fromDrama");
+  const fromDrama = formData.get("fromDrama");
 
   revalidatePath(`/admin/people/${personId}`);
   revalidatePath(`/admin/people/${personId}`);

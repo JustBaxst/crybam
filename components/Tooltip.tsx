@@ -34,9 +34,8 @@ export function Tooltip({ content, children, side = "top", className = "" }: Too
       {children}
       {visible && (
         <div
-          className={`pointer-events-none fixed z-9999 -translate-x-1/2 ${
-            side === "top" ? "-translate-y-full -mt-2" : "mt-2"
-          } px-3 py-1.5 rounded-lg border border-border bg-surface shadow-xl text-xs whitespace-nowrap text-foreground`}
+          className={`pointer-events-none fixed z-9999 -translate-x-1/2 ${side === "top" ? "-translate-y-full -mt-2" : "mt-2"
+            } px-3 py-1.5 rounded-lg border border-border bg-surface shadow-xl text-xs whitespace-nowrap text-foreground`}
           style={{ left: coords.x, top: coords.y }}
         >
           {content}

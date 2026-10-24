@@ -15,11 +15,10 @@ export function LibraryViewToggle({
     <div className="inline-flex items-center rounded-lg border border-border bg-surface p-0.5">
       <Link
         href={`/library?status=${activeStatus}&view=grid`}
-        className={`w-8 h-8 flex items-center justify-center rounded-md transition-colors ${
-          view === "grid"
-            ? "bg-accent/15 text-accent"
-            : "text-muted hover:text-foreground"
-        }`}
+        className={`w-8 h-8 flex items-center justify-center rounded-md transition-colors ${view === "grid"
+          ? "bg-accent/15 text-accent"
+          : "text-muted hover:text-foreground"
+          }`}
         aria-label="Сетка"
         title="Сетка"
       >
@@ -27,11 +26,10 @@ export function LibraryViewToggle({
       </Link>
       <Link
         href={`/library?status=${activeStatus}&view=list`}
-        className={`w-8 h-8 flex items-center justify-center rounded-md transition-colors ${
-          view === "list"
-            ? "bg-accent/15 text-accent"
-            : "text-muted hover:text-foreground"
-        }`}
+        className={`w-8 h-8 flex items-center justify-center rounded-md transition-colors ${view === "list"
+          ? "bg-accent/15 text-accent"
+          : "text-muted hover:text-foreground"
+          }`}
         aria-label="Список"
         title="Список"
       >

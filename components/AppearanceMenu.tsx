@@ -5,14 +5,14 @@ import { useTheme } from "next-themes";
 import { Palette, Sun, Moon } from "lucide-react";
 
 const accents = [
-  { id: "rose",    label: "Розовый",     hue: 15  },
-  { id: "amber",   label: "Янтарный",    hue: 75  },
-  { id: "lime",    label: "Лаймовый",    hue: 135 },
-  { id: "emerald", label: "Изумрудный",  hue: 165 },
-  { id: "cyan",    label: "Бирюзовый",   hue: 200 },
-  { id: "blue",    label: "Синий",       hue: 240 },
-  { id: "violet",  label: "Фиолетовый",  hue: 285 },
-  { id: "pink",    label: "Малиновый",   hue: 330 },
+  { id: "rose", label: "Розовый", hue: 15 },
+  { id: "amber", label: "Янтарный", hue: 75 },
+  { id: "lime", label: "Лаймовый", hue: 135 },
+  { id: "emerald", label: "Изумрудный", hue: 165 },
+  { id: "cyan", label: "Бирюзовый", hue: 200 },
+  { id: "blue", label: "Синий", hue: 240 },
+  { id: "violet", label: "Фиолетовый", hue: 285 },
+  { id: "pink", label: "Малиновый", hue: 330 },
 ];
 
 export function AppearanceMenu() {
@@ -84,22 +84,20 @@ export function AppearanceMenu() {
             <div className="flex gap-2">
               <button
                 onClick={() => setTheme("light")}
-                className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border text-sm transition-colors ${
-                  theme === "light"
+                className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border text-sm transition-colors ${theme === "light"
                     ? "border-accent text-accent bg-accent/5"
                     : "border-border hover:border-accent/40"
-                }`}
+                  }`}
               >
                 <Sun className="w-4 h-4" />
                 Светлая
               </button>
               <button
                 onClick={() => setTheme("dark")}
-                className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border text-sm transition-colors ${
-                  theme === "dark"
+                className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border text-sm transition-colors ${theme === "dark"
                     ? "border-accent text-accent bg-accent/5"
                     : "border-border hover:border-accent/40"
-                }`}
+                  }`}
               >
                 <Moon className="w-4 h-4" />
                 Тёмная
@@ -123,9 +121,8 @@ export function AppearanceMenu() {
                     width: 32,
                     height: 32,
                   }}
-                  className={`rounded-full border-2 transition-transform hover:scale-110 ${
-                    current === a.id ? "border-foreground" : "border-transparent"
-                  }`}
+                  className={`rounded-full border-2 transition-transform hover:scale-110 ${current === a.id ? "border-foreground" : "border-transparent"
+                    }`}
                   title={a.label}
                   aria-label={a.label}
                 />

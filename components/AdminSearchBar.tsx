@@ -7,11 +7,11 @@ import { useIsMac } from "@/lib/useIsMac";
 
 
 
-export function AdminSearchBar({ 
-  placeholder = "Поиск...", 
-  showGlobalSearch = false 
-}: { 
-  placeholder?: string; 
+export function AdminSearchBar({
+  placeholder = "Поиск...",
+  showGlobalSearch = false
+}: {
+  placeholder?: string;
   showGlobalSearch?: boolean;
 }) {
 
@@ -21,10 +21,10 @@ export function AdminSearchBar({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  
+
 
   const isMac = useIsMac();
-  
+
   const [text, setText] = useState(searchParams.get("q") || "");
   const [isPending, setIsPending] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -64,10 +64,10 @@ export function AdminSearchBar({
     window.dispatchEvent(new Event("open-command-palette"));
   };
 
-    return (
+  return (
     <div className="relative flex items-center w-full bg-accent/10 rounded-xl px-3 h-11 transition-all focus-within:ring-2 focus-within:ring-accent">
       <Search className="w-5 h-5 text-muted shrink-0" />
-      
+
       <input
         ref={inputRef}
         type="text"
@@ -77,7 +77,7 @@ export function AdminSearchBar({
         className="flex-1 bg-transparent border-none px-3 outline-none text-sm text-foreground placeholder:text-muted/70"
       />
 
-    <div className="flex items-center gap-2 shrink-0">
+      <div className="flex items-center gap-2 shrink-0">
         {isPending ? (
           <Loader2 className="w-4 h-4 text-muted animate-spin" />
         ) : text ? (
@@ -85,10 +85,10 @@ export function AdminSearchBar({
             <X className="w-4 h-4" />
           </button>
         ) : null}
-        
+
         {/* Кнопка вызова палитры */}
         {showGlobalSearch && (
-          <button 
+          <button
             onClick={openGlobalSearch}
             className="hidden sm:flex items-center gap-1.5 text-xs text-muted/80 px-2.5 py-1.5 rounded-md border border-border/80 bg-background hover:bg-surface hover:text-foreground transition-all"
             title="Глобальный поиск"

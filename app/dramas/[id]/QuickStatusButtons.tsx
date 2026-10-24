@@ -46,11 +46,10 @@ export function QuickStatusButtons({
             type="button"
             onClick={() => setStatus(s.value)}
             disabled={isPending}
-            className={`inline-flex items-center rounded-lg font-medium transition-colors disabled:opacity-50 ${btnCls} ${
-              isActive
+            className={`inline-flex items-center rounded-lg font-medium transition-colors disabled:opacity-50 ${btnCls} ${isActive
                 ? "bg-accent text-white"
                 : "border border-border bg-surface hover:border-accent/40"
-            }`}
+              }`}
           >
             <s.Icon className={iconSize} />
             {s.label}

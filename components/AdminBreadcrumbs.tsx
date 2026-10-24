@@ -9,8 +9,8 @@ export type BreadcrumbItem = {
 export function AdminBreadcrumbs({ items }: { items: BreadcrumbItem[] }) {
   return (
     <nav className="flex items-center gap-1.5 text-sm text-muted mb-6 flex-wrap">
-      <Link 
-        href="/admin" 
+      <Link
+        href="/admin"
         className="flex items-center gap-1 hover:text-accent transition-colors"
         title="В начало админки"
       >

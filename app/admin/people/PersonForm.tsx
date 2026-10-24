@@ -57,7 +57,7 @@ export function PersonForm({ person, fromDrama }: { person?: PersonData; fromDra
     >
       {person?.id && <input type="hidden" name="personId" value={person.id} />}
 
-            {/* ─── ОСНОВНОЕ ─── */}
+      {/* ─── ОСНОВНОЕ ─── */}
       <FormSection
         Icon={User}
         title="Основное"
@@ -104,7 +104,7 @@ export function PersonForm({ person, fromDrama }: { person?: PersonData; fromDra
         {/* Пол, рост, место рождения (3 колонки) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 
-                    <div>
+          <div>
             <label className={labelCls}>Страна / Национальность</label>
             <select
               name="nationality"
@@ -155,7 +155,7 @@ export function PersonForm({ person, fromDrama }: { person?: PersonData; fromDra
 
         {/* Группа крови, MBTI, Зодиаки (4 колонки) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div>
+          <div>
             <label className={labelCls}>Группа крови</label>
             <select name="bloodType" defaultValue={person?.bloodType ?? ""} className={inputCls}>
               <option value="">— нет —</option>
@@ -230,14 +230,14 @@ export function PersonForm({ person, fromDrama }: { person?: PersonData; fromDra
             className={inputCls}
           />
         </div>
-        
+
         <div>
           <label className={labelCls}>
             Соцсети <span className="text-muted/60 font-normal">(формат: платформа|ссылка, каждая с новой строки)</span>
           </label>
           <textarea
             name="socialLinks"
-            
+
             defaultValue={person?.socialLinks?.map((l) => `${l.platform}|${l.url}`).join("\n") ?? ""}
             rows={3}
             placeholder="instagram|https://...&#10;youtube|https://...&#10;wikipedia|https://..."
@@ -250,8 +250,8 @@ export function PersonForm({ person, fromDrama }: { person?: PersonData; fromDra
               'vk', 'spotify', 'soundcloud', 'naver', 'kakao', 'wechat', 'bilibili',
               'imdb', 'website'
             ].map((platform) => (
-              <span 
-                key={platform} 
+              <span
+                key={platform}
                 className="text-[10px] text-muted/60 bg-surface border border-border/50 px-1.5 py-0.5 rounded"
               >
                 {platform}

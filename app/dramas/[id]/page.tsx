@@ -95,10 +95,10 @@ export default async function DramaPage({ params }: { params: Params }) {
   const formatDate = (d: Date | null) =>
     d
       ? new Date(d).toLocaleDateString("ru-RU", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        })
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
       : null;
 
   return (
@@ -130,7 +130,7 @@ export default async function DramaPage({ params }: { params: Params }) {
         <div className="flex-1 min-w-0">
           <h1 className="text-3xl font-bold leading-tight">{mainTitle}</h1>
 
-                    {/* Другие названия */}
+          {/* Другие названия */}
           <AlternativeTitles titles={altTitles} />
 
           {/* Совет редактора (если записи нет) */}
@@ -141,7 +141,7 @@ export default async function DramaPage({ params }: { params: Params }) {
             </div>
           )}
 
-                    {/* Факты, даты, каналы и озвучка */}
+          {/* Факты, даты, каналы и озвучка */}
           <div className="mt-5 flex flex-col gap-y-2.5 text-sm text-muted">
             {/* Первая строка: год, страна, серии и длительность */}
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
@@ -461,7 +461,7 @@ export default async function DramaPage({ params }: { params: Params }) {
             emptyText="Актёры пока не заполнены"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {actors.map((a) => (
+              {actors.map((a) => (
                 <div
                   key={a.id}
                   className={`flex items-start gap-3 rounded-xl border border-border bg-surface p-3 border-l-4 ${importanceBorderColor(a.importance)}`}
@@ -469,10 +469,10 @@ export default async function DramaPage({ params }: { params: Params }) {
                   {/* Фото и имя актера - ссылка */}
                   <Link href={`/people/${a.person.id}`} className="shrink-0 flex items-center gap-3 group">
                     <div className="w-12 h-12 rounded-full bg-accent-soft/50 flex items-center justify-center text-xl overflow-hidden">
-                       {a.person.photoUrl ? <img src={a.person.photoUrl} className="w-full h-full object-cover" /> : "👤"}
+                      {a.person.photoUrl ? <img src={a.person.photoUrl} className="w-full h-full object-cover" /> : "👤"}
                     </div>
                   </Link>
-                  
+
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <Link href={`/people/${a.person.id}`} className="text-sm font-semibold truncate hover:text-accent transition-colors">
@@ -484,14 +484,14 @@ export default async function DramaPage({ params }: { params: Params }) {
                         </span>
                       )}
                     </div>
-                    
+
                     {/* Имя персонажа - ссылка на страницу персонажа */}
                     {a.character?.name && (
                       <Link href={`/characters/${a.character.id}`} className="text-xs text-accent mt-0.5 truncate hover:underline inline-block">
                         → {a.character.name}
                       </Link>
                     )}
-                    
+
                     {a.character?.description && (
                       <p className="text-xs text-muted mt-0.5 line-clamp-2">
                         {a.character.description}

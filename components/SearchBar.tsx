@@ -7,8 +7,8 @@ import { useLockBodyScroll } from "@/lib/use-lock-body-scroll";
 
 type SearchResults = {
   dramas: { id: number; title: string; year: number | null; country: string | null; posterUrl: string | null; rating: number | null }[];
-  people: { id: number; name: string;  photoUrl: string | null }[];
-  characters: { id: number; name: string; imageUrl: string | null; drama: { id: number; title: string } }[]; 
+  people: { id: number; name: string; photoUrl: string | null }[];
+  characters: { id: number; name: string; imageUrl: string | null; drama: { id: number; title: string } }[];
 };
 
 export function SearchBar() {
@@ -17,7 +17,7 @@ export function SearchBar() {
   const [results, setResults] = useState<SearchResults>({ dramas: [], people: [], characters: [] });
   const [loading, setLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
-  
+
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -68,12 +68,12 @@ export function SearchBar() {
       try {
         const res = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}`);
         const data = await res.json();
-        setResults({ 
-          dramas: data.dramas || [], 
-          people: data.people || [], 
-          characters: data.characters || [] 
+        setResults({
+          dramas: data.dramas || [],
+          people: data.people || [],
+          characters: data.characters || []
         });
-        setActiveIndex(-1); 
+        setActiveIndex(-1);
       } catch {
         setResults({ dramas: [], people: [], characters: [] });
       } finally {
@@ -125,7 +125,7 @@ export function SearchBar() {
 
   return (
     <div className="relative w-full max-w-xs" ref={containerRef}>
-      
+
       {/* КОГДА ЗАКРЫТО: Показываем кнопку */}
       {!open && (
         <button
@@ -226,12 +226,12 @@ export function SearchBar() {
                             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-left ${globalIdx === activeIndex ? "bg-accent/10" : "hover:bg-foreground/5"}`}
                           >
                             <div className="w-10 h-14 rounded-md bg-accent-soft/40 flex items-center justify-center shrink-0 overflow-hidden">
-                            {r.photoUrl ? (
-                              <img src={r.photoUrl} alt={r.name} className="w-full h-full object-cover" />
-                            ) : (
-                              <UserCircle className="w-5 h-5 text-muted" />
-                            )}
-                          </div>
+                              {r.photoUrl ? (
+                                <img src={r.photoUrl} alt={r.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <UserCircle className="w-5 h-5 text-muted" />
+                              )}
+                            </div>
                             <div className="min-w-0 flex-1">
                               <p className="text-sm font-medium truncate">{r.name}</p>
                             </div>

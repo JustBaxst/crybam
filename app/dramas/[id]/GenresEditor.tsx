@@ -72,11 +72,10 @@ export function GenresEditor({
                 return (
                   <label
                     key={g.id}
-                    className={`cursor-pointer px-3 py-1.5 rounded-full border text-sm transition-colors ${
-                      isOn
+                    className={`cursor-pointer px-3 py-1.5 rounded-full border text-sm transition-colors ${isOn
                         ? "border-accent bg-accent/15 text-accent"
                         : "border-border text-muted hover:border-accent/40"
-                    }`}
+                      }`}
                   >
                     <input
                       type="checkbox"

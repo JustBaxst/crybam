@@ -17,7 +17,7 @@ export function PersonAliasEditor({
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  useLockBodyScroll(); 
+  useLockBodyScroll();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

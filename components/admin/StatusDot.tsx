@@ -21,11 +21,10 @@ export function StatusDot({ items }: { items: StatusItem[] }) {
   return (
     <Tooltip content={`Не хватает: ${missing.map((m) => m.label).join(", ")}`}>
       <div
-        className={`w-2.5 h-2.5 rounded-full ${
-          hasCriticalMissing
+        className={`w-2.5 h-2.5 rounded-full ${hasCriticalMissing
             ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]"
             : "bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.4)]"
-        }`}
+          }`}
       />
     </Tooltip>
   );

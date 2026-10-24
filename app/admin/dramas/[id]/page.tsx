@@ -94,22 +94,22 @@ export default async function AdminDramaEditPage({
   return (
     <div className="max-w-5xl mx-auto px-6 py-10">
 
-      <AdminBreadcrumbs 
+      <AdminBreadcrumbs
         items={[
           { label: "Дорамы", href: "/admin/dramas" },
           { label: drama.title }
-        ]} 
+        ]}
       />
-            {/* Заголовок с действиями */}
+      {/* Заголовок с действиями */}
       <div className="flex items-start justify-between gap-4 mb-8 flex-wrap">
         <div className="min-w-0 flex items-center gap-4 flex-wrap">
           <h1 className="text-2xl font-bold leading-tight">
             {drama.title}
           </h1>
           {/* Кнопка переехала сюда */}
-          <TitlesEditButton 
-            dramaId={drama.id} 
-            currentTitles={drama.titles.filter(t => !t.isPrimary).map(t => t.title)} 
+          <TitlesEditButton
+            dramaId={drama.id}
+            currentTitles={drama.titles.filter(t => !t.isPrimary).map(t => t.title)}
           />
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -132,8 +132,8 @@ export default async function AdminDramaEditPage({
               ratingIMDB: drama.ratingIMDB,
               ratingDouban: drama.ratingDouban,
               dubbingStudios: drama.dubbingStudios,
-              platforms: platforms,    
-              studios: productionStudios, 
+              platforms: platforms,
+              studios: productionStudios,
               airStatus: drama.airStatus,
               curatorCryTag: drama.curatorCryTag,
             }}
@@ -301,7 +301,7 @@ export default async function AdminDramaEditPage({
           </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {actors.map((a) => (
+            {actors.map((a) => (
               <div
                 key={a.id}
                 className={`flex items-start gap-3 rounded-xl border border-border bg-background p-3 border-l-4 ${importanceBorderColor(a.importance)}`}
@@ -312,8 +312,8 @@ export default async function AdminDramaEditPage({
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     {/* АКТЕР - ССЫЛКА В АДМИНКУ */}
-                    <Link 
-                      href={`/admin/people/${a.person.id}?fromDrama=${drama.id}`} 
+                    <Link
+                      href={`/admin/people/${a.person.id}?fromDrama=${drama.id}`}
                       className="text-sm font-semibold truncate hover:text-accent transition-colors"
                     >
                       {a.person.name}
@@ -324,17 +324,17 @@ export default async function AdminDramaEditPage({
                       </span>
                     )}
                   </div>
-                  
+
                   {/* ПЕРСОНАЖ - ССЫЛКА В АДМИНКУ */}
                   {a.character?.name && (
-                    <Link 
+                    <Link
                       href={`/admin/characters/${a.character.id}?fromDrama=${drama.id}`}
                       className="inline-flex items-center text-xs text-accent mt-0.5 truncate hover:underline"
                     >
                       → {a.character.name}
                     </Link>
                   )}
-                  
+
                   {a.character?.description && (
                     <p className="text-xs text-muted mt-0.5 line-clamp-2">
                       {a.character.description}
@@ -345,7 +345,7 @@ export default async function AdminDramaEditPage({
             ))}
           </div>
         )}
-            </section>
+      </section>
 
       {/* ── САУНДТРЕК ── */}
       <section className="rounded-2xl border border-border bg-surface p-6 mt-6">

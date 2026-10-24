@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { 
-  getDramaSearchWhere, 
-  getPersonSearchWhere, 
-  getCharacterSearchWhere 
+import {
+  getDramaSearchWhere,
+  getPersonSearchWhere,
+  getCharacterSearchWhere
 } from "@/lib/search-queries";
 
 export async function GET(request: NextRequest) {
@@ -17,10 +17,10 @@ export async function GET(request: NextRequest) {
   const [dramas, people, characters] = await Promise.all([
     prisma.drama.findMany({
       where: getDramaSearchWhere(query),
-      select: { 
-        id: true, 
-        title: true, 
-        year: true, 
+      select: {
+        id: true,
+        title: true,
+        year: true,
         country: true,
         posterUrl: true,
         ratingKinopoisk: true,
@@ -36,22 +36,22 @@ export async function GET(request: NextRequest) {
     }),
     prisma.character.findMany({
       where: getCharacterSearchWhere(query),
-      select: { 
-        id: true, 
-        name: true, 
+      select: {
+        id: true,
+        name: true,
         imageUrl: true,
-        drama: { select: { id: true, title: true } } 
+        drama: { select: { id: true, title: true } }
       },
       take: 5,
     }),
   ]);
 
-  return NextResponse.json({ 
+  return NextResponse.json({
     dramas: dramas.map((d) => ({
       ...d,
       rating: d.ratingKinopoisk ?? d.ratingIMDB ?? null,
-    })), 
-    people, 
-    characters 
+    })),
+    people,
+    characters
   });
 }

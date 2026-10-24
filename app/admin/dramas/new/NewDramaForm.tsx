@@ -12,7 +12,7 @@ export function NewDramaForm() {
   const [error, setError] = useState<string | null>(null);
   const [existingId, setExistingId] = useState<number | null>(null);
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setExistingId(null);
@@ -67,20 +67,20 @@ export function NewDramaForm() {
               placeholder="2020"
               className={inputCls}
             />
-                        <div>
-                <label className={labelCls}>Страна</label>
-                <select
-                  name="country"
-                  defaultValue=""
-                  className={inputCls}
-                >
-                  <option value="">— не выбрана —</option>
-                  {COUNTRIES.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-              </div>
-        </div>
+            <div>
+              <label className={labelCls}>Страна</label>
+              <select
+                name="country"
+                defaultValue=""
+                className={inputCls}
+              >
+                <option value="">— не выбрана —</option>
+                {COUNTRIES.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
       </FormSection>
 
@@ -121,7 +121,7 @@ export function NewDramaForm() {
         </div>
       </FormSection>
 
-{/* ─── ВЕЩАНИЕ ─── */}
+      {/* ─── ВЕЩАНИЕ ─── */}
       <FormSection
         Icon={Tv}
         title="Вещание"
@@ -166,25 +166,25 @@ export function NewDramaForm() {
           />
         </div>
 
-<div>                                                           
-          <label className={labelCls}>Платформы (через запятую)</label> 
-          <input                                                      
-            type="text"                                               
-            name="platforms"                                          
-            placeholder="Netflix, Viki, Кинопоиск"                    
-            className={inputCls}                                      
-          />                                                          
-        </div>                                                        
+        <div>
+          <label className={labelCls}>Платформы (через запятую)</label>
+          <input
+            type="text"
+            name="platforms"
+            placeholder="Netflix, Viki, Кинопоиск"
+            className={inputCls}
+          />
+        </div>
 
-        <div>                                                           
-          <label className={labelCls}>Производство (через запятую)</label> 
-          <input                                                      
-            type="text"                                               
-            name="studios"                                            
-            placeholder="tvN, JTBC, Studio Dragon"                    
-            className={inputCls}                                      
-          />                                                          
-        </div>                                                        
+        <div>
+          <label className={labelCls}>Производство (через запятую)</label>
+          <input
+            type="text"
+            name="studios"
+            placeholder="tvN, JTBC, Studio Dragon"
+            className={inputCls}
+          />
+        </div>
 
       </FormSection>
 
@@ -230,7 +230,7 @@ export function NewDramaForm() {
         </div>
       </FormSection>
 
-        {error && (
+      {error && (
         <div className="text-sm text-red-400 border border-red-500/30 bg-red-500/10 rounded-lg px-3 py-2 flex items-start justify-between gap-3">
           <span className="flex-1">{error}</span>
           {existingId && (

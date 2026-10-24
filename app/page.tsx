@@ -81,12 +81,12 @@ export default async function HomePage() {
         <div className="w-20 h-20 rounded-full bg-accent-soft flex items-center justify-center text-3xl shrink-0">
           🎬
         </div>
-                <div>
+        <div>
           <h1 className="text-2xl font-bold">Привет, {user?.name || "Артём"}</h1>
           <p className="text-muted text-sm mt-1">
             в дневнике с {joinDate}
           </p>
-                    <div className="text-muted text-xs mt-1.5 flex items-center gap-3">
+          <div className="text-muted text-xs mt-1.5 flex items-center gap-3">
             <span className="flex items-center gap-1">
               <MapPin className="w-3.5 h-3.5 text-accent" /> Страна
             </span>
@@ -264,8 +264,8 @@ function HeartPreview({
     <div className="rounded-2xl border border-border bg-surface p-4 border-l-4 border-l-yellow-400/70 h-full">
       <div className="flex items-baseline justify-between mb-2">
         {/* Оборачиваем в Link только заголовок */}
-        <Link 
-          href="/heart" 
+        <Link
+          href="/heart"
           className="group flex items-center gap-1.5 hover:text-accent transition-colors"
         >
           <Crown className="w-4 h-4 text-yellow-400" />

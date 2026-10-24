@@ -40,7 +40,7 @@ export function getCharacterSearchWhere(query: string): Prisma.CharacterWhereInp
   return {
     OR: [
       { nameLower: { contains: q } },
-      { aliases: { some: { nameLower: { contains: q } } } }, 
+      { aliases: { some: { nameLower: { contains: q } } } },
     ],
   };
 }

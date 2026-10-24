@@ -68,7 +68,7 @@ export async function updateEntry(formData: FormData) {
 
   return { success: true };
 
-  
+
 }
 
 export async function updateDrama(formData: FormData) {
@@ -127,34 +127,34 @@ export async function updateDrama(formData: FormData) {
   }
 
   // Обновляем платформы                                              
-  const platformsRaw = String(formData.get("platforms") ?? "").trim(); 
-  await prisma.dramaPlatform.deleteMany({ where: { dramaId } });     
-  if (platformsRaw) {                                                
-    const names = platformsRaw.split(",").map(s => s.trim()).filter(Boolean); 
-    for (const name of names) {                                      
-      const platform = await prisma.platform.upsert({                
-        where: { name }, update: {}, create: { name },               
-      });                                                            
-      await prisma.dramaPlatform.create({                            
-        data: { dramaId, platformId: platform.id },                  
-      });                                                            
-    }                                                                
-  }                                                                  
+  const platformsRaw = String(formData.get("platforms") ?? "").trim();
+  await prisma.dramaPlatform.deleteMany({ where: { dramaId } });
+  if (platformsRaw) {
+    const names = platformsRaw.split(",").map(s => s.trim()).filter(Boolean);
+    for (const name of names) {
+      const platform = await prisma.platform.upsert({
+        where: { name }, update: {}, create: { name },
+      });
+      await prisma.dramaPlatform.create({
+        data: { dramaId, platformId: platform.id },
+      });
+    }
+  }
 
   // Обновляем студии                                                
-  const studiosRaw = String(formData.get("studios") ?? "").trim();   
-  await prisma.dramaStudio.deleteMany({ where: { dramaId } });       
-  if (studiosRaw) {                                                  
-    const names = studiosRaw.split(",").map(s => s.trim()).filter(Boolean); 
-    for (const name of names) {                                      
-      const studio = await prisma.studio.upsert({                    
-        where: { name }, update: {}, create: { name },               
-      });                                                            
-      await prisma.dramaStudio.create({                              
-        data: { dramaId, studioId: studio.id },                      
-      });                                                            
-    }                                                                
-  }                                                                  
+  const studiosRaw = String(formData.get("studios") ?? "").trim();
+  await prisma.dramaStudio.deleteMany({ where: { dramaId } });
+  if (studiosRaw) {
+    const names = studiosRaw.split(",").map(s => s.trim()).filter(Boolean);
+    for (const name of names) {
+      const studio = await prisma.studio.upsert({
+        where: { name }, update: {}, create: { name },
+      });
+      await prisma.dramaStudio.create({
+        data: { dramaId, studioId: studio.id },
+      });
+    }
+  }
 
   revalidatePath(`/dramas/${dramaId}`);
   revalidatePath("/library");
@@ -181,9 +181,9 @@ export async function updateGenres(formData: FormData) {
   const newGenresRaw = String(formData.get("newGenres") ?? "").trim();
   const newGenreNames = newGenresRaw
     ? newGenresRaw
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean)
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
     : [];
 
   // Находим или создаём новые жанры
@@ -225,9 +225,9 @@ export async function addCredit(formData: FormData) {
 
   const roleType = String(formData.get("roleType") ?? "actor");
   const importanceRaw = String(formData.get("importance") ?? "support");
-const importance = ["lead", "support", "guest"].includes(importanceRaw)
-  ? importanceRaw
-  : "support";
+  const importance = ["lead", "support", "guest"].includes(importanceRaw)
+    ? importanceRaw
+    : "support";
   const characterName = String(formData.get("characterName") ?? "").trim() || null;
   const characterDescription =
     String(formData.get("characterDescription") ?? "").trim() || null;
@@ -238,56 +238,56 @@ const importance = ["lead", "support", "guest"].includes(importanceRaw)
   /// Ищем или создаём Person
   let person = await prisma.person.findFirst({ where: { nameLower: personName.toLowerCase() } });
   if (!person) {
-    person = await prisma.person.create({ 
-      data: { 
+    person = await prisma.person.create({
+      data: {
         name: personName,
-        nameLower: personName.toLowerCase() 
-      } 
+        nameLower: personName.toLowerCase()
+      }
     });
   }
 
   // Если actor с персонажем — ищем или создаём Character
   let characterId: number | null = null;
 
-if (roleType === "actor") {
-  // Определяем имя персонажа: явное или сгенерированное из описания
-  let finalName = characterName;
-  if (!finalName && characterDescription) {
-    // Берём первые 4 слова из описания как имя
-    finalName = characterDescription
-      .split(/\s+/)
-      .slice(0, 4)
-      .join(" ")
-      .slice(0, 40)
-      .trim();
-  }
+  if (roleType === "actor") {
+    // Определяем имя персонажа: явное или сгенерированное из описания
+    let finalName = characterName;
+    if (!finalName && characterDescription) {
+      // Берём первые 4 слова из описания как имя
+      finalName = characterDescription
+        .split(/\s+/)
+        .slice(0, 4)
+        .join(" ")
+        .slice(0, 40)
+        .trim();
+    }
 
-  if (finalName) {
-    const existing = await prisma.character.findFirst({
-      where: { dramaId, name: finalName },
-    });
-
-    if (existing) {
-      characterId = existing.id;
-      if (characterDescription && !existing.description) {
-        await prisma.character.update({
-          where: { id: existing.id },
-          data: { description: characterDescription },
-        });
-      }
-    } else {
-      const newChar = await prisma.character.create({
-        data: {
-          dramaId,
-          name: finalName,
-          nameLower: finalName.toLowerCase(),
-          description: characterDescription,
-        },
+    if (finalName) {
+      const existing = await prisma.character.findFirst({
+        where: { dramaId, name: finalName },
       });
-      characterId = newChar.id;
+
+      if (existing) {
+        characterId = existing.id;
+        if (characterDescription && !existing.description) {
+          await prisma.character.update({
+            where: { id: existing.id },
+            data: { description: characterDescription },
+          });
+        }
+      } else {
+        const newChar = await prisma.character.create({
+          data: {
+            dramaId,
+            name: finalName,
+            nameLower: finalName.toLowerCase(),
+            description: characterDescription,
+          },
+        });
+        characterId = newChar.id;
+      }
     }
   }
-}
 
   // Проверяем, нет ли уже такого Credit
   const existingCredit = await prisma.credit.findFirst({
@@ -299,16 +299,16 @@ if (roleType === "actor") {
   }
 
   await prisma.credit.create({
-  data: {
-    personId: person.id,
-    dramaId,
-    roleType,
-    importance,
-    characterId,
-    order,
-    note,
-  },
-});
+    data: {
+      personId: person.id,
+      dramaId,
+      roleType,
+      importance,
+      characterId,
+      order,
+      note,
+    },
+  });
 
   revalidatePath(`/dramas/${dramaId}`);
   return { success: true };
@@ -439,9 +439,9 @@ export async function updateTitles(formData: FormData) {
     where: { dramaId, isPrimary: false },
   });
 
-    if (titlesRaw) {
+  if (titlesRaw) {
     const titles = titlesRaw.split(/\n/).map(t => t.trim()).filter(Boolean);
-    
+
     // Функция для определения языка
     const detectLanguage = (text: string) => {
       if (/[\uAC00-\uD7AF]/.test(text)) return "ko"; // Корейский
@@ -451,7 +451,7 @@ export async function updateTitles(formData: FormData) {
       if (/[a-zA-Z]/.test(text)) return "en";       // Английский
       return "unknown";
     };
-    
+
     for (const title of titles) {
       await prisma.dramaTitle.create({
         data: {
@@ -505,7 +505,7 @@ export async function addSoundtrack(formData: FormData) {
     if (match) embedId = match[1];
   }
 
-    await prisma.soundtrackLink.create({
+  await prisma.soundtrackLink.create({
     data: { dramaId, title, url, artist, kind, provider, embedId },
   });
 

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Trash2, X, AlertTriangle } from "lucide-react";
-import { deleteDrama } from "../actions"; 
+import { deleteDrama } from "../actions";
 
 export function DeleteDramaModal({
   dramaId,
