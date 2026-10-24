@@ -22,11 +22,11 @@ export default async function AdminDramasPage({
 
   const searchCondition = getDramaSearchWhere(query);
 
-  const filterCondition = 
+  const filterCondition =
     currentFilter === "no_genres" ? { genres: { none: {} } } :
-    currentFilter === "no_credits" ? { credits: { none: {} } } :
-    currentFilter === "no_poster" ? { posterUrl: null } :
-    undefined;
+      currentFilter === "no_credits" ? { credits: { none: {} } } :
+        currentFilter === "no_poster" ? { posterUrl: null } :
+          undefined;
 
   const whereConditions = [searchCondition, filterCondition].filter(Boolean) as any[];
 
@@ -38,11 +38,11 @@ export default async function AdminDramasPage({
       _count: {
         select: { credits: true, genres: true },
       },
-      genres: { 
+      genres: {
         include: { genre: true },
         take: 5 // Берем только 5 для тултипа
       },
-      credits: { 
+      credits: {
         include: { person: true },
         take: 8 // Берем только 8 для тултипа
       },
@@ -52,18 +52,18 @@ export default async function AdminDramasPage({
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col gap-6">
-      
+
       {/* ВЕРХНИЙ РЯД */}
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            Дорамы 
+            Дорамы
             <span className="text-sm font-normal text-muted bg-surface px-2 py-0.5 rounded-full border border-border">
               {dramas.length}
             </span>
           </h1>
         </div>
-        
+
         <div className="flex items-center gap-3">
           <MobileSearchButton />
           <Link
@@ -81,7 +81,7 @@ export default async function AdminDramasPage({
         <div className="w-full max-w-2xl">
           <AdminSearchBar placeholder="Поиск по названиям..." showGlobalSearch />
         </div>
-         
+
         {/* Чипсы */}
         <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-1 [&::-webkit-scrollbar]:hidden">
           {[
@@ -93,16 +93,15 @@ export default async function AdminDramasPage({
             const params = new URLSearchParams();
             if (query) params.set("q", query);
             if (!isActive) params.set("filter", f.key);
-            
+
             return (
               <Link
                 key={f.key}
                 href={`/admin/dramas?${params.toString()}`}
-                className={`px-3 py-1 rounded-full text-xs transition-colors shrink-0 border-none ${
-                  isActive 
-                    ? "bg-accent text-white" 
-                    : "bg-transparent text-muted hover:bg-surface hover:text-foreground"
-                }`}
+                className={`px-3 py-1 rounded-full text-xs transition-colors shrink-0 border-none ${isActive
+                  ? "bg-accent text-white"
+                  : "bg-transparent text-muted hover:bg-surface hover:text-foreground"
+                  }`}
               >
                 {f.label}
               </Link>
@@ -154,7 +153,7 @@ export default async function AdminDramasPage({
                     {/* КОЛОНКА 1: Объект */}
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <StatusDot 
+                        <StatusDot
                           items={[
                             { label: "Постер/Альт.названия", isFilled: !!d.posterUrl || d.titles.length > 1, isCritical: true },
                             { label: "Жанры", isFilled: d._count.genres > 0 },
@@ -193,12 +192,12 @@ export default async function AdminDramasPage({
 
                     {/* КОЛОНКА 4: Наполнение (Используем _count и take) */}
                     <td className="px-4 py-3">
-                      <MetricsIcons 
-                        credits={d.credits} 
+                      <MetricsIcons
+                        credits={d.credits}
                         totalCredits={d._count.credits}
-                        genres={d.genres} 
+                        genres={d.genres}
                         totalGenres={d._count.genres}
-                        hasSynopsis={!!d.synopsis} 
+                        hasSynopsis={!!d.synopsis}
                       />
                     </td>
 
