@@ -15,8 +15,9 @@ import {
   LogOut,
 } from "lucide-react";
 import { MenuLink } from "@/components/MenuLink";
-import { SmartLink } from "./SmartLink";
+import { toast } from "sonner"; // ← Добавили импорт тостов
 
+// Добавили "Настройки" в общий массив
 const userSections = [
   { href: "/library",       Icon: Library,    label: "Библиотека",        hint: "Списки дорам", isWip: false },
   { href: "/heart",         Icon: Heart,      label: "Особое место",      hint: "Дорамы с цитатами", isWip: false },
@@ -25,6 +26,7 @@ const userSections = [
   { href: "/me/characters", Icon: UsersRound, label: "Любимые персонажи", hint: "Твой топ", isWip: true },
   { href: "/stats",         Icon: BarChart3,  label: "Статистика",        hint: "Часы, жанры, эмоции", isWip: true },
   { href: "/graph",         Icon: Network,    label: "Граф связей",       hint: "Визуализация", isWip: true },
+  { href: "/settings",      Icon: Settings,   label: "Настройки",         hint: "Профиль и приватность", isWip: true },
 ];
 
 type UserMenuProps = {
@@ -75,6 +77,7 @@ export function UserMenu({ user }: UserMenuProps) {
 
       {open && (
         <div className="absolute right-0 top-full mt-2 z-50 w-72 rounded-xl border border-border bg-surface shadow-xl overflow-hidden">
+          {/* Рендерим все ссылки, включая Настройки */}
           {userSections.map((item) => (
             <MenuLink 
               key={item.href} 
@@ -83,22 +86,14 @@ export function UserMenu({ user }: UserMenuProps) {
             />
           ))}
 
+          {/* Внизу осталась только кнопка Выйти */}
           <div className="border-t border-border">
-            <SmartLink
-              href="/settings"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 hover:bg-foreground/5 transition-colors text-sm text-muted"
-            >
-              <Settings className="w-5 h-5 shrink-0" />
-              Настройки
-            </SmartLink>
-            
             <button
               onClick={() => {
-                alert("Авторизация появится в следующем обновлении! 🚀");
+                toast.info("Авторизация появится в следующем обновлении 🚀"); 
                 setOpen(false);
               }}
-              className="w-full text-left flex items-center gap-3 px-4 py-3 text-sm text-muted hover:text-red-400 hover:bg-red-400/5 transition-colors border-t border-border"
+              className="w-full text-left flex items-center gap-3 px-4 py-3 text-sm text-muted hover:text-red-400 hover:bg-red-400/5 transition-colors"
             >
               <LogOut className="w-5 h-5 shrink-0" />
               Выйти
