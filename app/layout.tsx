@@ -49,11 +49,21 @@ export default async function RootLayout({
           <Footer />
         </ThemeProvider>
         
-      <Toaster 
+            <Toaster 
         theme="dark" 
-        position="bottom-right" 
+        position="top-right" // ← Изменили на правый верхний угол
         richColors 
         closeButton
+        expand={true}        // ← Тосты будут раскрываться, если их несколько
+        duration={4000}      // ← Время показа (4 секунды)
+        toastOptions={{
+          style: {
+            padding: "16px",       // ← Больше внутренние отступы
+            fontSize: "14px",      // ← Чуть больше шрифт
+            minWidth: "360px",     // ← Минимальная ширина окна
+            borderRadius: "12px",  // ← Более скругленные углы
+          },
+        }}
       />
       </body>
     </html>
