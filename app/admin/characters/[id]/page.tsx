@@ -57,18 +57,46 @@ export default async function EditCharacterPage({
     target: r.to,
   }));
 
+   // Ищем актера этого персонажа в контексте дорамы (если мы пришли из неё)
+  let linkedActor = null;
+  if (fromDrama) {
+    const credit = await prisma.credit.findFirst({
+      where: { 
+        characterId: id, 
+        dramaId: Number(fromDrama),
+        roleType: "actor"
+      },
+      include: { person: true }
+    });
+    linkedActor = credit?.person;
+  }
+
   return (
     <div className="max-w-2xl mx-auto px-6 py-10">
       
       {/* Кнопка возврата, если мы пришли из дорамы */}
-      {fromDrama && (
-        <Link
-          href={`/admin/dramas/${fromDrama}`}
-          className="inline-flex items-center gap-2 mb-4 px-3 py-1.5 rounded-lg bg-accent/10 text-accent text-sm font-medium hover:bg-accent/20 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Вернуться к дораме
-        </Link>
+            {fromDrama && (
+        <div className="flex flex-wrap items-center gap-4 mb-4">
+          <Link
+            href={`/admin/dramas/${fromDrama}`}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-accent/10 text-accent text-sm font-medium hover:bg-accent/20 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Вернуться к дораме
+          </Link>
+          
+          {linkedActor && (
+            <span className="text-sm text-muted flex items-center gap-1.5">
+              Актёр: 
+              <Link 
+                href={`/admin/people/${linkedActor.id}?fromDrama=${fromDrama}`}
+                className="text-accent hover:underline font-medium"
+              >
+                {linkedActor.name}
+              </Link>
+            </span>
+          )}
+        </div>
       )}
 
       <AdminBreadcrumbs 
