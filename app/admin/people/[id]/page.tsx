@@ -1,18 +1,26 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { PersonForm } from "../PersonForm";
 import { DeletePersonButton } from "./DeletePersonButton";
 import { PersonAliasEditButton } from "../PersonAliasEditButton";
 import { AdminBreadcrumbs } from "@/components/AdminBreadcrumbs";
-import { ArrowLeft, Link } from "lucide-react";
 
 type Params = Promise<{ id: string }>;
 type SearchParams = Promise<{ fromDrama?: string }>;
 
-export default async function EditPersonPage({ params, searchParams }: { params: Params, searchParams: SearchParams; }) {
+export default async function EditPersonPage({ 
+  params, 
+  searchParams 
+}: { 
+  params: Params;
+  searchParams: SearchParams;
+}) {
   const { id: rawId } = await params;
   const { fromDrama } = await searchParams;
   const id = Number(rawId);
+  
   if (!Number.isInteger(id) || id <= 0) notFound();
 
   const person = await prisma.person.findUnique({ 
@@ -24,15 +32,8 @@ export default async function EditPersonPage({ params, searchParams }: { params:
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-10">
-      {/* Крошки теперь на своей строке */}
-      <AdminBreadcrumbs 
-        items={[
-          { label: "Актёры", href: "/admin/people" }, 
-          { label: person.name }
-        ]} 
-      />
-
-            {/* Кнопка возврата, если мы пришли из дорамы */}
+      
+      {/* 1. Кнопка возврата (появляется только если мы пришли из дорамы) */}
       {fromDrama && (
         <Link
           href={`/admin/dramas/${fromDrama}`}
@@ -43,16 +44,16 @@ export default async function EditPersonPage({ params, searchParams }: { params:
         </Link>
       )}
 
-      {/* Твои хлебные крошки */}
+      {/* 2. Хлебные крошки */}
       <AdminBreadcrumbs 
         items={[
           { label: "Актёры", href: "/admin/people" },
           { label: person.name }
         ]} 
       />
-
-      {/* Шапка с именем, кнопкой удаления и алиасами */}
-      <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
+      
+      {/* 3. Шапка с именем, кнопкой удаления и алиасами */}
+      <div className="flex items-start justify-between gap-4 mb-6 flex-wrap mt-2">
         <div className="flex items-center gap-4 flex-wrap min-w-0">
           <h1 className="text-2xl font-bold">{person.name}</h1>
           <PersonAliasEditButton 
@@ -66,9 +67,8 @@ export default async function EditPersonPage({ params, searchParams }: { params:
         </div>
       </div>
 
-            <PersonForm person={person} fromDrama={fromDrama} />
-      
+      {/* 4. Форма с переданным параметром fromDrama */}
+      <PersonForm person={person} fromDrama={fromDrama} />
     </div>
-    
   );
 }
