@@ -170,11 +170,28 @@ export function PersonForm({ person }: { person?: PersonData }) {
           </label>
           <textarea
             name="socialLinks"
+            
             defaultValue={person?.socialLinks?.map((l) => `${l.platform}|${l.url}`).join("\n") ?? ""}
             rows={3}
-            placeholder="instagram|https://instagram.com/...&#10;youtube|https://youtube.com/..."
+            placeholder="instagram|https://...&#10;youtube|https://...&#10;wikipedia|https://..."
             className={`${inputCls} resize-y`}
           />
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {[
+              'instagram', 'youtube', 'twitter', 'tiktok', 'weibo', 'wikipedia',
+              'facebook', 'linkedin', 'telegram', 'discord', 'threads', 'bluesky',
+              'vk', 'spotify', 'soundcloud', 'naver', 'kakao', 'wechat', 'bilibili',
+              'imdb', 'website'
+            ].map((platform) => (
+              <span 
+                key={platform} 
+                className="text-[10px] text-muted/60 bg-surface border border-border/50 px-1.5 py-0.5 rounded"
+              >
+                {platform}
+              </span>
+            ))}
+            <span className="text-[10px] text-muted/40 self-center ml-1">и другие...</span>
+          </div>
         </div>
       </FormSection>
 

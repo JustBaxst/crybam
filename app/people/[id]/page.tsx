@@ -10,10 +10,61 @@ import {
   Ruler,
   Link as LinkIcon,
 } from "lucide-react";
-import { FaInstagram, FaYoutube, FaTwitter, FaTiktok } from "react-icons/fa6";
-import { FaWeibo } from "react-icons/fa";
+import { FaInstagram, FaYoutube, FaTwitter, FaTiktok, FaWikipediaW, 
+  FaGlobe, FaFacebook, FaLinkedin, FaTelegram, FaDiscord, 
+  FaRedditAlien, FaPinterest, FaSnapchat, FaTwitch, FaVk, 
+  FaSpotify, FaSoundcloud, FaImdb, FaGithub, FaMedium, FaWeibo, FaYandex } from "react-icons/fa6";
+import { 
+  SiThreads, SiBluesky, SiLine, SiWechat, 
+  SiBilibili, SiNaver, SiKakao, SiApplemusic,
+  SiTumblr, SiVimeo, SiDailymotion, SiPatreon,
+  SiMastodon, SiSubstack, SiFlickr 
+} from "react-icons/si";
 import { prisma } from "@/lib/prisma";
 import { AlternativeTitles } from "@/app/dramas/[id]/AlternativeTitles";
+
+// Словарь для быстрого сопоставления платформы и иконки
+const SOCIAL_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  instagram: FaInstagram,
+  youtube: FaYoutube,
+  twitter: FaTwitter,
+  x: FaTwitter,
+  tiktok: FaTiktok,
+  weibo: FaWeibo,
+  wikipedia: FaWikipediaW,
+  website: FaGlobe,
+  facebook: FaFacebook,
+  linkedin: FaLinkedin,
+  telegram: FaTelegram,
+  discord: FaDiscord,
+  reddit: FaRedditAlien,
+  pinterest: FaPinterest,
+  snapchat: FaSnapchat,
+  twitch: FaTwitch,
+  vk: FaVk,
+  spotify: FaSpotify,
+  soundcloud: FaSoundcloud,
+  imdb: FaImdb,
+  github: FaGithub,
+  medium: FaMedium,
+  threads: SiThreads,
+  bluesky: SiBluesky,
+  line: SiLine,
+  wechat: SiWechat,
+  bilibili: SiBilibili,
+  naver: SiNaver,
+  kakao: SiKakao,
+  applemusic: SiApplemusic,
+  yandexmusic: FaYandex,
+  douyin: FaTiktok,
+  tumblr: SiTumblr,
+  vimeo: SiVimeo,
+  dailymotion: SiDailymotion,
+  patreon: SiPatreon,
+  mastodon: SiMastodon,
+  substack: SiSubstack,
+  flickr: SiFlickr,
+};
 
 type Params = Promise<{ id: string }>;
 
@@ -141,28 +192,26 @@ export default async function PersonPage({ params }: { params: Params }) {
             )}
           </div>
 
-          {/* Соцсети */}
+          {/* Соцсети и ссылки */}
           {person.socialLinks.length > 0 && (
-            <div className="flex items-center gap-3 mt-4">
-              <span className="text-xs text-muted">Соцсети:</span>
+            <div className="flex items-center gap-3 mt-4 flex-wrap">
+              <span className="text-xs text-muted">Ссылки:</span>
               {person.socialLinks.map((link) => {
-                const Icon = 
-                  link.platform.toLowerCase() === 'instagram' ? FaInstagram :
-                  link.platform.toLowerCase() === 'youtube' ? FaYoutube :
-                  link.platform.toLowerCase() === 'twitter' ? FaTwitter :
-                  link.platform.toLowerCase() === 'tiktok' ? FaTiktok :
-                  link.platform.toLowerCase() === 'weibo' ? FaWeibo :
-                  LinkIcon;
+                const p = link.platform.toLowerCase();
+                // Берем иконку из словаря, если нет — показываем цепочку
+                const Icon = SOCIAL_ICONS[p] || LinkIcon;
+
                 return (
                   <a
                     key={link.id}
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-8 h-8 flex items-center justify-center rounded-full bg-surface border border-border text-muted hover:text-accent hover:border-accent/40 transition-all"
+                    className="group flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border bg-surface text-muted hover:text-accent hover:border-accent/40 transition-all text-xs"
                     title={link.platform}
                   >
-                    <Icon className="w-4 h-4" />
+                    <Icon className="w-3.5 h-3.5" />
+                    <span className="capitalize">{link.platform}</span>
                   </a>
                 );
               })}
