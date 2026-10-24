@@ -63,9 +63,9 @@ export default async function CharactersCatalogPage({
                 <div className="aspect-2/3 bg-accent-soft/30 flex items-center justify-center overflow-hidden relative">
                   {char.imageUrl ? (
                     <img
-                      src={char.imageUrl}
-                      alt={char.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    src={char.imageUrl}
+                    alt={char.name}
+                    className="w-full h-full object-cover"
                     />
                   ) : (
                     <UserCircle className="w-16 h-16 text-muted/50" />
