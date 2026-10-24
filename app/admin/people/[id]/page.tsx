@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { PersonForm } from "../PersonForm";
 import { DeletePersonButton } from "./DeletePersonButton";
 import { PersonAliasEditButton } from "../PersonAliasEditButton";
+import { AdminBreadcrumbs } from "@/components/AdminBreadcrumbs";
 
 type Params = Promise<{ id: string }>;
 
@@ -23,9 +24,12 @@ export default async function EditPersonPage({ params }: { params: Params }) {
   return (
     <div className="max-w-2xl mx-auto px-6 py-10">
       <div className="flex items-center justify-between mb-6">
-        <Link href="/admin/people" className="inline-flex items-center gap-2 text-sm text-muted hover:text-foreground">
-          <ArrowLeft className="w-4 h-4" /> Назад к списку
-        </Link>
+      <AdminBreadcrumbs 
+        items={[
+          { label: "Персонажи", href: "/admin/characters" },
+          { label: person.name }
+        ]} 
+      />
         <DeletePersonButton personId={person.id} personName={person.name} />
       </div>
       

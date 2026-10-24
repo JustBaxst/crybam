@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { NewDramaForm } from "./NewDramaForm";
+import { AdminBreadcrumbs } from "@/components/AdminBreadcrumbs";
 
 export default function NewDramaPage() {
   return (
@@ -12,6 +13,8 @@ export default function NewDramaPage() {
         <ArrowLeft className="w-4 h-4" />
         Назад к списку дорам
       </Link>
+
+      <AdminBreadcrumbs items={[{ label: "Дорамы", href: "/admin/dramas" }, { label: "Создание" }]} />
 
       <h1 className="text-2xl font-bold mb-2">Новая дорама</h1>
       <p className="text-sm text-muted mb-8">

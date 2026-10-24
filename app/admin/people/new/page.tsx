@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { PersonForm } from "../PersonForm";
+import { AdminBreadcrumbs } from "@/components/AdminBreadcrumbs";
 
 export default function NewPersonPage() {
   return (
@@ -13,3 +14,4 @@ export default function NewPersonPage() {
     </div>
   );
 }
+<AdminBreadcrumbs items={[{ label: "Дорамы", href: "/admin/dramas" }, { label: "Создание" }]} />

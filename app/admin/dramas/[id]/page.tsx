@@ -21,6 +21,7 @@ import { CreditsEditButton } from "../../../dramas/[id]/CreditsEditButton";
 import { DeleteDramaButton } from "../DeleteDramaButton";
 import { TitlesEditButton } from "@/app/dramas/[id]/TitlesEditButton";
 import { SoundtracksEditButton } from "@/app/dramas/[id]/SoundtracksEditButton";
+import { AdminBreadcrumbs } from "@/components/AdminBreadcrumbs";
 
 type Params = Promise<{ id: string }>;
 
@@ -93,14 +94,13 @@ export default async function AdminDramaEditPage({
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-10">
-      <Link
-        href="/admin/dramas"
-        className="inline-flex items-center gap-2 text-sm text-muted hover:text-foreground transition-colors mb-6"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Назад к списку
-      </Link>
-
+      
+      <AdminBreadcrumbs 
+        items={[
+          { label: "Дорамы", href: "/admin/dramas" },
+          { label: drama.title }
+        ]} 
+      />
             {/* Заголовок с действиями */}
       <div className="flex items-start justify-between gap-4 mb-8 flex-wrap">
         <div className="min-w-0 flex items-center gap-4 flex-wrap">

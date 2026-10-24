@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { CharacterForm } from "../CharacterForm";
+import { AdminBreadcrumbs } from "@/components/AdminBreadcrumbs";
 
 export default async function NewCharacterPage() {
   const dramas = await prisma.drama.findMany({
@@ -22,3 +23,4 @@ export default async function NewCharacterPage() {
     </div>
   );
 }
+<AdminBreadcrumbs items={[{ label: "Дорамы", href: "/admin/dramas" }, { label: "Создание" }]} />
