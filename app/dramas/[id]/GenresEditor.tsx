@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { X, Save } from "lucide-react";
 import { updateGenres } from "./actions";
+import { toast } from "sonner";
 
 export function GenresEditor({
   dramaId,
@@ -38,6 +39,9 @@ export function GenresEditor({
       if (result?.error) {
         setError(result.error);
       } else {
+        if (result.isJustCompleted) {
+          toast.success(`✨ Глава завершена!`); // можно передать название из пропсов, если есть
+        }
         onClose();
       }
     });
@@ -73,8 +77,8 @@ export function GenresEditor({
                   <label
                     key={g.id}
                     className={`cursor-pointer px-3 py-1.5 rounded-full border text-sm transition-colors ${isOn
-                        ? "border-accent bg-accent/15 text-accent"
-                        : "border-border text-muted hover:border-accent/40"
+                      ? "border-accent bg-accent/15 text-accent"
+                      : "border-border text-muted hover:border-accent/40"
                       }`}
                   >
                     <input

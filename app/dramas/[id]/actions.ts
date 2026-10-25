@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { CURRENT_USER_ID } from "@/lib/current-user";
 import { normalizeTitle } from "@/lib/drama-utils";
+import { getDramaStatus } from "@/lib/check-drama-status";
 
 export async function updateEntry(formData: FormData) {
   const dramaId = Number(formData.get("dramaId"));
@@ -156,10 +157,30 @@ export async function updateDrama(formData: FormData) {
     }
   }
 
+  const oldStatus = await getDramaStatus(dramaId);
+  const newStatus = await getDramaStatus(dramaId);
+  let isJustCompleted = false;
+
+  if (oldStatus !== "green" && newStatus === "green") {
+    isJustCompleted = true;
+    await prisma.adminLog.create({
+      data: {
+        userId: CURRENT_USER_ID,
+        action: "DRAMA_COMPLETED",
+        entityType: "drama",
+        entityId: dramaId,
+        entityName: title,
+        isPublic: true,
+      }
+    });
+  }
+
   revalidatePath(`/dramas/${dramaId}`);
   revalidatePath("/library");
   revalidatePath("/");
-  return { success: true };
+
+
+  return { success: true, isJustCompleted };
 }
 
 export async function updateGenres(formData: FormData) {
@@ -209,9 +230,21 @@ export async function updateGenres(formData: FormData) {
     });
   }
 
+
+  const oldStatus = await getDramaStatus(dramaId);
+  const newStatus = await getDramaStatus(dramaId);
+  let isJustCompleted = false;
+  if (oldStatus !== "green" && newStatus === "green") {
+    isJustCompleted = true;
+    const d = await prisma.drama.findUnique({ where: { id: dramaId }, select: { title: true } });
+    await prisma.adminLog.create({
+      data: { userId: CURRENT_USER_ID, action: "DRAMA_COMPLETED", entityType: "drama", entityId: dramaId, entityName: d?.title || "Без названия", isPublic: true }
+    });
+  }
+
   revalidatePath(`/dramas/${dramaId}`);
   revalidatePath("/library");
-  return { success: true };
+  return { success: true, isJustCompleted };
 }
 
 export async function addCredit(formData: FormData) {
@@ -219,6 +252,7 @@ export async function addCredit(formData: FormData) {
   if (!Number.isInteger(dramaId) || dramaId <= 0) {
     return { error: "Неверный ID дорамы" };
   }
+
 
   const personName = String(formData.get("personName") ?? "").trim();
   if (!personName) return { error: "Имя актёра обязательно" };
@@ -311,7 +345,19 @@ export async function addCredit(formData: FormData) {
   });
 
   revalidatePath(`/dramas/${dramaId}`);
-  return { success: true };
+
+  const oldStatus = await getDramaStatus(dramaId);
+  const newStatus = await getDramaStatus(dramaId);
+  let isJustCompleted = false;
+  if (oldStatus !== "green" && newStatus === "green") {
+    isJustCompleted = true;
+    const d = await prisma.drama.findUnique({ where: { id: dramaId }, select: { title: true } });
+    await prisma.adminLog.create({
+      data: { userId: CURRENT_USER_ID, action: "DRAMA_COMPLETED", entityType: "drama", entityId: dramaId, entityName: d?.title || "Без названия", isPublic: true }
+    });
+  }
+
+  return { success: true, isJustCompleted };
 }
 
 export async function removeCredit(formData: FormData) {
@@ -466,9 +512,20 @@ export async function updateTitles(formData: FormData) {
     }
   }
 
+  const oldStatus = await getDramaStatus(dramaId);
+  const newStatus = await getDramaStatus(dramaId);
+  let isJustCompleted = false;
+  if (oldStatus !== "green" && newStatus === "green") {
+    isJustCompleted = true;
+    const d = await prisma.drama.findUnique({ where: { id: dramaId }, select: { title: true } });
+    await prisma.adminLog.create({
+      data: { userId: CURRENT_USER_ID, action: "DRAMA_COMPLETED", entityType: "drama", entityId: dramaId, entityName: d?.title || "Без названия", isPublic: true }
+    });
+  }
+
   revalidatePath(`/dramas/${dramaId}`);
   revalidatePath(`/admin/dramas/${dramaId}`);
-  return { success: true };
+  return { success: true, isJustCompleted };
 }
 export async function addSoundtrack(formData: FormData) {
   const dramaId = Number(formData.get("dramaId"));

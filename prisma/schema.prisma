@@ -27,15 +27,15 @@ enum RelationType {
 // Пользователь
 // ─────────────────────────────────────────────
 model User {
-  id                Int      @id @default(autoincrement())
+  id                Int       @id @default(autoincrement())
   name              String
-  email             String   @unique
-  role      String   @default("user")
+  email             String    @unique
+  role              String    @default("user")
   bio               String?
   avatarUrl         String?
-  isPrivate         Boolean  @default(false)
+  isPrivate         Boolean   @default(false)
   lastPortraitBuild DateTime?
-  createdAt         DateTime @default(now())
+  createdAt         DateTime  @default(now())
 
   entries            UserDramaEntry[]
   favoriteActors     UserFavoriteActor[]
@@ -44,6 +44,7 @@ model User {
   snapshots          ProfileSnapshot[]
   tags               Tag[]
   tasteItems         ViewerTasteItem[]
+  logs               AdminLog[]
 }
 
 // ─────────────────────────────────────────────
@@ -72,21 +73,21 @@ model Drama {
   ratingDouban    Float?
 
   // ── Студии озвучки (через запятую или с новой строки) ──
-  dubbingStudios  String?
+  dubbingStudios String?
 
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  titles       DramaTitle[]
-  entries      UserDramaEntry[]
-  genres       DramaGenre[]
-  tags         DramaTag[]
-  credits      Credit[]
-  characters   Character[]
-  platforms    DramaPlatform[]
-  studios      DramaStudio[]
-  nominations  NominationEntry[]
-  soundtrack   SoundtrackLink[]
+  titles      DramaTitle[]
+  entries     UserDramaEntry[]
+  genres      DramaGenre[]
+  tags        DramaTag[]
+  credits     Credit[]
+  characters  Character[]
+  platforms   DramaPlatform[]
+  studios     DramaStudio[]
+  nominations NominationEntry[]
+  soundtrack  SoundtrackLink[]
 
   @@index([year])
   @@index([country])
@@ -96,17 +97,17 @@ model Drama {
 // Альтернативные названия дорамы
 // ─────────────────────────────────────────────
 model DramaTitle {
-  id         Int      @id @default(autoincrement())
-  dramaId    Int
-  drama      Drama    @relation(fields: [dramaId], references: [id], onDelete: Cascade)
+  id      Int   @id @default(autoincrement())
+  dramaId Int
+  drama   Drama @relation(fields: [dramaId], references: [id], onDelete: Cascade)
 
   title      String
   titleLower String
   language   String
   kind       String
-  isPrimary  Boolean  @default(false)
+  isPrimary  Boolean @default(false)
 
-  createdAt  DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([titleLower])
   @@index([dramaId])
@@ -116,15 +117,15 @@ model DramaTitle {
 // Личная запись пользователя о дораме
 // ─────────────────────────────────────────────
 model UserDramaEntry {
-  id           Int       @id @default(autoincrement())
-  userId       Int
-  dramaId      Int
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  drama        Drama     @relation(fields: [dramaId], references: [id], onDelete: Cascade)
+  id      Int   @id @default(autoincrement())
+  userId  Int
+  dramaId Int
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  drama   Drama @relation(fields: [dramaId], references: [id], onDelete: Cascade)
 
   status       String    @default("planned")
   rating       Float?
-  cryTag       String?   // sad | bittersweet | safe
+  cryTag       String? // sad | bittersweet | safe
   impression   String?
   review       String?
   quote        String?
@@ -147,21 +148,21 @@ model UserDramaEntry {
 // Карточка зрителя — пункты, которые строит ИИ
 // ─────────────────────────────────────────────
 model ViewerTasteItem {
-  id          Int      @id @default(autoincrement())
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  kind        String   // like | dislike | note
+  kind        String // like | dislike | note
   text        String
-  source      String   // auto | manual
+  source      String // auto | manual
   confidence  Float?
-  isActive    Boolean  @default(true)
+  isActive    Boolean   @default(true)
   generatedAt DateTime?
   order       Int?
 
-  evidence    TasteEvidence[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  evidence  TasteEvidence[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
 
   @@index([userId, kind, isActive])
 }
@@ -170,15 +171,15 @@ model ViewerTasteItem {
 // Доказательства — отзывы, на которых основан пункт
 // ─────────────────────────────────────────────
 model TasteEvidence {
-  id          Int              @id @default(autoincrement())
+  id          Int             @id @default(autoincrement())
   tasteItemId Int
-  tasteItem   ViewerTasteItem  @relation(fields: [tasteItemId], references: [id], onDelete: Cascade)
+  tasteItem   ViewerTasteItem @relation(fields: [tasteItemId], references: [id], onDelete: Cascade)
 
-  entryId     Int
-  entry       UserDramaEntry   @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  entryId Int
+  entry   UserDramaEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
 
-  quote       String?
-  weight      Float?
+  quote  String?
+  weight Float?
 
   @@index([tasteItemId])
 }
@@ -187,24 +188,24 @@ model TasteEvidence {
 // Люди
 // ─────────────────────────────────────────────
 model Person {
-  id         Int       @id @default(autoincrement())
-  name       String
-  nameNative String?
-  nameLower  String    @default("")
-  aliases    PersonAlias[]
-  photoUrl   String?
-  birthDate  DateTime?
-  agency     String?
-  bio        String?
-  gender     Gender?
-  height     Int?
-  birthPlace String?
-  nationality String?
+  id            Int           @id @default(autoincrement())
+  name          String
+  nameNative    String?
+  nameLower     String        @default("")
+  aliases       PersonAlias[]
+  photoUrl      String?
+  birthDate     DateTime?
+  agency        String?
+  bio           String?
+  gender        Gender?
+  height        Int?
+  birthPlace    String?
+  nationality   String?
   bloodType     String?
   mbti          String?
   zodiacWestern String?
   zodiacChinese String?
-  createdAt  DateTime  @default(now())
+  createdAt     DateTime      @default(now())
 
   credits           Credit[]
   favoriteBy        UserFavoriteActor[]
@@ -212,21 +213,21 @@ model Person {
   socialLinks       PersonSocialLink[]
 
   @@index([name])
-  @@index([nameLower]) 
+  @@index([nameLower])
 }
 
 // ─────────────────────────────────────────────
 // Роли
 // ─────────────────────────────────────────────
 model Credit {
-  id          Int        @id @default(autoincrement())
-  personId    Int
-  dramaId     Int
-  person      Person     @relation(fields: [personId], references: [id], onDelete: Cascade)
-  drama       Drama      @relation(fields: [dramaId], references: [id], onDelete: Cascade)
+  id       Int    @id @default(autoincrement())
+  personId Int
+  dramaId  Int
+  person   Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+  drama    Drama  @relation(fields: [dramaId], references: [id], onDelete: Cascade)
 
   roleType    String
-  importance  String     @default("support")  // ← НОВОЕ: lead | support | guest
+  importance  String     @default("support") // ← НОВОЕ: lead | support | guest
   characterId Int?
   character   Character? @relation(fields: [characterId], references: [id])
   order       Int?
@@ -240,46 +241,46 @@ model Credit {
 // Персонажи
 // ─────────────────────────────────────────────
 model Character {
-  id          Int      @id @default(autoincrement())
-  dramaId     Int
-  drama       Drama    @relation(fields: [dramaId], references: [id], onDelete: Cascade)
+  id      Int   @id @default(autoincrement())
+  dramaId Int
+  drama   Drama @relation(fields: [dramaId], references: [id], onDelete: Cascade)
 
   name        String
-  nameLower   String   @default("")
+  nameLower   String  @default("")
   description String?
   imageUrl    String?
-  gender        Gender?
-  height        String?
-  age           String?
-  birthDate     String?
-  occupation    String?
+  gender      Gender?
+  height      String?
+  age         String?
+  birthDate   String?
+  occupation  String?
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 
   credits           Credit[]
-  relationsA        CharacterRelation[] @relation("CharacterFrom")
-  relationsB        CharacterRelation[] @relation("CharacterTo")
+  relationsA        CharacterRelation[]     @relation("CharacterFrom")
+  relationsB        CharacterRelation[]     @relation("CharacterTo")
   favoriteBy        UserFavoriteCharacter[]
   nominationEntries NominationEntry[]
   aliases           CharacterAlias[]
 
   @@index([dramaId])
-  @@index([nameLower]) 
+  @@index([nameLower])
 }
 
 // ─────────────────────────────────────────────
 // Связи между персонажами
 // ─────────────────────────────────────────────
 model CharacterRelation {
-  id       Int       @id @default(autoincrement())
-  fromId   Int
-  toId     Int
-  from     Character @relation("CharacterFrom", fields: [fromId], references: [id], onDelete: Cascade)
-  to       Character @relation("CharacterTo", fields: [toId], references: [id], onDelete: Cascade)
+  id     Int       @id @default(autoincrement())
+  fromId Int
+  toId   Int
+  from   Character @relation("CharacterFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  to     Character @relation("CharacterTo", fields: [toId], references: [id], onDelete: Cascade)
 
   relationType RelationType @default(family)
-  relation String
-  note     String?
+  relation     String
+  note         String?
 
   @@unique([fromId, toId, relation])
 }
@@ -306,9 +307,9 @@ model DramaGenre {
 // Теги
 // ─────────────────────────────────────────────
 model Tag {
-  id     Int        @id @default(autoincrement())
+  id     Int    @id @default(autoincrement())
   userId Int?
-  user   User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
   name   String
 
   dramas DramaTag[]
@@ -366,22 +367,22 @@ model DramaStudio {
 // Номинации
 // ─────────────────────────────────────────────
 model Nomination {
-  id          Int               @id @default(autoincrement())
-  userId      Int
-  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   title       String
   year        Int?
   description String?
-  createdAt   DateTime          @default(now())
+  createdAt   DateTime @default(now())
 
-  entries     NominationEntry[]
+  entries NominationEntry[]
 }
 
 model NominationEntry {
-  id           Int             @id @default(autoincrement())
+  id           Int        @id @default(autoincrement())
   nominationId Int
-  nomination   Nomination      @relation(fields: [nominationId], references: [id], onDelete: Cascade)
+  nomination   Nomination @relation(fields: [nominationId], references: [id], onDelete: Cascade)
 
   dramaId      Int?
   drama        Drama?          @relation(fields: [dramaId], references: [id], onDelete: SetNull)
@@ -392,9 +393,9 @@ model NominationEntry {
   soundtrackId Int?
   soundtrack   SoundtrackLink? @relation(fields: [soundtrackId], references: [id], onDelete: SetNull)
 
-  contextNote  String?
-  isWinner     Boolean         @default(false)
-  note         String?
+  contextNote String?
+  isWinner    Boolean @default(false)
+  note        String?
 
   @@index([nominationId])
 }
@@ -403,15 +404,15 @@ model NominationEntry {
 // Саундтрек
 // ─────────────────────────────────────────────
 model SoundtrackLink {
-  id          Int     @id @default(autoincrement())
-  dramaId     Int
-  drama       Drama   @relation(fields: [dramaId], references: [id], onDelete: Cascade)
+  id      Int   @id @default(autoincrement())
+  dramaId Int
+  drama   Drama @relation(fields: [dramaId], references: [id], onDelete: Cascade)
 
-  title       String
-  artist      String?
-  url         String
-  kind        String?
-  note        String?
+  title  String
+  artist String?
+  url    String
+  kind   String?
+  note   String?
 
   provider    String?
   embedId     String?
@@ -432,8 +433,8 @@ model UserFavoriteActor {
   user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   person   Person @relation(fields: [personId], references: [id], onDelete: Cascade)
 
-  note     String?
-  order    Int?
+  note  String?
+  order Int?
 
   @@id([userId, personId])
 }
@@ -444,8 +445,8 @@ model UserFavoriteCharacter {
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
 
-  note        String?
-  order       Int?
+  note  String?
+  order Int?
 
   @@id([userId, characterId])
 }
@@ -454,30 +455,28 @@ model UserFavoriteCharacter {
 // Снимки профиля
 // ─────────────────────────────────────────────
 model ProfileSnapshot {
-  id      Int      @id @default(autoincrement())
-  userId  Int
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   takenAt DateTime @default(now())
   data    String
   note    String?
 
   @@index([userId, takenAt])
-
-  
 }
 
 // ─────────────────────────────────────────────
 // Альтернативные имена актеров (псевдонимы, латиница и т.д.)
 // ─────────────────────────────────────────────
 model PersonAlias {
-  id        Int      @id @default(autoincrement())
-  personId  Int
-  person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+  id       Int    @id @default(autoincrement())
+  personId Int
+  person   Person @relation(fields: [personId], references: [id], onDelete: Cascade)
 
   name      String
-  nameLower String   @default("")
-  language  String   @default("unknown")
+  nameLower String @default("")
+  language  String @default("unknown")
 
   createdAt DateTime @default(now())
 
@@ -508,12 +507,32 @@ model CharacterAlias {
   characterId Int
   character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
 
-  name        String
-  nameLower   String    @default("")
-  language    String    @default("unknown")
+  name      String
+  nameLower String @default("")
+  language  String @default("unknown")
 
-  createdAt   DateTime  @default(now())
+  createdAt DateTime @default(now())
 
   @@index([characterId])
   @@index([nameLower])
+}
+
+// ─────────────────────────────────────────────
+// Логи действий (Хроника)
+// ─────────────────────────────────────────────
+model AdminLog {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  action     String // DRAMA_COMPLETED | PERSON_CREATED | DRAMA_CREATED и т.д.
+  entityType String // drama | person | character
+  entityId   Int
+  entityName String
+
+  isPublic  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([userId])
 }

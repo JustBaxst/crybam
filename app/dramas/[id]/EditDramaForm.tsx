@@ -14,6 +14,7 @@ import { updateDrama } from "./actions";
 import { FormSection } from "@/components/FormSection";
 import { useLockBodyScroll } from "@/lib/use-lock-body-scroll";
 import { COUNTRIES } from "@/lib/constants";
+import { toast } from "sonner";
 
 type DramaData = {
   title: string;
@@ -60,6 +61,9 @@ export function EditDramaForm({
       if (result?.error) {
         setError(result.error);
       } else {
+        if (result.isJustCompleted) {
+          toast.success(`✨ Глава завершена: ${drama.title}`);
+        }
         onClose();
       }
     });
