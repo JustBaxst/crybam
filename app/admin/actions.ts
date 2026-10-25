@@ -223,23 +223,27 @@ export async function getAdminOverviewData() {
     orderBy: { createdAt: "asc" },
   });
 
-  const activityMap = new Map<string, { count: number; actions: string[] }>();
+  // Группируем по датам для Heatmap
+  const activityMap = new Map<string, { count: number; actions: string[]; userIds: number[] }>();
   for (const log of logs) {
     const dateKey = log.createdAt.toISOString().slice(0, 10);
     const existing = activityMap.get(dateKey);
     if (existing) {
       existing.count++;
       existing.actions.push(log.action);
+      existing.userIds.push(log.userId);
     } else {
-      activityMap.set(dateKey, { count: 1, actions: [log.action] });
+      activityMap.set(dateKey, { count: 1, actions: [log.action], userIds: [log.userId] });
     }
   }
+
 
   const heatmapActivities = Array.from(activityMap.entries()).map(([date, data]) => ({
     date,
     level: Math.min(Math.ceil(data.count / 2), 4),
     episodes: data.count,
     dramaTitle: data.actions.join(", "),
+    userIds: data.userIds, // ← Добавили ID юзеров
   }));
 
   const [persons, characters, genres, nominations] = await Promise.all([
