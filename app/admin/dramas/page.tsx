@@ -26,7 +26,41 @@ export default async function AdminDramasPage({
     currentFilter === "no_genres" ? { genres: { none: {} } } :
       currentFilter === "no_credits" ? { credits: { none: {} } } :
         currentFilter === "no_poster" ? { posterUrl: null } :
-          undefined;
+          currentFilter === "green" ? {
+            AND: [
+              { posterUrl: { not: null } },
+              { synopsis: { not: null } },
+              { genres: { some: {} } },
+              { credits: { some: {} } }
+            ]
+          } :
+            currentFilter === "red" ? {
+              AND: [
+                { posterUrl: null },
+                { titles: { none: { isPrimary: false } } }
+              ]
+            } :
+              currentFilter === "yellow" ? {
+                AND: [
+                  {
+                    OR: [
+                      { posterUrl: null },
+                      { synopsis: null },
+                      { genres: { none: {} } },
+                      { credits: { none: {} } }
+                    ]
+                  },
+                  {
+                    NOT: {
+                      AND: [
+                        { posterUrl: null },
+                        { titles: { none: { isPrimary: false } } }
+                      ]
+                    }
+                  }
+                ]
+              } :
+                undefined;
 
   const whereConditions = [searchCondition, filterCondition].filter(Boolean) as any[];
 

@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Wrench } from "lucide-react";
+import { Wrench, ArrowRight } from "lucide-react";
 import { fixRandomDrama } from "@/app/admin/actions";
 import { toast } from "sonner";
 
@@ -25,10 +25,10 @@ export function FixRandomButton() {
         <button
             onClick={handleClick}
             disabled={isPending}
-            className="flex items-center justify-between p-3 rounded-xl bg-background hover:bg-foreground/5 border border-border transition-colors text-sm mt-auto text-accent font-medium disabled:opacity-50"
+            className="w-full flex items-center justify-between p-3 rounded-xl bg-accent/10 hover:bg-accent/20 border border-accent/20 hover:border-accent/40 transition-all text-sm group text-accent font-medium disabled:opacity-50"
         >
             <span>{isPending ? "Ищем..." : "Исправить случайную"}</span>
-            <Wrench className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 text-accent group-hover:translate-x-1 transition-transform" />
         </button>
     );
 }
