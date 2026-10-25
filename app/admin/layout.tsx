@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Shield, Home, Film, Users, UserCircle } from "lucide-react";
+import { Shield, Home, Film, Users, UserCircle, History as HistoryIcon } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
 import { CommandPalette } from "@/components/CommandPalette";
 
@@ -9,6 +9,7 @@ const navItems = [
   { href: "/admin/dramas", label: "Дорамы", Icon: Film },
   { href: "/admin/people", label: "Актёры", Icon: Users },
   { href: "/admin/characters", label: "Персонажи", Icon: UserCircle },
+  { href: "/admin/chronicle", label: "Хроника", Icon: HistoryIcon },
 ];
 
 export default async function AdminLayout({

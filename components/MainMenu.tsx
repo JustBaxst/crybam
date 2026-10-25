@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Tv, Theater, MessagesSquare, Newspaper, UserCircle } from "lucide-react";
+import { ChevronDown, Tv, Theater, MessagesSquare, Newspaper, UserCircle, ScrollText } from "lucide-react";
 import { MenuLink } from "@/components/MenuLink";
 
 const items = [
@@ -10,6 +10,7 @@ const items = [
   { href: "/characters", Icon: UserCircle, label: "Персонажи", hint: "Все персонажи дорам", isWip: false },
   { href: "/community", Icon: MessagesSquare, label: "Сообщества", hint: "Обсуждения и друзья", isWip: true },
   { href: "/news", Icon: Newspaper, label: "Новости", hint: "Что нового на сайте", isWip: true },
+  { href: "/chronicle", Icon: ScrollText, label: "Хроника", hint: "Лента событий", isWip: false },
 ];
 
 export function MainMenu() {
