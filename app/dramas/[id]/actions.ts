@@ -78,6 +78,9 @@ export async function updateDrama(formData: FormData) {
     return { error: "Неверный ID дорамы" };
   }
 
+  // СНАЧАЛА читаем старый статус
+  const oldStatus = await getDramaStatus(dramaId);
+
   const str = (name: string) => String(formData.get(name) ?? "").trim() || null;
   const num = (name: string) => {
     const raw = String(formData.get(name) ?? "").trim();
@@ -157,7 +160,6 @@ export async function updateDrama(formData: FormData) {
     }
   }
 
-  const oldStatus = await getDramaStatus(dramaId);
   const newStatus = await getDramaStatus(dramaId);
   let isJustCompleted = false;
 
@@ -188,6 +190,9 @@ export async function updateGenres(formData: FormData) {
   if (!Number.isInteger(dramaId) || dramaId <= 0) {
     return { error: "Неверный ID дорамы" };
   }
+
+  // СНАЧАЛА читаем старый статус
+  const oldStatus = await getDramaStatus(dramaId);
 
   // Существующие жанры: массив ID, пришедших как "genre_123"
   const existingIds: number[] = [];
@@ -230,8 +235,6 @@ export async function updateGenres(formData: FormData) {
     });
   }
 
-
-  const oldStatus = await getDramaStatus(dramaId);
   const newStatus = await getDramaStatus(dramaId);
   let isJustCompleted = false;
   if (oldStatus !== "green" && newStatus === "green") {
@@ -253,6 +256,8 @@ export async function addCredit(formData: FormData) {
     return { error: "Неверный ID дорамы" };
   }
 
+  // СНАЧАЛА читаем старый статус
+  const oldStatus = await getDramaStatus(dramaId);
 
   const personName = String(formData.get("personName") ?? "").trim();
   if (!personName) return { error: "Имя актёра обязательно" };
@@ -346,7 +351,6 @@ export async function addCredit(formData: FormData) {
 
   revalidatePath(`/dramas/${dramaId}`);
 
-  const oldStatus = await getDramaStatus(dramaId);
   const newStatus = await getDramaStatus(dramaId);
   let isJustCompleted = false;
   if (oldStatus !== "green" && newStatus === "green") {
@@ -479,6 +483,9 @@ export async function updateTitles(formData: FormData) {
   const dramaId = Number(formData.get("dramaId"));
   if (!Number.isInteger(dramaId) || dramaId <= 0) return { error: "Неверный ID" };
 
+  // СНАЧАЛА читаем старый статус
+  const oldStatus = await getDramaStatus(dramaId);
+
   const titlesRaw = String(formData.get("titles") ?? "").trim();
 
   await prisma.dramaTitle.deleteMany({
@@ -512,7 +519,6 @@ export async function updateTitles(formData: FormData) {
     }
   }
 
-  const oldStatus = await getDramaStatus(dramaId);
   const newStatus = await getDramaStatus(dramaId);
   let isJustCompleted = false;
   if (oldStatus !== "green" && newStatus === "green") {

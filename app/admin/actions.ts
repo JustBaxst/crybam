@@ -1,5 +1,6 @@
 "use server";
 
+import { getCurrentUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -131,4 +132,126 @@ export async function deleteDrama(formData: FormData) {
   revalidatePath("/admin/dramas");
   revalidatePath("/dramas");
   revalidatePath("/library");
+}
+
+export async function fixRandomDrama(): Promise<{ dramaId?: number; error?: string }> {
+  await requireModerator();
+
+  // Получаем все драмы с минимальными полями для проверки статуса
+  const dramas = await prisma.drama.findMany({
+    select: {
+      id: true,
+      title: true,
+      posterUrl: true,
+      synopsis: true,
+      titles: { select: { id: true } },
+      _count: { select: { genres: true, credits: true } },
+    },
+  });
+
+  if (dramas.length === 0) {
+    return { error: "В базе нет дорам" };
+  }
+
+  // Считаем статус в памяти (копия логики getDramaStatus)
+  const dramasWithStatus = dramas.map((d) => {
+    const hasPoster = !!d.posterUrl;
+    const hasAltTitles = d.titles.length > 1;
+    const hasGenres = d._count.genres > 0;
+    const hasCredits = d._count.credits > 0;
+    const hasSynopsis = !!d.synopsis;
+
+    let status: "green" | "yellow" | "red";
+    if (!hasPoster && !hasAltTitles) status = "red";
+    else if (hasPoster && hasGenres && hasCredits && hasSynopsis) status = "green";
+    else status = "yellow";
+
+    return { id: d.id, title: d.title, status };
+  });
+
+  // Фильтруем только 🟡 и 🔴
+  const incomplete = dramasWithStatus.filter((d) => d.status !== "green");
+
+  if (incomplete.length === 0) {
+    return { error: "Все драмы уже 🟢 Готово!" };
+  }
+
+  // Случайная неполная драма
+  const random = incomplete[Math.floor(Math.random() * incomplete.length)];
+
+  return { dramaId: random.id };
+}
+
+export async function getAdminOverviewData() {
+  const user = await getCurrentUser();
+  if (!user || (user.role !== "admin" && user.role !== "moderator")) {
+    return null;
+  }
+
+  const dramas = await prisma.drama.findMany({
+    select: {
+      id: true,
+      posterUrl: true,
+      synopsis: true,
+      titles: { select: { id: true } },
+      _count: { select: { genres: true, credits: true } },
+    },
+  });
+
+  let green = 0, yellow = 0, red = 0;
+  for (const d of dramas) {
+    const hasPoster = !!d.posterUrl;
+    const hasAltTitles = d.titles.length > 1;
+    const hasGenres = d._count.genres > 0;
+    const hasCredits = d._count.credits > 0;
+    const hasSynopsis = !!d.synopsis;
+
+    if (!hasPoster && !hasAltTitles) red++;
+    else if (hasPoster && hasGenres && hasCredits && hasSynopsis) green++;
+    else yellow++;
+  }
+
+  const total = dramas.length;
+  const progress = total > 0 ? Math.round((green / total) * 100) : 0;
+
+  const yearAgo = new Date();
+  yearAgo.setFullYear(yearAgo.getFullYear() - 1);
+
+  const logs = await prisma.adminLog.findMany({
+    where: { createdAt: { gte: yearAgo }, isPublic: true },
+    select: { createdAt: true, userId: true, user: { select: { name: true } }, action: true, entityName: true },
+    orderBy: { createdAt: "asc" },
+  });
+
+  const activityMap = new Map<string, { count: number; actions: string[] }>();
+  for (const log of logs) {
+    const dateKey = log.createdAt.toISOString().slice(0, 10);
+    const existing = activityMap.get(dateKey);
+    if (existing) {
+      existing.count++;
+      existing.actions.push(log.action);
+    } else {
+      activityMap.set(dateKey, { count: 1, actions: [log.action] });
+    }
+  }
+
+  const heatmapActivities = Array.from(activityMap.entries()).map(([date, data]) => ({
+    date,
+    level: Math.min(Math.ceil(data.count / 2), 4),
+    episodes: data.count,
+    dramaTitle: data.actions.join(", "),
+  }));
+
+  const [persons, characters, genres, nominations] = await Promise.all([
+    prisma.person.count(),
+    prisma.character.count(),
+    prisma.genre.count(),
+    prisma.nomination.count(),
+  ]);
+
+  return {
+    user,
+    stats: { total, green, yellow, red, progress, persons, characters, genres, nominations },
+    heatmapActivities,
+  };
 }
