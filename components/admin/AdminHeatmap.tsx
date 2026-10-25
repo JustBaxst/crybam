@@ -160,7 +160,7 @@ export function AdminHeatmap({ activities, currentUserId }: Props) {
                 >
                     <ChevronLeft className="w-3.5 h-3.5" />
                 </button>
-                <span className="text-sm font-semibold text-accent min-w-[44px] text-center">
+                <span className="text-sm font-semibold text-accent min-w-11 text-center">
                     {year}
                 </span>
                 <button

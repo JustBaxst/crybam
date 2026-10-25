@@ -79,8 +79,8 @@ export default async function AdminOverviewPage() {
           { label: "Персонажи", value: stats.characters.total, icon: UserCircle, href: "/admin/characters" },
           { label: "Жанры", value: stats.genres, icon: Tag, href: "/admin/dramas" },
         ].map((s, i) => (
-          <Link key={i} href={s.href} className="rounded-2xl border border-border bg-surface p-4 flex items-center gap-4 hover:border-accent/40 hover:bg-accent/5 transition-all shadow-sm group">
-            <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
+          <Link key={i} href={s.href} className="rounded-2xl border border-border bg-surface p-4 flex items-center gap-4 hover:border-accent/40 hover:bg-accent/5 transition-colors shadow-sm group">
+            <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center text-accent">
               <s.icon className="w-6 h-6" />
             </div>
             <div>
