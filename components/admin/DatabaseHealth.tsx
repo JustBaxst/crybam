@@ -27,15 +27,21 @@ export function DatabaseHealth({
     const currentStats = tab === "all" ? allStats : tab === "dramas" ? dramas : tab === "persons" ? persons : characters;
     const baseUrl = tab === "all" ? "/admin/dramas" : tab === "dramas" ? "/admin/dramas" : tab === "persons" ? "/admin/people" : "/admin/characters";
 
+    // Проценты для прогресс-бара
+    const safeTotal = currentStats.total || 1;
+    const greenPct = (currentStats.green / safeTotal) * 100;
+    const yellowPct = (currentStats.yellow / safeTotal) * 100;
+    const redPct = (currentStats.red / safeTotal) * 100;
+
     return (
-        <div className="md:col-span-2 rounded-2xl border border-border bg-surface p-6 flex flex-col shadow-sm">
-            <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
+        <div className="md:col-span-2 rounded-2xl border border-border bg-surface p-5 flex flex-col shadow-sm h-full">
+            {/* Шапка с табами */}
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
                 <h2 className="text-lg font-semibold flex items-center gap-2">
                     <ShieldCheck className="w-5 h-5 text-accent" />
                     Здоровье базы данных
                 </h2>
 
-                {/* Табы */}
                 <div className="flex items-center gap-1 bg-background border border-border p-1 rounded-lg">
                     {[
                         { id: "all", label: "Все" },
@@ -46,7 +52,7 @@ export function DatabaseHealth({
                         <button
                             key={t.id}
                             onClick={() => setTab(t.id as any)}
-                            className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${tab === t.id ? "bg-surface shadow text-foreground" : "text-muted hover:text-foreground"
+                            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${tab === t.id ? "bg-surface shadow text-foreground" : "text-muted hover:text-foreground"
                                 }`}
                         >
                             {t.label}
@@ -55,32 +61,34 @@ export function DatabaseHealth({
                 </div>
             </div>
 
-            {/* Прогресс-бар */}
-            <div className="w-full h-10 rounded-xl bg-background border border-border overflow-hidden flex mb-8 shadow-inner">
-                <div style={{ width: `${(currentStats.green / (currentStats.total || 1)) * 100}%` }} className="bg-green-500/80 h-full flex items-center justify-center text-[10px] font-bold text-white transition-all" title={`Готово: ${currentStats.green}`}>
-                    {(currentStats.green / (currentStats.total || 1)) * 100 > 5 ? `${Math.round((currentStats.green / (currentStats.total || 1)) * 100)}%` : ''}
+            {/* Прогресс-бар с процентами */}
+            <div className="mb-6">
+                <div className="flex justify-between text-xs text-muted mb-2 font-medium">
+                    <span>Общий прогресс заполнения</span>
+                    <span className="text-green-500">{Math.round(greenPct)}% Готово</span>
                 </div>
-                <div style={{ width: `${(currentStats.yellow / (currentStats.total || 1)) * 100}%` }} className="bg-yellow-500/80 h-full flex items-center justify-center text-[10px] font-bold text-white transition-all" title={`В процессе: ${currentStats.yellow}`}>
-                    {(currentStats.yellow / (currentStats.total || 1)) * 100 > 5 ? `${Math.round((currentStats.yellow / (currentStats.total || 1)) * 100)}%` : ''}
-                </div>
-                <div style={{ width: `${(currentStats.red / (currentStats.total || 1)) * 100}%` }} className="bg-red-500/80 h-full flex items-center justify-center text-[10px] font-bold text-white transition-all" title={`Сломаны: ${currentStats.red}`}>
-                    {(currentStats.red / (currentStats.total || 1)) * 100 > 5 ? `${Math.round((currentStats.red / (currentStats.total || 1)) * 100)}%` : ''}
+                <div className="w-full h-3 rounded-full bg-background border border-border overflow-hidden flex">
+                    <div style={{ width: `${greenPct}%` }} className="bg-green-500 h-full transition-all" title={`Готово: ${currentStats.green}`} />
+                    <div style={{ width: `${yellowPct}%` }} className="bg-yellow-500 h-full transition-all" title={`В процессе: ${currentStats.yellow}`} />
+                    <div style={{ width: `${redPct}%` }} className="bg-red-500 h-full transition-all" title={`Сломаны: ${currentStats.red}`} />
                 </div>
             </div>
 
-            {/* Счетчики (без эффекта увеличения) */}
-            <div className="grid grid-cols-3 gap-4 mt-auto">
-                <Link href={`${baseUrl}?filter=green`} className="p-4 rounded-xl border border-transparent hover:border-green-500/30 hover:bg-green-500/5 transition-colors">
-                    <p className="text-3xl font-bold text-green-500">{currentStats.green}</p>
-                    <p className="text-xs text-muted mt-1 font-medium">Готовы</p>
+            {/* Плашки со счётчиками (заполняют низ карточки) */}
+            <div className="grid grid-cols-3 gap-3 mt-auto">
+                <Link href={`${baseUrl}?filter=green`} className="flex flex-col p-3 rounded-xl border border-border bg-background hover:border-green-500/50 transition-colors">
+                    <span className="text-2xl font-bold text-green-500">{currentStats.green}</span>
+                    <span className="text-[10px] text-muted mt-1 uppercase tracking-wider font-semibold">Готовы</span>
                 </Link>
-                <Link href={`${baseUrl}?filter=yellow`} className="p-4 rounded-xl border border-transparent hover:border-yellow-500/30 hover:bg-yellow-500/5 transition-colors">
-                    <p className="text-3xl font-bold text-yellow-500">{currentStats.yellow}</p>
-                    <p className="text-xs text-muted mt-1 font-medium">В процессе</p>
+
+                <Link href={`${baseUrl}?filter=yellow`} className="flex flex-col p-3 rounded-xl border border-border bg-background hover:border-yellow-500/50 transition-colors">
+                    <span className="text-2xl font-bold text-yellow-500">{currentStats.yellow}</span>
+                    <span className="text-[10px] text-muted mt-1 uppercase tracking-wider font-semibold">В процессе</span>
                 </Link>
-                <Link href={`${baseUrl}?filter=red`} className="p-4 rounded-xl border border-transparent hover:border-red-500/30 hover:bg-red-500/5 transition-colors">
-                    <p className="text-3xl font-bold text-red-500">{currentStats.red}</p>
-                    <p className="text-xs text-muted mt-1 font-medium">Требуют внимания</p>
+
+                <Link href={`${baseUrl}?filter=red`} className="flex flex-col p-3 rounded-xl border border-border bg-background hover:border-red-500/50 transition-colors">
+                    <span className="text-2xl font-bold text-red-500">{currentStats.red}</span>
+                    <span className="text-[10px] text-muted mt-1 uppercase tracking-wider font-semibold">Требуют внимания</span>
                 </Link>
             </div>
         </div>

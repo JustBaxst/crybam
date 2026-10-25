@@ -23,7 +23,7 @@ export default async function AdminOverviewPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
         {/* Блок 1: Здоровье БД (с табами) */}
         <DatabaseHealth
           dramas={stats.dramas}
