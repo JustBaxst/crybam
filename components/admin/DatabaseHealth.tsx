@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -34,7 +34,7 @@ export function DatabaseHealth({
     const redPct = (currentStats.red / safeTotal) * 100;
 
     return (
-        <div className="md:col-span-2 rounded-2xl border border-border bg-surface p-5 flex flex-col shadow-sm h-full">
+        <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm flex flex-col justify-between h-full">
             {/* Шапка с табами */}
             <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
                 <h2 className="text-lg font-semibold flex items-center gap-2">

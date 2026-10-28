@@ -281,6 +281,12 @@ export async function getAdminOverviewData() {
     select: { entityName: true, createdAt: true, user: { select: { name: true } } },
   });
 
+  const recentLogs = await prisma.adminLog.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 5,
+    include: { user: { select: { name: true, avatarUrl: true } } },
+  });
+
   // 3. Общие счётчики (уже есть)
   const [genresCount, nominationsCount] = await Promise.all([
     prisma.genre.count(),
@@ -298,5 +304,6 @@ export async function getAdminOverviewData() {
     },
     heatmapActivities,
     lastVictory,
+    recentLogs,
   };
 }
