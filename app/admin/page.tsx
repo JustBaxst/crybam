@@ -51,7 +51,7 @@ export default async function AdminOverviewPage() {
         </div>
 
         {/* Строка 2: Верхний ряд */}
-        <div className="col-span-12 lg:col-span-6 flex">
+        <div className="col-span-12 lg:col-span-6">
           <DatabaseHealth dramas={stats.dramas} persons={stats.persons} characters={stats.characters} />
         </div>
         <div className="col-span-12 lg:col-span-3">

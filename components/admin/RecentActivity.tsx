@@ -4,12 +4,12 @@ import { ru } from "date-fns/locale";
 
 export function RecentActivity({ logs }: { logs: any[] }) {
     return (
-        <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm flex-1 flex flex-col min-h-[200px]">
+        <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm flex-1 flex flex-col min-h-50">
             <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
                 <Activity className="w-5 h-5 text-accent" />
                 Недавняя активность
             </h2>
-            <div className="space-y-4 overflow-y-auto max-h-[200px] pr-2 flex-1">
+            <div className="space-y-4 overflow-y-auto max-h-50 pr-2 flex-1">
                 {logs.length === 0 ? (
                     <p className="text-sm text-muted text-center py-4">Пока нет событий.</p>
                 ) : (
