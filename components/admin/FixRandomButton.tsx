@@ -25,7 +25,7 @@ export function FixRandomButton() {
         <button
             onClick={handleClick}
             disabled={isPending}
-            className="w-full flex items-center justify-between p-3 rounded-xl bg-accent/10 hover:bg-accent/20 border border-accent/20 hover:border-accent/40 transition-all text-sm group text-accent font-medium disabled:opacity-50"
+            className="w-full flex items-center justify-between p-3 h-10 rounded-xl bg-background hover:bg-foreground/5 border border-border hover:border-accent/40 transition-all text-sm group font-medium"
         >
             <span>{isPending ? "Ищем..." : "Исправить случайную"}</span>
             <ArrowRight className="w-4 h-4 text-accent group-hover:translate-x-1 transition-transform" />
