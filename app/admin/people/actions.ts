@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { requireModerator } from "@/lib/auth";
 import { CURRENT_USER_ID } from "@/lib/current-user"; // ← Добавили для логов
 import { Gender } from "@prisma/client";
+import { getPersonStatus } from "@/lib/check-person-status";
 
 const detectLanguage = (text: string) => {
   if (/[\uAC00-\uD7AF]/.test(text)) return "ko";
@@ -79,6 +80,21 @@ export async function createPerson(formData: FormData) {
     }
   });
 
+  // Проверка: если сразу создали зелёного (маловероятно, но возможно, если заполнили всё)
+  const status = await getPersonStatus(person.id);
+  if (status === "green") {
+    await prisma.adminLog.create({
+      data: {
+        userId: CURRENT_USER_ID,
+        action: "PERSON_COMPLETED",
+        entityType: "person",
+        entityId: person.id,
+        entityName: person.name,
+        isPublic: true,
+      }
+    });
+  }
+
   revalidatePath("/admin/people");
   redirect(`/admin/people/${person.id}`);
 }
@@ -108,6 +124,9 @@ export async function updatePerson(formData: FormData) {
 
   const genderRaw = str("gender") as Gender | null;
   const socialLinks = parseSocialLinks(String(formData.get("socialLinks") ?? ""));
+
+  // Запоминаем статус ДО обновления
+  const oldStatus = await getPersonStatus(personId);
 
   await prisma.$transaction(async (tx) => {
     await tx.person.update({
@@ -153,6 +172,21 @@ export async function updatePerson(formData: FormData) {
       isPublic: true,
     }
   });
+
+  // Проверка на "позеленение"
+  const newStatus = await getPersonStatus(personId);
+  if (oldStatus !== "green" && newStatus === "green") {
+    await prisma.adminLog.create({
+      data: {
+        userId: CURRENT_USER_ID,
+        action: "PERSON_COMPLETED",
+        entityType: "person",
+        entityId: personId,
+        entityName: name,
+        isPublic: true,
+      }
+    });
+  }
 
   const fromDrama = formData.get("fromDrama");
 
@@ -215,6 +249,9 @@ export async function updatePersonAliases(formData: FormData) {
   const aliasesRaw = String(formData.get("aliases") ?? "").trim();
   const aliasNames = aliasesRaw ? aliasesRaw.split(/\n/).map((s) => s.trim()).filter(Boolean) : [];
 
+  // Запоминаем статус ДО
+  const oldStatus = await getPersonStatus(personId);
+
   await prisma.$transaction(async (tx) => {
     await tx.personAlias.deleteMany({ where: { personId } });
     if (aliasNames.length > 0) {
@@ -228,6 +265,22 @@ export async function updatePersonAliases(formData: FormData) {
       });
     }
   });
+
+  // Проверка на "позеленение" (так как алиасы — критический фактор)
+  const newStatus = await getPersonStatus(personId);
+  if (oldStatus !== "green" && newStatus === "green") {
+    const person = await prisma.person.findUnique({ where: { id: personId }, select: { name: true } });
+    await prisma.adminLog.create({
+      data: {
+        userId: CURRENT_USER_ID,
+        action: "PERSON_COMPLETED",
+        entityType: "person",
+        entityId: personId,
+        entityName: person?.name || "Без имени",
+        isPublic: true,
+      }
+    });
+  }
 
   revalidatePath(`/admin/people/${personId}`);
   revalidatePath(`/people/${personId}`);

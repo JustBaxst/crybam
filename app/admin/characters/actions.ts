@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { requireModerator } from "@/lib/auth";
 import { CURRENT_USER_ID } from "@/lib/current-user"; // ← Добавили для логов
 import { Gender } from "@prisma/client";
+import { getCharacterStatus } from "@/lib/check-character-status";
 
 const detectLanguage = (text: string) => {
   if (/[\uAC00-\uD7AF]/.test(text)) return "ko";
@@ -57,6 +58,21 @@ export async function createCharacter(formData: FormData) {
     }
   });
 
+  // Проверка: если сразу создали зелёного
+  const status = await getCharacterStatus(character.id);
+  if (status === "green") {
+    await prisma.adminLog.create({
+      data: {
+        userId: CURRENT_USER_ID,
+        action: "CHARACTER_COMPLETED",
+        entityType: "character",
+        entityId: character.id,
+        entityName: character.name,
+        isPublic: true,
+      }
+    });
+  }
+
   revalidatePath("/admin/characters");
   revalidatePath(`/admin/dramas/${dramaId}`);
   redirect(`/admin/characters/${character.id}`);
@@ -75,6 +91,9 @@ export async function updateCharacter(formData: FormData) {
 
   const str = (n: string) => String(formData.get(n) ?? "").trim() || null;
   const genderRaw = str("gender") as Gender | null;
+
+  // Запоминаем статус ДО обновления
+  const oldStatus = await getCharacterStatus(characterId);
 
   await prisma.character.update({
     where: { id: characterId },
@@ -103,6 +122,21 @@ export async function updateCharacter(formData: FormData) {
     }
   });
 
+  // Проверка на "позеленение"
+  const newStatus = await getCharacterStatus(characterId);
+  if (oldStatus !== "green" && newStatus === "green") {
+    await prisma.adminLog.create({
+      data: {
+        userId: CURRENT_USER_ID,
+        action: "CHARACTER_COMPLETED",
+        entityType: "character",
+        entityId: characterId,
+        entityName: name,
+        isPublic: true,
+      }
+    });
+  }
+
   const character = await prisma.character.findUnique({
     where: { id: characterId },
     select: { dramaId: true },
@@ -118,50 +152,6 @@ export async function updateCharacter(formData: FormData) {
     redirect(`/admin/dramas/${fromDrama}`);
   }
   return { success: true };
-}
-
-export async function deleteCharacter(formData: FormData) {
-  await requireModerator();
-
-  const characterId = Number(formData.get("characterId"));
-  if (!Number.isInteger(characterId) || characterId <= 0) {
-    return { error: "Неверный ID" };
-  }
-
-  const creditsCount = await prisma.credit.count({
-    where: { characterId },
-  });
-
-  if (creditsCount > 0) {
-    return {
-      error: `Нельзя удалить: персонаж привязан к ${creditsCount} ролям. Сначала удалите его из дорам.`,
-    };
-  }
-
-  const character = await prisma.character.findUnique({ where: { id: characterId }, select: { name: true } });
-
-  // Мягкое удаление
-  await prisma.character.update({
-    where: { id: characterId },
-    data: { deletedAt: new Date() }
-  });
-
-  // Логирование
-  if (character) {
-    await prisma.adminLog.create({
-      data: {
-        userId: CURRENT_USER_ID,
-        action: "CHARACTER_DELETED",
-        entityType: "character",
-        entityId: characterId,
-        entityName: character.name,
-        isPublic: true,
-      }
-    });
-  }
-
-  revalidatePath("/admin/characters");
-  redirect("/admin/characters");
 }
 
 export async function addCharacterRelation(formData: FormData) {
@@ -226,6 +216,9 @@ export async function updateCharacterAliases(formData: FormData) {
   const aliasesRaw = String(formData.get("aliases") ?? "").trim();
   const aliasNames = aliasesRaw ? aliasesRaw.split(/\n/).map((s) => s.trim()).filter(Boolean) : [];
 
+  // Запоминаем статус ДО (так как алиасы — критический фактор)
+  const oldStatus = await getCharacterStatus(characterId);
+
   await prisma.$transaction(async (tx) => {
     await tx.characterAlias.deleteMany({ where: { characterId } });
     if (aliasNames.length > 0) {
@@ -239,6 +232,22 @@ export async function updateCharacterAliases(formData: FormData) {
       });
     }
   });
+
+  // Проверка на "позеленение"
+  const newStatus = await getCharacterStatus(characterId);
+  if (oldStatus !== "green" && newStatus === "green") {
+    const character = await prisma.character.findUnique({ where: { id: characterId }, select: { name: true } });
+    await prisma.adminLog.create({
+      data: {
+        userId: CURRENT_USER_ID,
+        action: "CHARACTER_COMPLETED",
+        entityType: "character",
+        entityId: characterId,
+        entityName: character?.name || "Без имени",
+        isPublic: true,
+      }
+    });
+  }
 
   revalidatePath(`/admin/characters/${characterId}`);
   return { success: true };
