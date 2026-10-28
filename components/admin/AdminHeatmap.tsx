@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -6,9 +6,9 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 type DayActivity = {
     date: string;
     level: number;
-    episodes?: number; // в админке это количество действий
+    episodes?: number;
     dramaTitle?: string;
-    userIds?: number[]; // ID пользователей, сделавших действие
+    userIds?: number[];
 };
 
 type Props = {
@@ -20,9 +20,9 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const MONTH_LABELS = ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"];
 const DAY_LABELS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 
-const CELL = 12;      // w-3 = 12px
-const GAP = 4;        // обычный отступ
-const MONTH_GAP = 10; // отступ в начале нового месяца
+const CELL = 12;      // 12px (как на главной)
+const GAP = 2;        // 2px
+const MONTH_GAP = 8;  // 8px (отступ между месяцами)
 
 function toKey(d: Date) {
     return d.toISOString().slice(0, 10);
@@ -42,7 +42,6 @@ function levelClass(level: number) {
 export function AdminHeatmap({ activities, currentUserId }: Props) {
     const [filter, setFilter] = useState<"all" | "me">("all");
 
-    // Фильтруем данные в зависимости от тумблера
     const filteredActivities = useMemo(() => {
         if (filter === "all") return activities;
         return activities.filter((a) => a.userIds?.includes(currentUserId));
@@ -78,7 +77,7 @@ export function AdminHeatmap({ activities, currentUserId }: Props) {
         const start = new Date(year, 0, 1);
         const end = new Date(year, 11, 31);
 
-        const startDay = (start.getDay() + 6) % 7; // Пн=0
+        const startDay = (start.getDay() + 6) % 7;
         const firstCell = new Date(start.getTime() - startDay * DAY_MS);
         const totalDays = Math.round((end.getTime() - firstCell.getTime()) / DAY_MS) + 1;
         const weekCount = Math.ceil(totalDays / 7);
@@ -115,6 +114,7 @@ export function AdminHeatmap({ activities, currentUserId }: Props) {
             weeks.push({ cells, monthStart });
         }
 
+        // Точная математика отступов (как в YearHeatmap на главной)
         const monthPositions: { label: string; x: number }[] = [];
         let x = 0;
         weeks.forEach((week, wi) => {
@@ -128,58 +128,56 @@ export function AdminHeatmap({ activities, currentUserId }: Props) {
         });
 
         return { weeks, monthPositions };
-    }, [year, yearActivities]);
+    }, [yearActivities, year]);
+
+    const prevYear = years.find((y) => y > year);
+    const nextYear = [...years].reverse().find((y) => y < year);
 
     return (
-        <div className="relative">
-            {/* Тумблер фильтрации */}
-            <div className="flex items-center gap-2 mb-4">
-                <button
-                    onClick={() => setFilter("all")}
-                    className={`px-3 py-1 text-xs rounded-md transition-colors ${filter === "all" ? "bg-accent text-white" : "bg-background border border-border text-muted hover:text-foreground"}`}
-                >
-                    Вся команда
-                </button>
-                <button
-                    onClick={() => setFilter("me")}
-                    className={`px-3 py-1 text-xs rounded-md transition-colors ${filter === "me" ? "bg-accent text-white" : "bg-background border border-border text-muted hover:text-foreground"}`}
-                >
-                    Только я
-                </button>
+        <div className="relative w-full overflow-hidden">
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => setFilter("all")}
+                        className={`px-3 py-1 text-xs rounded-md transition-colors ${filter === "all" ? "bg-accent text-white" : "bg-background border border-border text-muted hover:text-foreground"}`}
+                    >
+                        Вся команда
+                    </button>
+                    <button
+                        onClick={() => setFilter("me")}
+                        className={`px-3 py-1 text-xs rounded-md transition-colors ${filter === "me" ? "bg-accent text-white" : "bg-background border border-border text-muted hover:text-foreground"}`}
+                    >
+                        Только я
+                    </button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    {prevYear && (
+                        <button
+                            onClick={() => setYear(prevYear)}
+                            className="p-1 rounded-lg hover:bg-foreground/5 transition-colors text-muted hover:text-foreground"
+                        >
+                            <ChevronLeft className="w-4 h-4" />
+                        </button>
+                    )}
+                    <span className="font-medium text-sm w-12 text-center text-accent">{year}</span>
+                    {nextYear && (
+                        <button
+                            onClick={() => setYear(nextYear)}
+                            className="p-1 rounded-lg hover:bg-foreground/5 transition-colors text-muted hover:text-foreground"
+                        >
+                            <ChevronRight className="w-4 h-4" />
+                        </button>
+                    )}
+                    <span className="text-xs text-muted ml-1">
+                        · {totalActions} {totalActions === 1 ? "действие" : "действий"}
+                    </span>
+                </div>
             </div>
 
-            {/* Шапка: переключатель года + сумма */}
-            <div className="flex items-center mb-3 pl-10 gap-3">
-                <button
-                    onClick={() => {
-                        const i = years.indexOf(year);
-                        if (i < years.length - 1) setYear(years[i + 1]);
-                    }}
-                    disabled={year === years[years.length - 1]}
-                    className="w-6 h-6 rounded-md border border-border hover:border-accent/40 transition-colors flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                    <ChevronLeft className="w-3.5 h-3.5" />
-                </button>
-                <span className="text-sm font-semibold text-accent min-w-11 text-center">
-                    {year}
-                </span>
-                <button
-                    onClick={() => {
-                        const i = years.indexOf(year);
-                        if (i > 0) setYear(years[i - 1]);
-                    }}
-                    disabled={year === years[0]}
-                    className="w-6 h-6 rounded-md border border-border hover:border-accent/40 transition-colors flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                    <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-                <span className="text-sm text-muted">
-                    · <span className="text-accent font-medium">{totalActions}</span> действий
-                </span>
-            </div>
-
-            <div className="overflow-x-auto pb-2">
+            <div className="overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] scrollbar-none">
                 <div className="inline-block min-w-full">
+                    {/* Подписи месяцев */}
                     <div className="relative h-4 mb-1.5" style={{ paddingLeft: 40 }}>
                         {monthPositions.map((m, i) => (
                             <div
@@ -193,7 +191,8 @@ export function AdminHeatmap({ activities, currentUserId }: Props) {
                     </div>
 
                     <div className="flex">
-                        <div className="flex flex-col gap-1 pr-2">
+                        {/* Дни недели */}
+                        <div className="flex flex-col gap-0.5 pr-2 shrink-0">
                             {DAY_LABELS.map((label, i) => (
                                 <div
                                     key={i}
@@ -204,27 +203,26 @@ export function AdminHeatmap({ activities, currentUserId }: Props) {
                             ))}
                         </div>
 
+                        {/* Сетка */}
                         <div className="flex">
                             {weeks.map((week, wi) => (
                                 <div
                                     key={wi}
-                                    className="flex flex-col gap-1"
+                                    className="flex flex-col gap-0.5"
                                     style={{
-                                        marginLeft:
-                                            wi === 0 ? 0 : week.monthStart !== null ? MONTH_GAP : GAP,
+                                        marginLeft: wi === 0 ? 0 : week.monthStart !== null ? MONTH_GAP : GAP,
                                     }}
                                 >
                                     {week.cells.map((day, di) => {
-                                        if (!day) return <div key={di} className="w-3 h-3" />;
+                                        if (!day) return <div key={di} style={{ width: CELL, height: CELL }} />;
                                         return (
                                             <div
                                                 key={di}
-                                                className={`w-3 h-3 rounded-sm cursor-pointer transition-colors ${levelClass(day.level)}`}
+                                                className={`rounded-sm cursor-pointer transition-colors ${levelClass(day.level)}`}
+                                                style={{ width: CELL, height: CELL }}
                                                 onMouseEnter={(e) => {
                                                     const rect = e.currentTarget.getBoundingClientRect();
-                                                    const parent = e.currentTarget
-                                                        .closest(".relative")!
-                                                        .getBoundingClientRect();
+                                                    const parent = e.currentTarget.closest(".relative")!.getBoundingClientRect();
                                                     setHovered({
                                                         activity: day,
                                                         x: rect.left - parent.left + rect.width / 2,
@@ -245,7 +243,7 @@ export function AdminHeatmap({ activities, currentUserId }: Props) {
             <div className="flex items-center gap-1.5 mt-3 pl-10 text-[10px] text-muted">
                 <span>меньше</span>
                 {[0, 1, 2, 3, 4].map((l) => (
-                    <div key={l} className={`w-3 h-3 rounded-sm ${levelClass(l)}`} />
+                    <div key={l} className={`rounded-sm ${levelClass(l)}`} style={{ width: CELL, height: CELL }} />
                 ))}
                 <span>больше</span>
             </div>
