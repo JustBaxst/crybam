@@ -332,3 +332,7 @@ export async function checkApiStatus(): Promise<ServiceStatus[]> {
     { name: "Яндекс.Музыка", isOnline: yandex },
   ];
 }
+export type ServiceStatus = {
+  name: string;
+  isOnline: boolean;
+};
