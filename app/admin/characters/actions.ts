@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireModerator } from "@/lib/auth";
+import { CURRENT_USER_ID } from "@/lib/current-user"; // ← Добавили для логов
 import { Gender } from "@prisma/client";
 
 const detectLanguage = (text: string) => {
@@ -44,6 +45,18 @@ export async function createCharacter(formData: FormData) {
     },
   });
 
+  // Логирование создания
+  await prisma.adminLog.create({
+    data: {
+      userId: CURRENT_USER_ID,
+      action: "CHARACTER_CREATED",
+      entityType: "character",
+      entityId: character.id,
+      entityName: character.name,
+      isPublic: true,
+    }
+  });
+
   revalidatePath("/admin/characters");
   revalidatePath(`/admin/dramas/${dramaId}`);
   redirect(`/admin/characters/${character.id}`);
@@ -76,6 +89,18 @@ export async function updateCharacter(formData: FormData) {
       birthDate: str("birthDate"),
       occupation: str("occupation"),
     },
+  });
+
+  // Логирование обновления
+  await prisma.adminLog.create({
+    data: {
+      userId: CURRENT_USER_ID,
+      action: "CHARACTER_UPDATED",
+      entityType: "character",
+      entityId: characterId,
+      entityName: name,
+      isPublic: true,
+    }
   });
 
   const character = await prisma.character.findUnique({
@@ -113,10 +138,32 @@ export async function deleteCharacter(formData: FormData) {
     };
   }
 
-  await prisma.character.delete({ where: { id: characterId } });
+  const character = await prisma.character.findUnique({ where: { id: characterId }, select: { name: true } });
+
+  // Мягкое удаление
+  await prisma.character.update({
+    where: { id: characterId },
+    data: { deletedAt: new Date() }
+  });
+
+  // Логирование
+  if (character) {
+    await prisma.adminLog.create({
+      data: {
+        userId: CURRENT_USER_ID,
+        action: "CHARACTER_DELETED",
+        entityType: "character",
+        entityId: characterId,
+        entityName: character.name,
+        isPublic: true,
+      }
+    });
+  }
+
   revalidatePath("/admin/characters");
   redirect("/admin/characters");
 }
+
 export async function addCharacterRelation(formData: FormData) {
   await requireModerator();
 
@@ -130,7 +177,6 @@ export async function addCharacterRelation(formData: FormData) {
   }
   if (!relation) return { error: "Укажите название связи (например, 'отец')" };
 
-  // Проверяем, что оба персонажа из одной дорамы
   const [fromChar, toChar] = await Promise.all([
     prisma.character.findUnique({ where: { id: fromId }, select: { dramaId: true } }),
     prisma.character.findUnique({ where: { id: toId }, select: { dramaId: true } }),
@@ -168,6 +214,7 @@ export async function deleteCharacterRelation(formData: FormData) {
   revalidatePath(`/admin/characters/${characterId}`);
   return { success: true };
 }
+
 export async function updateCharacterAliases(formData: FormData) {
   await requireModerator();
 
@@ -194,6 +241,5 @@ export async function updateCharacterAliases(formData: FormData) {
   });
 
   revalidatePath(`/admin/characters/${characterId}`);
-  // Если у персонажа появится публичная страница, добавим и её revalidatePath
   return { success: true };
 }

@@ -75,8 +75,9 @@ model Drama {
   // ── Студии озвучки (через запятую или с новой строки) ──
   dubbingStudios String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   titles      DramaTitle[]
   entries     UserDramaEntry[]
@@ -206,6 +207,7 @@ model Person {
   zodiacWestern String?
   zodiacChinese String?
   createdAt     DateTime      @default(now())
+  deletedAt     DateTime?
 
   credits           Credit[]
   favoriteBy        UserFavoriteActor[]
@@ -255,7 +257,8 @@ model Character {
   birthDate   String?
   occupation  String?
 
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
 
   credits           Credit[]
   relationsA        CharacterRelation[]     @relation("CharacterFrom")

@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireModerator } from "@/lib/auth";
-import { Gender } from "@prisma/client"; // Импортируем тип Enum из Prisma
+import { CURRENT_USER_ID } from "@/lib/current-user"; // ← Добавили для логов
+import { Gender } from "@prisma/client";
 
 const detectLanguage = (text: string) => {
   if (/[\uAC00-\uD7AF]/.test(text)) return "ko";
@@ -15,7 +16,6 @@ const detectLanguage = (text: string) => {
   return "unknown";
 };
 
-// Парсим соцсети из текста (формат: платформа|ссылка)
 const parseSocialLinks = (raw: string) => {
   if (!raw) return [];
   return raw.split(/\n/).map((line) => {
@@ -65,6 +65,18 @@ export async function createPerson(formData: FormData) {
         create: socialLinks,
       },
     },
+  });
+
+  // Логирование создания
+  await prisma.adminLog.create({
+    data: {
+      userId: CURRENT_USER_ID,
+      action: "PERSON_CREATED",
+      entityType: "person",
+      entityId: person.id,
+      entityName: person.name,
+      isPublic: true,
+    }
   });
 
   revalidatePath("/admin/people");
@@ -118,7 +130,6 @@ export async function updatePerson(formData: FormData) {
       },
     });
 
-    // Обновляем соцсети (удаляем старые, создаем новые)
     await tx.personSocialLink.deleteMany({ where: { personId } });
     if (socialLinks.length > 0) {
       await tx.personSocialLink.createMany({
@@ -130,9 +141,21 @@ export async function updatePerson(formData: FormData) {
       });
     }
   });
+
+  // Логирование обновления
+  await prisma.adminLog.create({
+    data: {
+      userId: CURRENT_USER_ID,
+      action: "PERSON_UPDATED",
+      entityType: "person",
+      entityId: personId,
+      entityName: name,
+      isPublic: true,
+    }
+  });
+
   const fromDrama = formData.get("fromDrama");
 
-  revalidatePath(`/admin/people/${personId}`);
   revalidatePath(`/admin/people/${personId}`);
   revalidatePath("/admin/people");
   revalidatePath(`/people/${personId}`);
@@ -157,7 +180,28 @@ export async function deletePerson(formData: FormData) {
     return { error: "Нельзя удалить. Сначала удалите его роли из дорам." };
   }
 
-  await prisma.person.delete({ where: { id: personId } });
+  const person = await prisma.person.findUnique({ where: { id: personId }, select: { name: true } });
+
+  // Мягкое удаление
+  await prisma.person.update({
+    where: { id: personId },
+    data: { deletedAt: new Date() }
+  });
+
+  // Логирование
+  if (person) {
+    await prisma.adminLog.create({
+      data: {
+        userId: CURRENT_USER_ID,
+        action: "PERSON_DELETED",
+        entityType: "person",
+        entityId: personId,
+        entityName: person.name,
+        isPublic: true,
+      }
+    });
+  }
+
   revalidatePath("/admin/people");
   redirect("/admin/people");
 }

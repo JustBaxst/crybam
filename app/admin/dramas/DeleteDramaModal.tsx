@@ -34,8 +34,8 @@ export function DeleteDramaModal({
           <div className="min-w-0 flex-1">
             <h2 className="font-semibold text-base mb-1">Удалить дораму?</h2>
             <p className="text-sm text-muted">
-              «{dramaTitle}» будет удалена из базы вместе со всеми
-              записями, кредитами и жанрами. Действие необратимо.
+              «{dramaTitle}» будет скрыта из базы, каталога и поиска.
+              Восстановить её можно будет через базу данных (пока функция отмены удаления в разработке).
             </p>
           </div>
           <button

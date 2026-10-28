@@ -52,8 +52,8 @@ export function ApiStatus() {
                             <div
                                 key={service.name}
                                 className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-sm font-medium transition-colors ${service.isOnline
-                                        ? "bg-green-500/10 border-green-500/20 text-green-500"
-                                        : "bg-red-500/10 border-red-500/20 text-red-500"
+                                    ? "bg-green-500/10 border-green-500/20 text-green-500"
+                                    : "bg-red-500/10 border-red-500/20 text-red-500"
                                     }`}
                                 title={service.isOnline ? "Доступен" : "Недоступен"}
                             >
