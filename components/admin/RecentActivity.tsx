@@ -1,6 +1,7 @@
 import { Activity, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
+import { getActionLabel } from "@/lib/action-labels";
 
 export function RecentActivity({ logs }: { logs: any[] }) {
     return (
@@ -21,7 +22,7 @@ export function RecentActivity({ logs }: { logs: any[] }) {
                             <div>
                                 <p className="text-sm">
                                     <span className="font-semibold text-foreground">{log.user.name}</span>{" "}
-                                    <span className="text-muted">{log.action === "DRAMA_COMPLETED" ? "завершил(а) карточку" : "обновил(а)"}</span>{" "}
+                                    <span className="text-muted">{getActionLabel(log.action)}</span>{" "}
                                     <span className="font-medium text-foreground">«{log.entityName}»</span>
                                 </p>
                                 <p className="text-[11px] text-muted flex items-center gap-1 mt-0.5">

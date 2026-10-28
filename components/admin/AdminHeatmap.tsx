@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { getActionLabel } from "@/lib/action-labels";
 
 type DayActivity = {
     date: string;
@@ -272,7 +273,10 @@ export function AdminHeatmap({ activities, currentUserId }: Props) {
                             <div className="text-muted mt-0.5">
                                 {hovered.activity.episodes}{" "}
                                 {hovered.activity.episodes === 1 ? "действие" : "действий"}
-                                {hovered.activity.dramaTitle && <> · {hovered.activity.dramaTitle}</>}
+                                {/* Переводим технические названия на русский */}
+                                {hovered.activity.dramaTitle && (
+                                    <> · {hovered.activity.dramaTitle.split(", ").map(a => getActionLabel(a)).join(", ")}</>
+                                )}
                             </div>
                         </>
                     )}
