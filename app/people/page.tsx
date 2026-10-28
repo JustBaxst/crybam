@@ -15,7 +15,10 @@ export default async function PeoplePage({
   const query = (q ?? "").trim();
 
   const people = await prisma.person.findMany({
-    where: getPersonSearchWhere(query),
+    where: {
+      deletedAt: null,
+      ...getPersonSearchWhere(query)
+    },
     include: {
       _count: { select: { credits: true } },
     },

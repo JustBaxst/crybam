@@ -24,7 +24,7 @@ export default async function CharacterPage({ params }: { params: Params }) {
   if (!Number.isInteger(id) || id <= 0) notFound();
 
   const character = await prisma.character.findUnique({
-    where: { id },
+    where: { id, deletedAt: null },
     include: {
       drama: true,
       aliases: true,

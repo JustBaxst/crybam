@@ -29,7 +29,10 @@ export default async function HomePage() {
 
   // 2. Все записи с дорамами (свежие сверху)
   const entries = await prisma.userDramaEntry.findMany({
-    where: { userId: CURRENT_USER_ID },
+    where: {
+      userId: CURRENT_USER_ID,
+      drama: { deletedAt: null }
+    },
     include: { drama: true },
     orderBy: { updatedAt: "desc" },
   });

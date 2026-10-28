@@ -16,7 +16,10 @@ export default async function DramasCatalogPage({
   const currentSort = sort || "year_desc";
 
   const dramas = await prisma.drama.findMany({
-    where: getDramaSearchWhere(query),
+    where: {
+      deletedAt: null,
+      ...getDramaSearchWhere(query),
+    },
     include: {
       genres: { include: { genre: true } },
     },
@@ -64,8 +67,8 @@ export default async function DramasCatalogPage({
               key={s.key}
               href={`/dramas?${query ? `q=${encodeURIComponent(query)}&` : ""}sort=${s.key}`}
               className={`px-3 py-1.5 rounded-lg border transition-colors ${currentSort === s.key
-                  ? "bg-accent text-white border-accent"
-                  : "border-border hover:border-accent/40 text-muted hover:text-foreground"
+                ? "bg-accent text-white border-accent"
+                : "border-border hover:border-accent/40 text-muted hover:text-foreground"
                 }`}
             >
               {s.label}

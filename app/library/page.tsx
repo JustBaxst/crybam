@@ -51,7 +51,13 @@ export default async function LibraryPage({
   }
 
   const entries = await prisma.userDramaEntry.findMany({
-    where: { userId: CURRENT_USER_ID, status: activeStatus },
+    where: {
+      userId: CURRENT_USER_ID,
+      drama: {
+        deletedAt: null,
+        status: activeStatus
+      }
+    },
     include: { drama: true },
     orderBy: { createdAt: "desc" },
   });

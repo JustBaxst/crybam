@@ -5,9 +5,11 @@ import { Prisma } from "@prisma/client";
  */
 export function getDramaSearchWhere(query: string): Prisma.DramaWhereInput | undefined {
   const q = query.trim().toLowerCase();
-  if (!q) return undefined;
+  const baseWhere: Prisma.DramaWhereInput = { deletedAt: null }; // ← Фильтр удаленных
 
+  if (!q) return baseWhere;
   return {
+    ...baseWhere,
     OR: [
       { titleLower: { contains: q } },
       { titles: { some: { titleLower: { contains: q } } } },
@@ -20,9 +22,11 @@ export function getDramaSearchWhere(query: string): Prisma.DramaWhereInput | und
  */
 export function getPersonSearchWhere(query: string): Prisma.PersonWhereInput | undefined {
   const q = query.trim().toLowerCase();
-  if (!q) return undefined;
+  const baseWhere: Prisma.PersonWhereInput = { deletedAt: null }; // ← Фильтр удаленных
 
+  if (!q) return baseWhere;
   return {
+    ...baseWhere,
     OR: [
       { nameLower: { contains: q } },
       { aliases: { some: { nameLower: { contains: q } } } },
@@ -35,9 +39,11 @@ export function getPersonSearchWhere(query: string): Prisma.PersonWhereInput | u
  */
 export function getCharacterSearchWhere(query: string): Prisma.CharacterWhereInput | undefined {
   const q = query.trim().toLowerCase();
-  if (!q) return undefined;
+  const baseWhere: Prisma.CharacterWhereInput = { deletedAt: null }; // ← Фильтр удаленных
 
+  if (!q) return baseWhere;
   return {
+    ...baseWhere,
     OR: [
       { nameLower: { contains: q } },
       { aliases: { some: { nameLower: { contains: q } } } },

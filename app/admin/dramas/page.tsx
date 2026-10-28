@@ -66,7 +66,10 @@ export default async function AdminDramasPage({
 
   // ОПТИМИЗИРОВАННЫЙ ЗАПРОС
   const dramas = await prisma.drama.findMany({
-    where: whereConditions.length > 0 ? { AND: whereConditions } : undefined,
+    where: {
+      deletedAt: null,
+      ...(whereConditions.length > 0 ? { AND: whereConditions } : {})
+    },
     include: {
       titles: true,
       _count: {

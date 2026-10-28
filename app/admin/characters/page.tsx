@@ -30,7 +30,10 @@ export default async function AdminCharactersPage({
   const whereConditions = [searchCondition, filterCondition].filter(Boolean) as any[];
 
   const characters = await prisma.character.findMany({
-    where: whereConditions.length > 0 ? { AND: whereConditions } : undefined,
+    where: {
+      deletedAt: null,
+      ...(whereConditions.length > 0 ? { AND: whereConditions } : {})
+    },
     include: {
       drama: { select: { id: true, title: true } },
       aliases: true,

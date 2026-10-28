@@ -41,7 +41,7 @@ export default async function DramaPage({ params }: { params: Params }) {
   if (!Number.isInteger(id) || id <= 0) notFound();
 
   const drama = await prisma.drama.findUnique({
-    where: { id },
+    where: { id, deletedAt: null },
     include: {
       titles: { orderBy: { isPrimary: "desc" } },
       platforms: { include: { platform: true } },

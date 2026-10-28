@@ -30,7 +30,10 @@ export default async function AdminPeoplePage({
   const whereConditions = [searchCondition, filterCondition].filter(Boolean) as any[];
 
   const people = await prisma.person.findMany({
-    where: whereConditions.length > 0 ? { AND: whereConditions } : undefined,
+    where: {
+      deletedAt: null,
+      ...(whereConditions.length > 0 ? { AND: whereConditions } : {})
+    },
     include: {
       aliases: true,
       _count: { select: { credits: true } },
@@ -106,8 +109,8 @@ export default async function AdminPeoplePage({
                 key={f.key}
                 href={`/admin/people?${params.toString()}`}
                 className={`px-3 py-1 rounded-full text-xs transition-colors shrink-0 border-none ${isActive
-                    ? "bg-accent text-white"
-                    : "bg-transparent text-muted hover:bg-surface hover:text-foreground"
+                  ? "bg-accent text-white"
+                  : "bg-transparent text-muted hover:bg-surface hover:text-foreground"
                   }`}
               >
                 {f.label}
