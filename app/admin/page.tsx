@@ -67,20 +67,21 @@ export default async function AdminOverviewPage() {
         </div>
 
         {/* Строка 4: Нижний ряд */}
-        <div className="col-span-12 lg:col-span-8">
+        <div className="col-span-12 lg:col-span-9"> {/* ← Было 8 */}
           <section className="rounded-2xl border border-border bg-surface p-6 shadow-sm h-full flex flex-col">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold flex items-center gap-2" style={{ marginBottom: 0 }}>
                 Карта продуктивности
               </h2>
             </div>
-            <div className="overflow-x-auto pb-4 flex-1">
+            {/* Убираем обертку overflow-x-auto отсюда, чтобы не было двойного скролла */}
+            <div className="flex-1 w-full">
               <AdminHeatmap activities={heatmapActivities} currentUserId={data.user.id} />
             </div>
           </section>
         </div>
 
-        <div className="col-span-12 lg:col-span-4 flex flex-col gap-6">
+        <div className="col-span-12 lg:col-span-3 flex flex-col gap-6"> {/* ← Было 4 */}
           <LastVictory victory={lastVictory} />
           <RecentActivity logs={recentLogs} />
         </div>

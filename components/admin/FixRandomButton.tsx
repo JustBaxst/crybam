@@ -27,8 +27,12 @@ export function FixRandomButton() {
             disabled={isPending}
             className="w-full flex items-center justify-between p-3 h-10 rounded-xl bg-background hover:bg-foreground/5 border border-border hover:border-accent/40 transition-all text-sm group font-medium"
         >
-            <span>{isPending ? "Ищем..." : "Исправить случайную"}</span>
-            <ArrowRight className="w-4 h-4 text-accent group-hover:translate-x-1 transition-transform" />
+            {/* Возвращаем иконку слева и делаем стиль как у Plus */}
+            <span className="flex items-center gap-2">
+                <Wrench className="w-4 h-4 text-muted group-hover:text-accent transition-colors" />
+                {isPending ? "Ищем..." : "Исправить случайную"}
+            </span>
+            <ArrowRight className="w-4 h-4 text-muted group-hover:text-accent transition-colors" />
         </button>
     );
 }
