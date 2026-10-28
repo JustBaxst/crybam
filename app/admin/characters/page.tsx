@@ -25,7 +25,30 @@ export default async function AdminCharactersPage({
   const filterCondition =
     currentFilter === "no_photo" ? { imageUrl: null } :
       currentFilter === "no_desc" ? { description: null } :
-        undefined;
+        currentFilter === "green" ? {
+          AND: [
+            { aliases: { some: {} } },
+            { imageUrl: { not: null } },
+            { description: { not: null } }
+          ]
+        } :
+          currentFilter === "red" ? {
+            // 🔴 Красный: нет альтернативных имён
+            aliases: { none: {} }
+          } :
+            currentFilter === "yellow" ? {
+              // 🟡 Жёлтый: есть альт. имена, но нет фото или описания
+              AND: [
+                { aliases: { some: {} } },
+                {
+                  OR: [
+                    { imageUrl: null },
+                    { description: null }
+                  ]
+                }
+              ]
+            } :
+              undefined;
 
   const whereConditions = [searchCondition, filterCondition].filter(Boolean) as any[];
 
@@ -144,10 +167,8 @@ export default async function AdminCharactersPage({
                       <div className="flex items-center gap-3">
                         <StatusDot
                           items={[
-                            // Фото критично, только если нет альтернативных имен
-                            { label: "Фото", isFilled: !!c.imageUrl, isCritical: c.aliases.length === 0 },
-                            // Алиасы не критичны, но если их нет, будет желтая точка (потому что есть пропуск)
-                            { label: "Алиасы", isFilled: c.aliases.length > 0, isCritical: false },
+                            { label: "Альт. имена", isFilled: c.aliases.length > 0, isCritical: true },
+                            { label: "Фото", isFilled: !!c.imageUrl },
                             { label: "Описание", isFilled: !!c.description },
                           ]}
                         />

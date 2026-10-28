@@ -25,7 +25,30 @@ export default async function AdminPeoplePage({
   const filterCondition =
     currentFilter === "no_photo" ? { photoUrl: null } :
       currentFilter === "no_bio" ? { bio: null } :
-        undefined;
+        currentFilter === "green" ? {
+          AND: [
+            { aliases: { some: {} } },
+            { photoUrl: { not: null } },
+            { bio: { not: null } }
+          ]
+        } :
+          currentFilter === "red" ? {
+            // 🔴 Красный: нет альтернативных имён
+            aliases: { none: {} }
+          } :
+            currentFilter === "yellow" ? {
+              // 🟡 Жёлтый: есть альт. имена, но нет фото или био
+              AND: [
+                { aliases: { some: {} } },
+                {
+                  OR: [
+                    { photoUrl: null },
+                    { bio: null }
+                  ]
+                }
+              ]
+            } :
+              undefined;
 
   const whereConditions = [searchCondition, filterCondition].filter(Boolean) as any[];
 
@@ -159,7 +182,8 @@ export default async function AdminPeoplePage({
                         <div className="flex items-center gap-3">
                           <StatusDot
                             items={[
-                              { label: "Фото/Алиасы", isFilled: !!p.photoUrl || p.aliases.length > 0, isCritical: true },
+                              { label: "Альт. имена", isFilled: p.aliases.length > 0, isCritical: true },
+                              { label: "Фото", isFilled: !!p.photoUrl },
                               { label: "Биография", isFilled: !!p.bio },
                             ]}
                           />

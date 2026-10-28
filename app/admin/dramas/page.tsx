@@ -28,6 +28,7 @@ export default async function AdminDramasPage({
         currentFilter === "no_poster" ? { posterUrl: null } :
           currentFilter === "green" ? {
             AND: [
+              { titles: { some: { isPrimary: false } } }, // Есть альт. названия
               { posterUrl: { not: null } },
               { synopsis: { not: null } },
               { genres: { some: {} } },
@@ -35,13 +36,13 @@ export default async function AdminDramasPage({
             ]
           } :
             currentFilter === "red" ? {
-              AND: [
-                { posterUrl: null },
-                { titles: { none: { isPrimary: false } } }
-              ]
+              // 🔴 Красный: нет альтернативных названий
+              titles: { none: { isPrimary: false } }
             } :
               currentFilter === "yellow" ? {
+                // 🟡 Желтый: есть альт. названия, но не хватает чего-то ещё
                 AND: [
+                  { titles: { some: { isPrimary: false } } },
                   {
                     OR: [
                       { posterUrl: null },
@@ -49,14 +50,6 @@ export default async function AdminDramasPage({
                       { genres: { none: {} } },
                       { credits: { none: {} } }
                     ]
-                  },
-                  {
-                    NOT: {
-                      AND: [
-                        { posterUrl: null },
-                        { titles: { none: { isPrimary: false } } }
-                      ]
-                    }
                   }
                 ]
               } :
@@ -192,10 +185,9 @@ export default async function AdminDramasPage({
                       <div className="flex items-center gap-3">
                         <StatusDot
                           items={[
-                            // Постер критичен, только если нет альтернативных названий
-                            { label: "Постер", isFilled: !!d.posterUrl, isCritical: d.titles.length <= 1 },
-                            // Альт. названия не критичны
-                            { label: "Альт. названия", isFilled: d.titles.length > 1, isCritical: false },
+                            // Если нет альт. названий — это критично (красный)
+                            { label: "Альт. названия", isFilled: d.titles.length > 1, isCritical: true },
+                            { label: "Постер", isFilled: !!d.posterUrl },
                             { label: "Жанры", isFilled: d._count.genres > 0 },
                             { label: "Актеры", isFilled: d._count.credits > 0 },
                             { label: "Описание", isFilled: !!d.synopsis },
