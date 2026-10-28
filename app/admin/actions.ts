@@ -307,3 +307,41 @@ export async function getAdminOverviewData() {
     recentLogs,
   };
 }
+
+export type ServiceStatus = {
+  name: string;
+  isOnline: boolean;
+};
+
+export async function checkApiStatus(): Promise<ServiceStatus[]> {
+  const checkUrl = async (url: string, method: string = "HEAD") => {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // Ждем максимум 3 сек
+
+      // Запрос к сервису
+      const res = await fetch(url, { method, signal: controller.signal });
+      clearTimeout(timeoutId);
+
+      return res.ok; // true, если статус 200-299
+    } catch {
+      return false; // false, если таймаут или ошибка сети
+    }
+  };
+
+  // Запускаем проверки параллельно
+  const [tvmaze, youtube, spotify, yandex] = await Promise.all([
+    // TVmaze: ping-эндпоинта нет, поэтому делаем HEAD на главную
+    checkUrl("https://api.tvmaze.com/shows/1"),
+    checkUrl("https://www.youtube.com"),
+    checkUrl("https://open.spotify.com"),
+    checkUrl("https://music.yandex.ru"),
+  ]);
+
+  return [
+    { name: "TVmaze", isOnline: tvmaze },
+    { name: "YouTube", isOnline: youtube },
+    { name: "Spotify", isOnline: spotify },
+    { name: "Яндекс.Музыка", isOnline: yandex },
+  ];
+}

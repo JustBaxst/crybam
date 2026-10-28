@@ -1,23 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Server, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-
-// Список сервисов (легко добавлять новые)
-const SERVICES = ["TVmaze", "YouTube", "Spotify", "Яндекс.Музыка"];
+import { checkApiStatus, type ServiceStatus } from "@/app/admin/actions";
 
 export function ApiStatus() {
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [services, setServices] = useState<ServiceStatus[]>([]);
 
-    const handleRefresh = () => {
+    const loadStatuses = async (showToast = false) => {
         setIsRefreshing(true);
-        // Имитация запроса к API
-        setTimeout(() => {
+        try {
+            const results = await checkApiStatus();
+            setServices(results);
+
+            if (showToast) {
+                const hasErrors = results.some((s) => !s.isOnline);
+                if (hasErrors) {
+                    toast.warning("Некоторые сервисы недоступны!");
+                } else {
+                    toast.success("Все системы в норме.");
+                }
+            }
+        } catch {
+            toast.error("Не удалось проверить статус API.");
+        } finally {
             setIsRefreshing(false);
-            toast.success("Статус всех сервисов обновлен. Все системы в норме.");
-        }, 1000);
+        }
     };
+
+    // Проверяем при первой загрузке (без тоста, чтобы не спамить)
+    useEffect(() => {
+        loadStatuses(false);
+    }, []);
 
     return (
         <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm flex flex-col justify-between h-full">
@@ -27,27 +43,38 @@ export function ApiStatus() {
                     Статус API
                 </h2>
 
-                {/* Контейнер для плашек (flex-wrap позволит им переноситься на новую строку) */}
                 <div className="flex flex-wrap gap-2">
-                    {SERVICES.map((service) => (
-                        <div
-                            key={service}
-                            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-green-500/10 border border-green-500/20 text-green-500 text-sm font-medium"
-                        >
-                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                            {service}
-                        </div>
-                    ))}
+                    {/* Если данные еще грузятся, показываем скелетон */}
+                    {services.length === 0 && isRefreshing ? (
+                        <div className="text-sm text-muted animate-pulse">Проверка сервисов...</div>
+                    ) : (
+                        services.map((service) => (
+                            <div
+                                key={service.name}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-sm font-medium transition-colors ${service.isOnline
+                                        ? "bg-green-500/10 border-green-500/20 text-green-500"
+                                        : "bg-red-500/10 border-red-500/20 text-red-500"
+                                    }`}
+                                title={service.isOnline ? "Доступен" : "Недоступен"}
+                            >
+                                <span
+                                    className={`w-2 h-2 rounded-full animate-pulse ${service.isOnline ? "bg-green-500" : "bg-red-500"
+                                        }`}
+                                />
+                                {service.name}
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
 
             <button
-                onClick={handleRefresh}
+                onClick={() => loadStatuses(true)}
                 disabled={isRefreshing}
                 className="mt-6 w-full flex items-center justify-center gap-2 p-2 h-10 rounded-xl bg-background border border-border hover:border-accent/40 transition-colors text-sm text-muted hover:text-foreground disabled:opacity-50"
             >
                 <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
-                {isRefreshing ? "Обновление..." : "Обновить"}
+                {isRefreshing ? "Проверка..." : "Обновить"}
             </button>
         </div>
     );
