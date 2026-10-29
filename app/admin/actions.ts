@@ -188,10 +188,9 @@ export async function getAdminOverviewData() {
   const dramas = await prisma.drama.findMany({
     where: { deletedAt: null },
     select: {
-      id: true, posterUrl: true, synopsis: true,
+      id: true, posterUrl: true, synopsis: true, createdAt: true,
       titles: { select: { id: true } },
       _count: { select: { genres: true, credits: true } },
-      createdAt: true,
     },
   });
 
@@ -210,7 +209,7 @@ export async function getAdminOverviewData() {
 
   const persons = await prisma.person.findMany({
     where: { deletedAt: null },
-    select: { id: true, photoUrl: true, bio: true, aliases: { select: { id: true } }, createdAt: true },
+    select: { id: true, photoUrl: true, bio: true, createdAt: true, aliases: { select: { id: true } } },
   });
   let pGreen = 0, pYellow = 0, pRed = 0;
   for (const p of persons) {
@@ -225,7 +224,7 @@ export async function getAdminOverviewData() {
 
   const characters = await prisma.character.findMany({
     where: { deletedAt: null },
-    select: { id: true, imageUrl: true, description: true, aliases: { select: { id: true } }, createdAt: true },
+    select: { id: true, imageUrl: true, description: true, createdAt: true, aliases: { select: { id: true } } },
   });
   let cGreen = 0, cYellow = 0, cRed = 0;
   for (const c of characters) {
@@ -302,12 +301,20 @@ export async function getAdminOverviewData() {
     prisma.nomination.count(),
   ]);
 
+  // Считаем прирост за 7 дней
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+
+  const dramaGrowth = dramas.filter(d => new Date(d.createdAt) >= weekAgo).length;
+  const personGrowth = persons.filter(p => new Date(p.createdAt) >= weekAgo).length;
+  const characterGrowth = characters.filter(c => new Date(c.createdAt) >= weekAgo).length;
+
   return {
     user,
     stats: {
-      dramas: { total, green: dGreen, yellow: dYellow, red: dRed, progress },
-      persons: { total: persons.length, green: pGreen, yellow: pYellow, red: pRed },
-      characters: { total: characters.length, green: cGreen, yellow: cYellow, red: cRed },
+      dramas: { total, green: dGreen, yellow: dYellow, red: dRed, progress, weeklyGrowth: dramaGrowth },
+      persons: { total: persons.length, green: pGreen, yellow: pYellow, red: pRed, weeklyGrowth: personGrowth },
+      characters: { total: characters.length, green: cGreen, yellow: cYellow, red: cRed, weeklyGrowth: characterGrowth },
       genres: genresCount, nominations: nominationsCount,
     },
     heatmapActivities, lastVictory, recentLogs,
