@@ -112,7 +112,9 @@ export default async function DramaPage({ params }: { params: Params }) {
 
       {/* ─── ШАПКА ─── */}
       <div className="flex flex-col md:flex-row gap-8">
-        <div className="w-56 shrink-0 mx-auto md:mx-0">
+
+        {/* ЛЕВАЯ КОЛОНКА: Постер и Статус */}
+        <div className="w-56 shrink-0 mx-auto md:mx-0 flex flex-col gap-4">
           <div className="aspect-2/3 rounded-2xl overflow-hidden border border-border bg-accent-soft flex items-center justify-center text-6xl">
             {drama.posterUrl ? (
               <img
@@ -124,6 +126,14 @@ export default async function DramaPage({ params }: { params: Params }) {
               <span className="text-muted">🎬</span>
             )}
           </div>
+
+          {/* Выпадающее меню под постером */}
+          <StatusDropdown
+            dramaId={drama.id}
+            entry={entry}
+            episodes={drama.episodes}
+          />
+
         </div>
 
         <div className="flex-1 min-w-0">
@@ -272,7 +282,7 @@ export default async function DramaPage({ params }: { params: Params }) {
       </div>
 
       {/* ─── ЗОНА 1: МОЙ ДНЕВНИК ─── */}
-      {entry ? (
+      {entry && (
         <section className="mt-12 rounded-2xl border border-accent/20 bg-accent/5 p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold flex items-center gap-2 text-accent">
@@ -283,11 +293,6 @@ export default async function DramaPage({ params }: { params: Params }) {
           </div>
 
           <div className="flex items-center gap-3 flex-wrap mb-6">
-            <StatusDropdown
-              dramaId={drama.id}
-              entry={entry}
-              episodes={drama.episodes}
-            />
             {isCryTag(entry.cryTag) && (
               <CryBadge tag={entry.cryTag} size="md" />
             )}
@@ -382,19 +387,6 @@ export default async function DramaPage({ params }: { params: Params }) {
               </div>
             </div>
           )}
-        </section>
-      ) : (
-        <section className="mt-12 rounded-2xl border-2 border-dashed border-accent/30 bg-accent/5 p-8 text-center">
-          <Plus className="w-8 h-8 text-accent mx-auto mb-4" />
-          <h2 className="text-lg font-semibold mb-2">
-            Этой дорамы пока нет в твоём дневнике
-          </h2>
-          <p className="text-sm text-muted mb-6 max-w-md mx-auto">
-            Добавь её одним кликом — детали можно заполнить позже.
-          </p>
-          <div className="flex justify-center">
-            <StatusDropdown dramaId={drama.id} entry={null} episodes={drama.episodes} />
-          </div>
         </section>
       )}
 
