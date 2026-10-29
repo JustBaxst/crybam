@@ -191,6 +191,7 @@ export async function getAdminOverviewData() {
       id: true, posterUrl: true, synopsis: true,
       titles: { select: { id: true } },
       _count: { select: { genres: true, credits: true } },
+      createdAt: true,
     },
   });
 
@@ -209,7 +210,7 @@ export async function getAdminOverviewData() {
 
   const persons = await prisma.person.findMany({
     where: { deletedAt: null },
-    select: { id: true, photoUrl: true, bio: true, aliases: { select: { id: true } } },
+    select: { id: true, photoUrl: true, bio: true, aliases: { select: { id: true } }, createdAt: true },
   });
   let pGreen = 0, pYellow = 0, pRed = 0;
   for (const p of persons) {
@@ -224,7 +225,7 @@ export async function getAdminOverviewData() {
 
   const characters = await prisma.character.findMany({
     where: { deletedAt: null },
-    select: { id: true, imageUrl: true, description: true, aliases: { select: { id: true } } },
+    select: { id: true, imageUrl: true, description: true, aliases: { select: { id: true } }, createdAt: true },
   });
   let cGreen = 0, cYellow = 0, cRed = 0;
   for (const c of characters) {

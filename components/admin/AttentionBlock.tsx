@@ -32,19 +32,19 @@ export function AttentionBlock({ stats }: Props) {
                 {stats.dramas.red > 0 && (
                     <Link href="/admin/dramas?filter=red" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-background border border-border hover:border-accent/40 transition-colors text-sm">
                         <Film className="w-4 h-4 text-muted" />
-                        <span><strong className="text-foreground">{stats.dramas.red}</strong> дорам нужен постер/описание</span>
+                        <span><strong className="text-foreground">{stats.dramas.red}</strong> дорам нужны альт. названия</span>
                     </Link>
                 )}
                 {stats.persons.red > 0 && (
                     <Link href="/admin/people?filter=red" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-background border border-border hover:border-accent/40 transition-colors text-sm">
                         <User className="w-4 h-4 text-muted" />
-                        <span><strong className="text-foreground">{stats.persons.red}</strong> актерам нужно фото</span>
+                        <span><strong className="text-foreground">{stats.persons.red}</strong> актерам нужны альт. имена</span>
                     </Link>
                 )}
                 {stats.characters.red > 0 && (
                     <Link href="/admin/characters?filter=red" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-background border border-border hover:border-accent/40 transition-colors text-sm">
                         <UserCircle className="w-4 h-4 text-muted" />
-                        <span><strong className="text-foreground">{stats.characters.red}</strong> персонажам нужен постер/описание</span>
+                        <span><strong className="text-foreground">{stats.characters.red}</strong> персонажам нужны альт. имена</span>
                     </Link>
                 )}
             </div>
