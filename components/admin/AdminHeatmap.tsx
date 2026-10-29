@@ -26,7 +26,7 @@ const GAP = 2;        // 2px
 const MONTH_GAP = 8;  // 8px (отступ между месяцами)
 
 function toKey(d: Date) {
-    return d.toISOString().slice(0, 10);
+    return d.toLocaleDateString("sv-SE"); // ← Локальная дата для соответствия группировке
 }
 
 function levelClass(level: number) {

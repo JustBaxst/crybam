@@ -252,7 +252,8 @@ export async function getAdminOverviewData() {
 
   const activityMap = new Map<string, { count: number; actions: string[]; userIds: number[] }>();
   for (const log of logs) {
-    const dateKey = log.createdAt.toISOString().slice(0, 10);
+    // Используем локальную дату сервера (в формате YYYY-MM-DD)
+    const dateKey = log.createdAt.toLocaleDateString("sv-SE");
     const existing = activityMap.get(dateKey);
     if (existing) {
       existing.count++;
