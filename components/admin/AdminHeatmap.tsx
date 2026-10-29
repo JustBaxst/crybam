@@ -275,7 +275,7 @@ export function AdminHeatmap({ activities, currentUserId }: Props) {
                                 <span className="text-muted font-normal">{hovered.activity.episodes} действ.</span>
                             </div>
                             {/* Скроллируемый список событий */}
-                            <div className="max-h-[150px] overflow-y-auto pr-1 space-y-1.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full">
+                            <div className="max-h-37.5 overflow-y-auto pr-1 space-y-1.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full">
                                 {hovered.activity.events?.map((e, idx) => (
                                     <div key={idx} className="leading-tight">
                                         <span className="font-medium text-foreground">{e.userName}</span>{" "}

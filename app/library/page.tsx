@@ -53,9 +53,9 @@ export default async function LibraryPage({
   const entries = await prisma.userDramaEntry.findMany({
     where: {
       userId: CURRENT_USER_ID,
+      status: activeStatus,
       drama: {
         deletedAt: null,
-        status: activeStatus
       }
     },
     include: { drama: true },
