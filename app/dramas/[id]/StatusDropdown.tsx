@@ -57,22 +57,24 @@ export function StatusDropdown({
         <div className="flex flex-col gap-2 items-start">
             <div className="flex items-center">
                 {!entry ? (
-                    <>
+                    <div className="flex items-center gap-2">
                         {/* Кнопка добавления */}
                         <button
                             onClick={() => setStatus("planned")}
                             disabled={isPending}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-l-lg bg-accent text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
                         >
                             <Plus className="w-4 h-4" />
                             Добавить в дневник
                         </button>
+
                         {/* Стрелочка для выбора другого статуса */}
+
                         <DropdownMenu.Root>
                             <DropdownMenu.Trigger asChild>
                                 <button
                                     disabled={isPending}
-                                    className="px-2 py-2 rounded-r-lg bg-accent text-white border-l border-white/20 hover:opacity-90 transition-opacity disabled:opacity-50"
+                                    className="p-2 rounded-lg bg-accent/20 text-accent border border-accent/40 hover:bg-accent/30 transition-colors disabled:opacity-50"
                                 >
                                     <ChevronDown className="w-4 h-4" />
                                 </button>
@@ -95,7 +97,7 @@ export function StatusDropdown({
                                 </DropdownMenu.Content>
                             </DropdownMenu.Portal>
                         </DropdownMenu.Root>
-                    </>
+                    </div>
                 ) : (
                     // Если запись есть — показываем текущий статус
                     <DropdownMenu.Root>
