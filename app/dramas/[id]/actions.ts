@@ -589,3 +589,33 @@ export async function removeSoundtrack(formData: FormData) {
   revalidatePath(`/admin/dramas/${dramaId}`);
   return { success: true };
 }
+export async function incrementProgress(dramaId: number) {
+  const entry = await prisma.userDramaEntry.findFirst({
+    where: { userId: CURRENT_USER_ID, dramaId },
+    include: { drama: { select: { episodes: true } } }
+  });
+  if (!entry) return { error: "Запись не найдена" };
+
+  const currentProgress = entry.progress || 0;
+  const totalEpisodes = entry.drama.episodes || 0;
+  if (totalEpisodes > 0 && currentProgress >= totalEpisodes) {
+    return { error: "Все серии уже просмотрены" };
+  }
+
+  const newProgress = currentProgress + 1;
+  const isFinished = totalEpisodes > 0 && newProgress >= totalEpisodes;
+
+  await prisma.userDramaEntry.update({
+    where: { id: entry.id },
+    data: {
+      progress: newProgress,
+      ...(isFinished ? { status: "watched", watchedAt: new Date() } : {})
+    }
+  });
+
+  revalidatePath(`/dramas/${dramaId}`);
+  revalidatePath("/library");
+  revalidatePath("/");
+
+  return { success: true };
+}

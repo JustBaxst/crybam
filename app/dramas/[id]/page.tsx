@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EditEntryButton } from "./EditEntryButton";
 import { AlternativeTitles } from "./AlternativeTitles";
-import { PosterImage } from "@/components/PosterImage";
 import {
   ArrowLeft,
   Star,
@@ -29,7 +28,7 @@ import { prisma } from "@/lib/prisma";
 import { CURRENT_USER_ID } from "@/lib/current-user";
 import { isCryTag } from "@/lib/cry-tags";
 import { CryBadge } from "@/components/CryBadge";
-import { QuickStatusButtons } from "./QuickStatusButtons";
+import { StatusDropdown } from "./StatusDropdown";
 import { SoundtrackPlayer } from "./SoundtrackPlayer";
 
 type Params = Promise<{ id: string }>;
@@ -284,10 +283,10 @@ export default async function DramaPage({ params }: { params: Params }) {
           </div>
 
           <div className="flex items-center gap-3 flex-wrap mb-6">
-            <QuickStatusButtons
+            <StatusDropdown
               dramaId={drama.id}
-              currentStatus={entry.status}
-              compact
+              entry={entry}
+              episodes={drama.episodes}
             />
             {isCryTag(entry.cryTag) && (
               <CryBadge tag={entry.cryTag} size="md" />
@@ -394,7 +393,7 @@ export default async function DramaPage({ params }: { params: Params }) {
             Добавь её одним кликом — детали можно заполнить позже.
           </p>
           <div className="flex justify-center">
-            <QuickStatusButtons dramaId={drama.id} currentStatus={null} />
+            <StatusDropdown dramaId={drama.id} entry={null} episodes={drama.episodes} />
           </div>
         </section>
       )}
