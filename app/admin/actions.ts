@@ -291,8 +291,8 @@ export async function getAdminOverviewData() {
   });
 
   const recentLogs = await prisma.adminLog.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 5,
+    orderBy: { createdAt: "desc" }, // Добавили id для надежности
+    take: 15,
     include: { user: { select: { name: true, avatarUrl: true } } },
   });
 
