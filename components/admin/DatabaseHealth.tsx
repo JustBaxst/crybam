@@ -1,10 +1,18 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 
 type StatGroup = { total: number; green: number; yellow: number; red: number };
+type TabType = "all" | "dramas" | "persons" | "characters";
+
+const TABS = [
+    { id: "all", label: "Все" },
+    { id: "dramas", label: "Дорамы" },
+    { id: "persons", label: "Актеры" },
+    { id: "characters", label: "Персонажи" },
+] as const;
 
 export function DatabaseHealth({
     dramas,
@@ -15,7 +23,21 @@ export function DatabaseHealth({
     persons: StatGroup;
     characters: StatGroup;
 }) {
-    const [tab, setTab] = useState<"all" | "dramas" | "persons" | "characters">("all");
+    const [tab, setTab] = useState<TabType>("all");
+
+    // Восстанавливаем таб из localStorage при загрузке
+    useEffect(() => {
+        const saved = localStorage.getItem("admin_health_tab");
+        if (saved && TABS.some(t => t.id === saved)) {
+            setTab(saved as TabType);
+        }
+    }, []);
+
+    // Сохраняем при переключении
+    const handleTabChange = (newTab: TabType) => {
+        setTab(newTab);
+        localStorage.setItem("admin_health_tab", newTab);
+    };
 
     const allStats = {
         total: dramas.total + persons.total + characters.total,
@@ -41,22 +63,23 @@ export function DatabaseHealth({
                     Здоровье базы данных
                 </h2>
 
+                {/* Контейнер для табов */}
                 <div className="flex items-center gap-1 bg-background border border-border p-1 rounded-lg">
-                    {[
-                        { id: "all", label: "Все" },
-                        { id: "dramas", label: "Дорамы" },
-                        { id: "persons", label: "Актеры" },
-                        { id: "characters", label: "Персонажи" },
-                    ].map((t) => (
-                        <button
-                            key={t.id}
-                            onClick={() => setTab(t.id as any)}
-                            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${tab === t.id ? "bg-surface shadow text-foreground" : "text-muted hover:text-foreground"
-                                }`}
-                        >
-                            {t.label}
-                        </button>
-                    ))}
+                    {TABS.map((t) => {
+                        const isActive = tab === t.id;
+                        return (
+                            <button
+                                key={t.id}
+                                onClick={() => handleTabChange(t.id)}
+                                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all border ${isActive
+                                    ? "bg-accent/20 text-accent border-accent/30"
+                                    : "bg-transparent text-muted border-transparent hover:border-accent/40 hover:text-foreground hover:bg-surface"
+                                    }`}
+                            >
+                                {t.label}
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 
