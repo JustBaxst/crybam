@@ -3,11 +3,17 @@
 import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+
+type DramaItem = {
+  title: string;
+  episodes: number;
+};
+
 type DayActivity = {
   date: string;
   level: number;
   episodes?: number;
-  dramaTitle?: string;
+  items?: DramaItem[]; // ← Заменили dramaTitle на массив items
 };
 
 type Props = {
@@ -234,7 +240,7 @@ export function YearHeatmap({ activities }: Props) {
       {/* Тултип */}
       {hovered && (
         <div
-          className="pointer-events-none absolute z-50 -translate-x-1/2 -translate-y-full mb-2 px-3 py-2 rounded-lg border border-border bg-surface shadow-xl text-xs whitespace-nowrap"
+          className="pointer-events-none absolute z-50 -translate-x-1/2 -translate-y-full mb-2 p-3 rounded-lg border border-border bg-surface shadow-xl text-xs w-64 max-w-xs"
           style={{ left: hovered.x, top: hovered.y }}
         >
           {hovered.activity.level === 0 ? (
@@ -247,16 +253,18 @@ export function YearHeatmap({ activities }: Props) {
             </span>
           ) : (
             <>
-              <div className="font-medium">
-                {new Date(hovered.activity.date).toLocaleDateString("ru-RU", {
-                  day: "numeric",
-                  month: "long",
-                })}
+              <div className="font-semibold text-foreground mb-2 flex items-center justify-between border-b border-border pb-1.5">
+                <span>{new Date(hovered.activity.date).toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}</span>
+                <span className="text-muted font-normal">{hovered.activity.episodes} {hovered.activity.episodes === 1 ? "серия" : "серий"}</span>
               </div>
-              <div className="text-muted mt-0.5">
-                {hovered.activity.episodes}{" "}
-                {hovered.activity.episodes === 1 ? "серия" : "серий"}
-                {hovered.activity.dramaTitle && <> · {hovered.activity.dramaTitle}</>}
+              {/* Скроллируемый список дорам */}
+              <div className="max-h-37.5 overflow-y-auto pr-1 space-y-1.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full">
+                {hovered.activity.items?.map((item, idx) => (
+                  <div key={idx} className="leading-tight">
+                    <span className="font-medium text-foreground">{item.title}</span>
+                    <span className="text-muted"> · {item.episodes} {item.episodes === 1 ? "серия" : "серий"}</span>
+                  </div>
+                ))}
               </div>
             </>
           )}

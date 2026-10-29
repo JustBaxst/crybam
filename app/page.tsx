@@ -64,14 +64,33 @@ export default async function HomePage() {
     .slice(0, 10)
 
   // 5. Heatmap
-  const heatmapActivities = entries
+  const heatmapGrouped = new Map<string, { totalEpisodes: number; dramas: { title: string; episodes: number }[] }>();
+
+  entries
     .filter((e) => e.watchedAt)
-    .map((e) => ({
-      date: e.watchedAt!.toISOString().slice(0, 10),
-      level: Math.min(Math.ceil((e.drama.episodes || 1) / 4), 4),
-      episodes: e.drama.episodes || 1,
-      dramaTitle: e.drama.title,
-    }));
+    .forEach((e) => {
+      // Используем локальную дату в формате YYYY-MM-DD
+      const dateKey = e.watchedAt!.toLocaleDateString("sv-SE");
+      const episodes = e.drama.episodes || 1;
+
+      const existing = heatmapGrouped.get(dateKey);
+      if (existing) {
+        existing.totalEpisodes += episodes;
+        existing.dramas.push({ title: e.drama.title, episodes });
+      } else {
+        heatmapGrouped.set(dateKey, {
+          totalEpisodes: episodes,
+          dramas: [{ title: e.drama.title, episodes }],
+        });
+      }
+    });
+
+  const heatmapActivities = Array.from(heatmapGrouped.entries()).map(([date, data]) => ({
+    date,
+    level: Math.min(Math.ceil(data.totalEpisodes / 4), 4), // Уровень зависит от суммы серий
+    episodes: data.totalEpisodes,
+    items: data.dramas, // Массив дорам
+  }));
 
   const joinDate = user?.createdAt
     ? new Date(user.createdAt).toLocaleDateString("ru-RU", { month: "long", year: "numeric" })
