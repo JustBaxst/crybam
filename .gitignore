@@ -39,3 +39,4 @@ dramas.txt
 import-dramas.mjs
 check-db.mjs
 fill-name-lower.mjs
+assets/test_generate_image/
