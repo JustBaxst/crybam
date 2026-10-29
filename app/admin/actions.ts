@@ -250,23 +250,37 @@ export async function getAdminOverviewData() {
     orderBy: { createdAt: "asc" },
   });
 
-  const activityMap = new Map<string, { count: number; actions: string[]; userIds: number[] }>();
+  const activityMap = new Map<string, {
+    count: number;
+    events: { userName: string; action: string; entityName: string; userId: number }[];
+    userIds: number[];
+  }>();
+
   for (const log of logs) {
-    // Используем локальную дату сервера (в формате YYYY-MM-DD)
     const dateKey = log.createdAt.toLocaleDateString("sv-SE");
     const existing = activityMap.get(dateKey);
+    const event = {
+      userName: log.user.name,
+      action: log.action,
+      entityName: log.entityName,
+      userId: log.userId,
+    };
+
     if (existing) {
       existing.count++;
-      existing.actions.push(log.action);
+      existing.events.push(event);
       existing.userIds.push(log.userId);
     } else {
-      activityMap.set(dateKey, { count: 1, actions: [log.action], userIds: [log.userId] });
+      activityMap.set(dateKey, { count: 1, events: [event], userIds: [log.userId] });
     }
   }
 
   const heatmapActivities = Array.from(activityMap.entries()).map(([date, data]) => ({
-    date, level: Math.min(Math.ceil(data.count / 2), 4), episodes: data.count,
-    dramaTitle: data.actions.join(", "), userIds: data.userIds,
+    date,
+    level: Math.min(Math.ceil(data.count / 2), 4),
+    episodes: data.count,
+    events: data.events, // ← Передаем массив событий вместо строки
+    userIds: data.userIds,
   }));
 
   // Ищем победу среди всех типов

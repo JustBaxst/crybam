@@ -4,11 +4,12 @@ import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { getActionLabel } from "@/lib/action-labels";
 
+
 type DayActivity = {
     date: string;
     level: number;
     episodes?: number;
-    dramaTitle?: string;
+    events?: { userName: string; action: string; entityName: string; userId: number }[];
     userIds?: number[];
 };
 
@@ -45,7 +46,12 @@ export function AdminHeatmap({ activities, currentUserId }: Props) {
 
     const filteredActivities = useMemo(() => {
         if (filter === "all") return activities;
-        return activities.filter((a) => a.userIds?.includes(currentUserId));
+        return activities
+            .map((a) => ({
+                ...a,
+                events: a.events?.filter((e) => e.userId === currentUserId),
+            }))
+            .filter((a) => a.events && a.events.length > 0); // Оставляем только дни, где есть твои события
     }, [filter, activities, currentUserId]);
 
     const years = useMemo(() => {
@@ -251,7 +257,7 @@ export function AdminHeatmap({ activities, currentUserId }: Props) {
 
             {hovered && (
                 <div
-                    className="pointer-events-none absolute z-50 -translate-x-1/2 -translate-y-full mb-2 px-3 py-2 rounded-lg border border-border bg-surface shadow-xl text-xs whitespace-nowrap"
+                    className="pointer-events-none absolute z-50 -translate-x-1/2 -translate-y-full mb-2 p-3 rounded-lg border border-border bg-surface shadow-xl text-xs w-64 max-w-xs"
                     style={{ left: hovered.x, top: hovered.y }}
                 >
                     {hovered.activity.level === 0 ? (
@@ -264,19 +270,19 @@ export function AdminHeatmap({ activities, currentUserId }: Props) {
                         </span>
                     ) : (
                         <>
-                            <div className="font-medium">
-                                {new Date(hovered.activity.date).toLocaleDateString("ru-RU", {
-                                    day: "numeric",
-                                    month: "long",
-                                })}
+                            <div className="font-semibold text-foreground mb-2 flex items-center justify-between border-b border-border pb-1.5">
+                                <span>{new Date(hovered.activity.date).toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}</span>
+                                <span className="text-muted font-normal">{hovered.activity.episodes} действ.</span>
                             </div>
-                            <div className="text-muted mt-0.5">
-                                {hovered.activity.episodes}{" "}
-                                {hovered.activity.episodes === 1 ? "действие" : "действий"}
-                                {/* Переводим технические названия на русский */}
-                                {hovered.activity.dramaTitle && (
-                                    <> · {hovered.activity.dramaTitle.split(", ").map(a => getActionLabel(a)).join(", ")}</>
-                                )}
+                            {/* Скроллируемый список событий */}
+                            <div className="max-h-[150px] overflow-y-auto pr-1 space-y-1.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full">
+                                {hovered.activity.events?.map((e, idx) => (
+                                    <div key={idx} className="leading-tight">
+                                        <span className="font-medium text-foreground">{e.userName}</span>{" "}
+                                        <span className="text-muted">{getActionLabel(e.action)}</span>{" "}
+                                        <span className="text-accent">«{e.entityName}»</span>
+                                    </div>
+                                ))}
                             </div>
                         </>
                     )}
