@@ -36,6 +36,7 @@ skills-lock.json
 
 # Личные данные и временные скрипты
 dramas.txt
+tree.txt
 import-dramas.mjs
 check-db.mjs
 fill-name-lower.mjs
