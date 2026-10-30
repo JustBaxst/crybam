@@ -14,8 +14,9 @@ function Show-Tree {
     for ($i = 0; $i -lt $items.Count; $i++) {
         $item = $items[$i]
         $isLast = $i -eq ($items.Count - 1)
-        $connector = if ($isLast) { '└── ' } else { '├── ' }
-        $newPrefix = if ($isLast) { '    ' } else { '│   ' }
+        # Используем только ASCII-символы
+        $connector = if ($isLast) { '\-- ' } else { '|-- ' }
+        $newPrefix = if ($isLast) { '    ' } else { '|   ' }
         if ($item.PSIsContainer) {
             "$Prefix$connector$($item.Name)/"
             Show-Tree -Path $item.FullName -Prefix "$Prefix$newPrefix"
@@ -25,5 +26,6 @@ function Show-Tree {
     }
 }
 
-Show-Tree -Path . | Out-File -Encoding utf8 tree.txt
-Write-Host "✅ Дерево сохранено в tree.txt" -ForegroundColor Green
+# Принудительно сохраняем в ASCII, чтобы исключить любые проблемы с кодировкой
+Show-Tree -Path . | Out-File -Encoding ascii tree.txt
+Write-Host "OK: Дерево сохранено в tree.txt" -ForegroundColor Green
