@@ -619,3 +619,14 @@ export async function incrementProgress(dramaId: number) {
 
   return { success: true };
 }
+export async function removeEntry(dramaId: number) {
+  await prisma.userDramaEntry.deleteMany({
+    where: { userId: CURRENT_USER_ID, dramaId }
+  });
+
+  revalidatePath(`/dramas/${dramaId}`);
+  revalidatePath("/library");
+  revalidatePath("/");
+
+  return { success: true };
+}
