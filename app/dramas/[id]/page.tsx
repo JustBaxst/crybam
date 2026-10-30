@@ -36,6 +36,7 @@ type Params = Promise<{ id: string }>;
 export default async function DramaPage({ params }: { params: Params }) {
   const { id: rawId } = await params;
   const id = Number(rawId);
+  const SHOW_DIARY = false; // Пока false — блок скрыт
 
   if (!Number.isInteger(id) || id <= 0) notFound();
 
@@ -281,9 +282,9 @@ export default async function DramaPage({ params }: { params: Params }) {
         </div>
       </div>
 
-      {/* ─── ЗОНА 1: МОЙ ДНЕВНИК ─── */}
+      {/* ─── ЗОНА 1: МОЙ ДНЕВНИК (временно скрыт) ─── */}
       {entry && (
-        <section className="mt-12 rounded-2xl border border-accent/20 bg-accent/5 p-6">
+        <section className={`mt-12 rounded-2xl border border-accent/20 bg-accent/5 p-6 ${SHOW_DIARY ? "" : "hidden"}`}>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold flex items-center gap-2 text-accent">
               <NotebookPen className="w-5 h-5" />
