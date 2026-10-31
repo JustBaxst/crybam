@@ -89,6 +89,8 @@ model Drama {
   studios     DramaStudio[]
   nominations NominationEntry[]
   soundtrack  SoundtrackLink[]
+  media       DramaMedia[]
+  themes      DramaThemeLink[]
 
   @@index([year])
   @@index([country])
@@ -112,6 +114,43 @@ model DramaTitle {
 
   @@index([titleLower])
   @@index([dramaId])
+}
+
+// ─────────────────────────────────────────────
+// Галерея (Трейлеры, Кадры, Постеры)
+// ─────────────────────────────────────────────
+model DramaMedia {
+  id      Int   @id @default(autoincrement())
+  dramaId Int
+  drama   Drama @relation(fields: [dramaId], references: [id], onDelete: Cascade)
+
+  type         String // trailer | image | poster
+  url          String
+  thumbnailUrl String?
+  title        String?
+  order        Int?
+
+  createdAt DateTime @default(now())
+
+  @@index([dramaId])
+}
+
+// ─────────────────────────────────────────────
+// Темы (Теги для дорам)
+// ─────────────────────────────────────────────
+model DramaTheme {
+  id     Int              @id @default(autoincrement())
+  name   String           @unique
+  dramas DramaThemeLink[]
+}
+
+model DramaThemeLink {
+  dramaId Int
+  themeId Int
+  drama   Drama      @relation(fields: [dramaId], references: [id], onDelete: Cascade)
+  theme   DramaTheme @relation(fields: [themeId], references: [id], onDelete: Cascade)
+
+  @@id([dramaId, themeId])
 }
 
 // ─────────────────────────────────────────────
