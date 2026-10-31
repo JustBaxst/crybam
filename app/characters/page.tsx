@@ -19,7 +19,7 @@ export default async function CharactersCatalogPage({
     include: {
       drama: { select: { id: true, title: true, year: true } },
       credits: {
-        where: { roleType: "actor" },
+        where: { roleType: "actor", person: { deletedAt: null } },
         include: { person: { select: { id: true, name: true, photoUrl: true } } },
         take: 1, // Берем только первого актера
       },

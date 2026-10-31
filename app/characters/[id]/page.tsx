@@ -29,6 +29,7 @@ export default async function CharacterPage({ params }: { params: Params }) {
       drama: true,
       aliases: true,
       credits: {
+        where: { person: { deletedAt: null } },
         include: { person: true },
       },
       // Получаем связи, где он источник, и где он цель

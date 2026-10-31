@@ -48,6 +48,7 @@ export default async function DramaPage({ params }: { params: Params }) {
       studios: { include: { studio: true } },
       genres: { include: { genre: true } },
       credits: {
+        where: { person: { deletedAt: null } },
         include: { person: true, character: true },
         orderBy: { order: "asc" },
       },
