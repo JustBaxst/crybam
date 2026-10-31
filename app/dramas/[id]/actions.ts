@@ -629,3 +629,27 @@ export async function removeEntry(dramaId: number) {
 
   return { success: true };
 }
+
+export async function rateDrama(dramaId: number, rating: number) {
+  // Проверка на всякий случай
+  if (rating < 1 || rating > 10) return { error: "Неверная оценка" };
+
+  const existing = await prisma.userDramaEntry.findFirst({
+    where: { userId: CURRENT_USER_ID, dramaId },
+  });
+
+  if (existing) {
+    await prisma.userDramaEntry.update({
+      where: { id: existing.id },
+      data: { rating },
+    });
+  } else {
+    await prisma.userDramaEntry.create({
+      data: { userId: CURRENT_USER_ID, dramaId, rating, status: "watched" },
+    });
+  }
+
+  revalidatePath(`/dramas/${dramaId}`);
+  revalidatePath("/library");
+  return { success: true };
+}
