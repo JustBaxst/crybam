@@ -15,7 +15,7 @@ export function TagsPopover({ genres, themes, hiddenCount }: TagsPopoverProps) {
     return (
         <Popover>
             <PopoverTrigger asChild>
-                <button className="bg-transparent border border-border text-muted hover:bg-surface rounded-full px-3 py-1 text-xs font-medium transition-colors">
+                <button className="bg-transparent border border-border text-muted hover:bg-surface rounded-full px-2 py-0.5 text-[10px] font-medium transition-colors">
                     +{hiddenCount} тегов
                 </button>
             </PopoverTrigger>

@@ -653,3 +653,27 @@ export async function rateDrama(dramaId: number, rating: number) {
   revalidatePath("/library");
   return { success: true };
 }
+export async function saveCryTag(dramaId: number, cryTag: string) {
+  if (!["safe", "bittersweet", "sad"].includes(cryTag)) {
+    return { error: "Неверное значение" };
+  }
+
+  const existing = await prisma.userDramaEntry.findFirst({
+    where: { userId: CURRENT_USER_ID, dramaId },
+  });
+
+  if (existing) {
+    await prisma.userDramaEntry.update({
+      where: { id: existing.id },
+      data: { cryTag },
+    });
+  } else {
+    await prisma.userDramaEntry.create({
+      data: { userId: CURRENT_USER_ID, dramaId, cryTag, status: "watched" },
+    });
+  }
+
+  revalidatePath(`/dramas/${dramaId}`);
+  revalidatePath("/library");
+  return { success: true };
+}

@@ -15,7 +15,7 @@ export function Rating({
     return (
         <div className="flex items-center gap-3">
             <div
-                className="flex gap-1.5 cursor-pointer"
+                className="flex gap-1 cursor-pointer"
                 onMouseLeave={() => setHoverValue(0)}
             >
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((val) => {
@@ -25,16 +25,16 @@ export function Rating({
                             key={val}
                             onMouseEnter={() => setHoverValue(val)}
                             onClick={() => onChange?.(val)}
-                            className={`h-8 w-6 rounded-sm transition-all duration-200 border ${isFilled
-                                    ? "bg-accent border-accent"
-                                    : "bg-surface border-border hover:border-accent/50"
+                            className={`h-5 w-3.5 rounded-sm transition-all duration-200 border ${isFilled
+                                ? "bg-accent border-accent"
+                                : "bg-surface border-border hover:border-accent/50"
                                 }`}
                         />
                     );
                 })}
             </div>
 
-            <span className="text-sm font-semibold tabular-nums text-foreground w-12">
+            <span className="text-xs font-semibold tabular-nums text-foreground w-12">
                 {displayValue > 0 ? `${displayValue} / 10` : ""}
             </span>
         </div>

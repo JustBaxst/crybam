@@ -16,7 +16,8 @@ import { EditEntryButton } from "./EditEntryButton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { RatingWidget } from "@/components/drama/RatingWidget";
 import { TagsPopover } from "@/components/drama/TagsPopover";
-import { CryTagWidget } from "@/components/drama/CryTagWidget";
+import { CryTagSelector } from "@/components/drama/CryTagSelector";
+import { CryTagStats } from "@/components/drama/CryTagStats";
 
 type Params = Promise<{ id: string }>;
 type SearchParams = Promise<{ from?: string }>;
@@ -72,8 +73,50 @@ export default async function DramaPage({
     });
   const crew = drama.credits.filter((c) => c.roleType !== "actor");
 
-  const formatDate = (d: Date | null) =>
-    d ? new Date(d).toLocaleDateString("ru-RU", { day: "numeric", month: "short", year: "numeric" }) : null;
+  // ─── ЛОГИКА ОБРЕЗКИ (ПУНКТ 1) ───
+  const truncateList = (arr: string[], limit = 2) => {
+    if (arr.length <= limit) return arr.join(", ");
+    return `${arr.slice(0, limit).join(", ")} + ${arr.length - limit}`;
+  };
+
+  const displayPlatforms = truncateList(drama.platforms.map(p => p.platform.name));
+  const displayStudios = truncateList(drama.studios.map(s => s.studio.name));
+
+  // Озвучка хранится строкой, разделенной запятыми
+  const dubbingArr = drama.dubbingStudios
+    ? drama.dubbingStudios.split(",").map(s => s.trim()).filter(Boolean)
+    : [];
+  const displayDubbing = truncateList(dubbingArr);
+
+  // ─── ЛОГИКА ДАТ (ПУНКТ 3) ───
+  const formatAired = (from: Date | null, to: Date | null) => {
+    if (!from && !to) return null;
+    const optFull: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", year: "numeric" };
+    const optShort: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
+
+    // Хелпер для очистки от " г."
+    const cleanDate = (d: Date, opts: Intl.DateTimeFormatOptions) => {
+      return d.toLocaleDateString("ru-RU", opts).replace(" г.", "");
+    };
+
+    if (from && to) {
+      const fromDate = new Date(from);
+      const toDate = new Date(to);
+
+      if (fromDate.getTime() === toDate.getTime()) {
+        return cleanDate(fromDate, optFull);
+      }
+      if (fromDate.getFullYear() === toDate.getFullYear()) {
+        return `${cleanDate(fromDate, optShort)} — ${cleanDate(toDate, optFull)}`;
+      }
+      return `${cleanDate(fromDate, optFull)} — ${cleanDate(toDate, optFull)}`;
+    }
+    return from
+      ? cleanDate(new Date(from), optFull)
+      : cleanDate(new Date(to!), optFull);
+  };
+
+  const airedText = formatAired(drama.airedFrom, drama.airedTo);
 
   const externalRatings = [
     { name: "Кинопоиск", value: drama.ratingKinopoisk },
@@ -103,7 +146,7 @@ export default async function DramaPage({
     <div className="max-w-6xl mx-auto px-6 py-10">
 
       {/* ─── ХЛЕБНЫЕ КРОШКИ ─── */}
-      <div className="flex items-center gap-2 text-sm text-muted mb-8">
+      <div className="flex items-center gap-2 text-sm text-muted mb-6">
         <Link href={from === "library" ? "/library" : "/dramas"} className="hover:text-foreground transition-colors">
           {from === "library" ? "Библиотека" : "Каталог"}
         </Link>
@@ -111,10 +154,18 @@ export default async function DramaPage({
         <span className="text-foreground truncate">{mainTitle}</span>
       </div>
 
-      {/* ─── HERO-ЗОНА ─── */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-10">
+      {/* ─── ЗАГОЛОВОК И АЛЬТ. НАЗВАНИЯ (НА ВСЮ ШИРИНУ) ─── */}
+      <div className="mb-8">
+        <h1 className="text-[clamp(1.75rem,3vw,2.5rem)] text-balance font-bold leading-tight mb-2">
+          {mainTitle}
+        </h1>
+        <AlternativeTitles titles={altTitles} />
+      </div>
 
-        {/* Левая колонка: Постер и Статус */}
+      {/* ─── HERO-ЗОНА (ИДЕАЛЬНАЯ 3-КОЛОНОЧНАЯ СЕТКА) ─── */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-10">
+
+        {/* Колонка 1: Постер и Статус */}
         <div className="lg:col-span-1 flex flex-col gap-4">
           <div className="aspect-2/3 rounded-2xl overflow-hidden border border-border bg-accent-soft flex items-center justify-center text-6xl shadow-lg">
             {drama.posterUrl ? (
@@ -126,154 +177,158 @@ export default async function DramaPage({
           <StatusDropdown dramaId={drama.id} entry={entry} episodes={drama.episodes} />
         </div>
 
-        {/* Правая колонка: Информация */}
-        <div className="lg:col-span-3 flex flex-col gap-4">
+        {/* Колонка 2: О дораме (занимает 2 части из 4) */}
+        <div className="lg:col-span-2 bg-surface/20 p-6 rounded-2xl border border-border/50">
+          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <Info className="w-5 h-5 text-accent" /> О дораме
+          </h2>
 
-          {/* Название и Альтернативные названия (прижаты друг к другу) */}
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold leading-tight mb-2">{mainTitle}</h1>
-            <AlternativeTitles titles={altTitles} />
-          </div>
+          {/* ─── УМНАЯ СЕТКА (ПУНКТ 4) ─── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
 
-          {/* Блок "О дораме" (Объединенный) */}
-          <div className="bg-surface/20 p-6 rounded-2xl border border-border/50">
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Info className="w-5 h-5 text-accent" /> О дораме
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-
-              {/* Левая колонка: Основные факты */}
-              <div className="space-y-3 text-sm text-muted">
-                {drama.country && (
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-accent shrink-0" />
-                    <span className="text-muted/70">Страна:</span>
-                    <span className="text-foreground">{drama.country}</span>
+            {/* Левая колонка: Основные факты */}
+            <div className="space-y-1.5 text-sm">
+              {drama.country && (
+                <div className="flex items-start gap-2">
+                  <MapPin className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1">
+                    <span className="text-muted/70 whitespace-nowrap">Страна:</span>
+                    <span className="text-foreground font-medium">{drama.country}</span>
                   </div>
-                )}
-                {drama.year && (
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-accent shrink-0" />
-                    <span className="text-muted/70">Год:</span>
-                    <span className="text-foreground">{drama.year}</span>
+                </div>
+              )}
+              {drama.year && (
+                <div className="flex items-start gap-2">
+                  <Calendar className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1">
+                    <span className="text-muted/70 whitespace-nowrap">Год:</span>
+                    <span className="text-foreground font-medium">{drama.year}</span>
                   </div>
-                )}
-                {drama.seasons && (
-                  <div className="flex items-center gap-2">
-                    <Video className="w-4 h-4 text-accent shrink-0" />
-                    <span className="text-muted/70">Сезонов:</span>
-                    <span className="text-foreground">{drama.seasons}</span>
+                </div>
+              )}
+              {drama.seasons && (
+                <div className="flex items-start gap-2">
+                  <Video className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1">
+                    <span className="text-muted/70 whitespace-nowrap">Сезонов:</span>
+                    <span className="text-foreground font-medium">{drama.seasons}</span>
                   </div>
-                )}
-                {drama.episodes && (
-                  <div className="flex items-center gap-2">
-                    <Film className="w-4 h-4 text-accent shrink-0" />
-                    <span className="text-muted/70">Серий:</span>
-                    <span className="text-foreground">{drama.episodes}</span>
+                </div>
+              )}
+              {drama.episodes && (
+                <div className="flex items-start gap-2">
+                  <Film className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1">
+                    <span className="text-muted/70 whitespace-nowrap">Серий:</span>
+                    <span className="text-foreground font-medium">{drama.episodes}</span>
                   </div>
-                )}
-                {drama.episodeDuration && (
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-accent shrink-0" />
-                    <span className="text-muted/70">Длительность:</span>
-                    <span className="text-foreground">~{drama.episodeDuration} мин</span>
+                </div>
+              )}
+              {drama.episodeDuration && (
+                <div className="flex items-start gap-2">
+                  <Clock className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1">
+                    <span className="text-muted/70 whitespace-nowrap">Длительность:</span>
+                    <span className="text-foreground font-medium">~{drama.episodeDuration} мин</span>
                   </div>
-                )}
-              </div>
-
-              {/* Правая колонка: Производство и эфир */}
-              <div className="space-y-3 text-sm text-muted">
-                {(drama.airedFrom || drama.airedTo) && (
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-accent shrink-0" />
-                    <span className="text-muted/70">Эфир:</span>
-                    <span className="text-foreground">
-                      {formatDate(drama.airedFrom)}
-                      {drama.airedTo && ` — ${formatDate(drama.airedTo)}`}
-                    </span>
-                  </div>
-                )}
-                {drama.platforms.length > 0 && (
-                  <div className="flex items-center gap-2">
-                    <Tv className="w-4 h-4 text-accent shrink-0" />
-                    <span className="text-muted/70">Канал:</span>
-                    <span className="text-foreground">{drama.platforms.map(p => p.platform.name).join(", ")}</span>
-                  </div>
-                )}
-                {drama.studios.length > 0 && (
-                  <div className="flex items-center gap-2">
-                    <Video className="w-4 h-4 text-accent shrink-0" />
-                    <span className="text-muted/70">Производство:</span>
-                    <span className="text-foreground">{drama.studios.map(s => s.studio.name).join(", ")}</span>
-                  </div>
-                )}
-                {drama.dubbingStudios && (
-                  <div className="flex items-center gap-2">
-                    <Languages className="w-4 h-4 text-accent shrink-0" />
-                    <span className="text-muted/70">Озвучка:</span>
-                    <span className="text-foreground">{drama.dubbingStudios}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Блок Тегов */}
-          <div className="bg-surface/20 p-6 rounded-2xl border border-border/50">
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Tag className="w-5 h-5 text-accent" /> Теги
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              {genres.slice(0, 3).map((g) => (
-                <span key={g} className="bg-accent/10 text-accent border border-accent/20 rounded-full px-3 py-1 text-xs font-medium">
-                  {g}
-                </span>
-              ))}
-              <TagsPopover
-                genres={drama.genres.map(g => g.genre)}
-                themes={themesList}
-                hiddenCount={hiddenTagsCount}
-              />
-            </div>
-          </div>
-
-          {/* Блок Настроения */}
-          <div className="bg-surface/20 p-6 rounded-2xl border border-border/50">
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Heart className="w-5 h-5 text-accent" /> Настроение
-            </h2>
-            <CryTagWidget stats={cryTagStats} />
-          </div>
-
-          {/* Блок Оценок */}
-          <div className="bg-surface/20 p-6 rounded-2xl border border-border/50">
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <StarIcon className="w-5 h-5 text-accent" /> Оценки
-            </h2>
-
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-              <div>
-                <p className="text-sm font-medium text-muted mb-2">Ваша оценка</p>
-                <RatingWidget dramaId={drama.id} initialRating={entry?.rating} />
-              </div>
-
-              {externalRatings.length > 0 && (
-                <div className="flex flex-wrap items-center gap-2">
-                  {externalRatings.slice(0, 3).map((r) => (
-                    <div key={r.name} className="flex items-center gap-1.5 bg-surface border border-border rounded-md px-2 py-1 text-xs">
-                      <span className="text-muted">{r.name}</span>
-                      <span className="font-semibold tabular-nums text-foreground">{r.value?.toFixed(1)}</span>
-                    </div>
-                  ))}
-                  {externalRatings.length > 3 && (
-                    <div className="flex items-center justify-center bg-surface border border-border rounded-md px-2 py-1 text-xs text-muted cursor-help" title="Есть еще рейтинги">
-                      +{externalRatings.length - 3}
-                    </div>
-                  )}
                 </div>
               )}
             </div>
+
+            {/* Правая колонка: Производство и эфир (Вертикальный стек) */}
+            <div className="space-y-3 text-sm">
+              {airedText && (
+                <div className="flex items-start gap-2">
+                  <Calendar className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-muted/70 text-[11px]">Эфир:</span>
+                    <span className="text-foreground font-medium leading-snug">{airedText}</span>
+                  </div>
+                </div>
+              )}
+
+              {displayPlatforms && (
+                <div className="flex items-start gap-2">
+                  <Tv className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-muted/70 text-[11px]">Канал:</span>
+                    <span className="text-foreground font-medium leading-snug">{displayPlatforms}</span>
+                  </div>
+                </div>
+              )}
+
+              {displayStudios && (
+                <div className="flex items-start gap-2">
+                  <Video className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-muted/70 text-[11px]">Производство:</span>
+                    <span className="text-foreground font-medium leading-snug">{displayStudios}</span>
+                  </div>
+                </div>
+              )}
+
+              {displayDubbing && (
+                <div className="flex items-start gap-2">
+                  <Languages className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-muted/70 text-[11px]">Озвучка:</span>
+                    <span className="text-foreground font-medium leading-snug">{displayDubbing}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Жанры */}
+              <div className="flex items-start gap-2 pt-1">
+                <Tag className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                <div className="flex flex-col gap-1.5 w-full">
+                  <span className="text-muted/70 text-[11px]">Жанры:</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {genres.slice(0, 3).map((g) => (
+                      <span key={g} className="bg-accent/10 text-accent border border-accent/20 rounded-full px-2 py-0.5 text-[10px] font-medium">
+                        {g}
+                      </span>
+                    ))}
+                    <TagsPopover
+                      genres={drama.genres.map(g => g.genre)}
+                      themes={themesList}
+                      hiddenCount={hiddenTagsCount}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Колонка 3: Оценки и Эмоции (занимает 1 часть из 4) */}
+        <div className="lg:col-span-1 bg-surface/20 p-4 rounded-2xl border border-border/50 flex flex-col gap-3 shrink-0">
+
+          <div>
+            <h3 className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-2">Ваша оценка | Внешний рейтинг</h3>
+            <RatingWidget dramaId={drama.id} initialRating={entry?.rating} />
+          </div>
+
+          <div className="border-t border-border/50 w-full" />
+
+          <div className="grid grid-cols-2 gap-1.5">
+            {externalRatings.map((r) => {
+              const shortName = r.name === "Кинопоиск" ? "KP" : r.name === "MyDramaList" ? "MDL" : r.name;
+              return (
+                <div key={r.name} className="flex items-center justify-center gap-1 bg-surface border border-border rounded-md px-2 py-1.5 text-[11px]">
+                  <span className="text-muted">{shortName}</span>
+                  <span className="font-semibold tabular-nums text-foreground">{r.value?.toFixed(1)}</span>
+                </div>
+              );
+            })}
+          </div>
+
+          <div>
+            <h3 className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-2">Ваша эмоция | Настроение зрителей</h3>
+            <CryTagSelector dramaId={drama.id} initialTag={entry?.cryTag} />
+
+            <div className="border-t border-border/50 w-full my-3" />
+
+            <CryTagStats stats={cryTagStats} />
           </div>
 
         </div>
@@ -344,10 +399,10 @@ export default async function DramaPage({
 
               <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted pt-4 border-t border-accent/20">
                 {entry.startedAt && (
-                  <span className="flex items-center gap-1.5"><PlayCircle className="w-4 h-4 text-accent" /> Начал: {formatDate(entry.startedAt)}</span>
+                  <span className="flex items-center gap-1.5"><PlayCircle className="w-4 h-4 text-accent" /> Начал: {new Date(entry.startedAt).toLocaleDateString("ru-RU")}</span>
                 )}
                 {entry.watchedAt && (
-                  <span className="flex items-center gap-1.5"><Eye className="w-4 h-4 text-accent" /> Досмотрел: {formatDate(entry.watchedAt)}</span>
+                  <span className="flex items-center gap-1.5"><Eye className="w-4 h-4 text-accent" /> Досмотрел: {new Date(entry.watchedAt).toLocaleDateString("ru-RU")}</span>
                 )}
                 {entry.rewatchCount > 0 && (
                   <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-accent" /> Пересмотров: {entry.rewatchCount}</span>
