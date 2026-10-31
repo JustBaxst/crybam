@@ -76,6 +76,7 @@ export default async function PersonPage({ params }: { params: Params }) {
       aliases: true,
       socialLinks: true, // ← Подтягиваем соцсети
       credits: {
+        where: { drama: { deletedAt: null } }, // ← скрываем кредиты удалённых дорам
         include: {
           drama: true,
           character: true,

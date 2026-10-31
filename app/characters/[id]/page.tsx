@@ -32,9 +32,15 @@ export default async function CharacterPage({ params }: { params: Params }) {
         where: { person: { deletedAt: null } },
         include: { person: true },
       },
-      // Получаем связи, где он источник, и где он цель
-      relationsA: { include: { to: { select: { id: true, name: true } } } },
-      relationsB: { include: { from: { select: { id: true, name: true } } } },
+      // Получаем связи, где он источник, и где он цель (только с живыми персонажами)
+      relationsA: {
+        where: { to: { deletedAt: null } },
+        include: { to: { select: { id: true, name: true } } }
+      },
+      relationsB: {
+        where: { from: { deletedAt: null } },
+        include: { from: { select: { id: true, name: true } } }
+      },
     },
   });
 
