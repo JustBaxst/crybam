@@ -6,6 +6,8 @@ import {
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { CURRENT_USER_ID } from "@/lib/current-user";
+import { TagsPopover } from "@/components/drama/TagsPopover";
+import { CryTagWidget } from "@/components/drama/CryTagWidget";
 import { isCryTag } from "@/lib/cry-tags";
 import { CryBadge } from "@/components/CryBadge";
 import { AlternativeTitles } from "./AlternativeTitles";
@@ -14,7 +16,6 @@ import { SoundtrackPlayer } from "./SoundtrackPlayer";
 import { EditEntryButton } from "./EditEntryButton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { RatingWidget } from "@/components/drama/RatingWidget";
-import { TagsPopover } from "@/components/drama/TagsPopover";
 
 type Params = Promise<{ id: string }>;
 type SearchParams = Promise<{ from?: string }>;
@@ -82,7 +83,7 @@ export default async function DramaPage({
     { name: "Douban", value: drama.ratingDouban },
   ].filter((r) => r.value != null);
 
-  // Получаем темы (если ты их уже добавил в БД)
+  // Получаем темы
   const dramaThemes = await prisma.dramaThemeLink.findMany({
     where: { dramaId: id },
     include: { theme: true }
@@ -90,8 +91,19 @@ export default async function DramaPage({
   const themesList = dramaThemes.map(t => t.theme.name);
 
   // Считаем скрытые теги
-  const totalTags = genres.length + themesList.length + (drama.curatorCryTag ? 1 : 0);
+  const totalTags = genres.length + themesList.length;
   const hiddenTagsCount = Math.max(0, totalTags - 3);
+
+  // Собираем статистику CryTag
+  const cryTagStatsRaw = await prisma.userDramaEntry.groupBy({
+    by: ['cryTag'],
+    where: { dramaId: id, cryTag: { not: null } },
+    _count: { cryTag: true }
+  });
+  const cryTagStats = cryTagStatsRaw.map(s => ({ cryTag: s.cryTag as string, count: s._count.cryTag }));
+
+
+
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
@@ -121,62 +133,79 @@ export default async function DramaPage({
         </div>
 
         {/* Правая колонка: Информация */}
-        <div className="lg:col-span-3 flex flex-col justify-start">
-          <h1 className="text-3xl md:text-4xl font-bold leading-tight mb-2">{mainTitle}</h1>
+        <div className="lg:col-span-3 flex flex-col justify-start gap-4">
+          <h1 className="text-3xl md:text-4xl font-bold leading-tight">{mainTitle}</h1>
           <AlternativeTitles titles={altTitles} />
 
-          {/* Украшенные метаданные (Пункт 3) */}
-          <div className="flex flex-wrap items-center gap-2.5 text-sm text-muted mt-4 bg-surface/50 px-3 py-2 rounded-xl border border-border w-fit">
-            {drama.year && <span className="font-semibold text-foreground">{drama.year}</span>}
-            {drama.country && <><span className="text-border/80 text-[10px]">●</span> <span>{drama.country}</span></>}
-            {drama.seasons && <><span className="text-border/80 text-[10px]">●</span> <span>{drama.seasons} сезон</span></>}
-            {drama.episodes && <><span className="text-border/80 text-[10px]">●</span> <span>{drama.episodes} серий</span></>}
-            {drama.episodeDuration && <><span className="text-border/80 text-[10px]">●</span> <span>~{drama.episodeDuration} мин</span></>}
+          {/* Метаданные */}
+          <div className="flex flex-wrap items-center gap-2.5 text-sm text-muted">
+            {drama.year && <span className="font-semibold text-foreground bg-surface border border-border rounded-md px-2 py-1">{drama.year}</span>}
+            {drama.country && <span className="bg-surface border border-border rounded-md px-2 py-1">{drama.country}</span>}
+            {drama.seasons && <span className="bg-surface border border-border rounded-md px-2 py-1">{drama.seasons} сезон</span>}
+            {drama.episodes && <span className="bg-surface border border-border rounded-md px-2 py-1">{drama.episodes} серий</span>}
+            {drama.episodeDuration && <span className="bg-surface border border-border rounded-md px-2 py-1">~{drama.episodeDuration} мин</span>}
           </div>
 
-          {/* Теги */}
-          <div className="flex flex-wrap gap-2 mt-5">
-            {genres.slice(0, 3).map((g) => (
-              <span key={g} className="px-3 py-1 rounded-full bg-accent-soft text-accent text-xs font-medium">
-                {g}
-              </span>
-            ))}
+          {/* Bento Grid для Тегов и CryTag */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
 
-            <TagsPopover
-              genres={drama.genres.map(g => g.genre)}
-              themes={themesList}
-              mood={drama.curatorCryTag}
-              hiddenCount={hiddenTagsCount}
-            />
+            {/* Блок Жанров */}
+            <div className="bg-surface border border-border rounded-2xl p-4 flex flex-col gap-3">
+              <h3 className="text-xs font-semibold text-muted uppercase tracking-wider">Теги</h3>
+              <div className="flex flex-wrap gap-2">
+                {genres.slice(0, 3).map((g) => (
+                  <span key={g} className="bg-accent/10 text-accent border border-accent/20 rounded-full px-3 py-1 text-xs font-medium">
+                    {g}
+                  </span>
+                ))}
+                <TagsPopover
+                  genres={drama.genres.map(g => g.genre)}
+                  themes={themesList}
+                  hiddenCount={hiddenTagsCount}
+                />
+              </div>
+            </div>
+
+            {/* Блок CryTag */}
+            <div className="bg-surface border border-border rounded-2xl p-4 flex flex-col gap-3">
+              <h3 className="text-xs font-semibold text-muted uppercase tracking-wider">Настроение</h3>
+              <div>
+                <CryTagWidget stats={cryTagStats} />
+              </div>
+            </div>
           </div>
 
-          {/* Оценка */}
-          <div className="mt-6">
-            <p className="text-sm font-medium text-muted mb-2">Ваша оценка</p>
-            <RatingWidget dramaId={drama.id} initialRating={entry?.rating} />
-          </div>
+          {/* Блок Оценок */}
+          <div className="bg-surface border border-border rounded-2xl p-4 flex flex-col gap-3 mt-1">
+            <h3 className="text-xs font-semibold text-muted uppercase tracking-wider">Оценки</h3>
 
-          {/* Внешние рейтинги и Агрегатор */}
-          {externalRatings.length > 0 && (
-            <div className="flex flex-wrap items-center gap-2 mt-6">
-              {externalRatings.slice(0, 3).map((r) => (
-                <div key={r.name} className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border bg-surface text-xs">
-                  <span className="text-muted">{r.name}</span>
-                  <span className="font-semibold tabular-nums text-foreground">{r.value?.toFixed(1)}</span>
-                </div>
-              ))}
-              {externalRatings.length > 3 && (
-                <div className="flex items-center justify-center px-2.5 py-1 rounded-md border border-border bg-surface text-xs text-muted cursor-help" title="Есть еще рейтинги">
-                  +{externalRatings.length - 3}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-medium text-muted mb-2">Ваша оценка</p>
+                <RatingWidget dramaId={drama.id} initialRating={entry?.rating} />
+              </div>
+
+              {/* Внешние рейтинги */}
+              {externalRatings.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2">
+                  {externalRatings.slice(0, 3).map((r) => (
+                    <div key={r.name} className="flex items-center gap-1.5 bg-surface border border-border rounded-md px-2 py-1 text-xs">
+                      <span className="text-muted">{r.name}</span>
+                      <span className="font-semibold tabular-nums text-foreground">{r.value?.toFixed(1)}</span>
+                    </div>
+                  ))}
+                  {externalRatings.length > 3 && (
+                    <div className="flex items-center justify-center bg-surface border border-border rounded-md px-2 py-1 text-xs text-muted cursor-help" title="Есть еще рейтинги">
+                      +{externalRatings.length - 3}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
+          </div>
 
-          {/* ─── ДЕТАЛЬНЫЕ ФАКТЫ (Пункт 1 - подняты наверх) ─── */}
-          <div className="flex flex-col gap-y-3 text-sm text-muted mt-6 bg-surface/30 p-4 rounded-xl border border-border/50">
-
-            {/* Даты эфира */}
+          {/* Блок Фактов (Эфир и т.д.) */}
+          <div className="flex flex-col gap-y-3 text-sm text-muted bg-surface border border-border rounded-2xl p-4 mt-1">
             {(drama.airedFrom || drama.airedTo) && (
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-accent shrink-0" />
@@ -187,8 +216,6 @@ export default async function DramaPage({
                 </span>
               </div>
             )}
-
-            {/* Платформы */}
             {drama.platforms.length > 0 && (
               <div className="flex items-center gap-2">
                 <Tv className="w-4 h-4 text-accent shrink-0" />
@@ -196,8 +223,6 @@ export default async function DramaPage({
                 <span>{drama.platforms.map(p => p.platform.name).join(", ")}</span>
               </div>
             )}
-
-            {/* Студии */}
             {drama.studios.length > 0 && (
               <div className="flex items-center gap-2">
                 <Video className="w-4 h-4 text-accent shrink-0" />
@@ -205,8 +230,6 @@ export default async function DramaPage({
                 <span>{drama.studios.map(s => s.studio.name).join(", ")}</span>
               </div>
             )}
-
-            {/* Озвучка */}
             {drama.dubbingStudios && (
               <div className="flex items-center gap-2">
                 <Languages className="w-4 h-4 text-accent shrink-0" />
@@ -215,6 +238,7 @@ export default async function DramaPage({
               </div>
             )}
           </div>
+
         </div>
       </div>
 

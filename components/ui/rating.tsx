@@ -25,7 +25,7 @@ export function Rating({
                             key={val}
                             onMouseEnter={() => setHoverValue(val)}
                             onClick={() => onChange?.(val)}
-                            className={`h-8 w-6 rounded-md transition-all duration-200 border ${isFilled
+                            className={`h-8 w-6 rounded-sm transition-all duration-200 border ${isFilled
                                     ? "bg-accent border-accent"
                                     : "bg-surface border-border hover:border-accent/50"
                                 }`}
@@ -34,7 +34,6 @@ export function Rating({
                 })}
             </div>
 
-            {/* Вывод текста 8 / 10 */}
             <span className="text-sm font-semibold tabular-nums text-foreground w-12">
                 {displayValue > 0 ? `${displayValue} / 10` : ""}
             </span>
