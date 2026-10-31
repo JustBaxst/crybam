@@ -25,7 +25,7 @@ export default async function EditCharacterPage({
   if (!Number.isInteger(id) || id <= 0) notFound();
 
   const character = await prisma.character.findUnique({
-    where: { id },
+    where: { id, deletedAt: null },
     include: {
       drama: { select: { id: true, title: true, year: true } },
       aliases: true,
@@ -40,7 +40,7 @@ export default async function EditCharacterPage({
   });
 
   const availableCharacters = await prisma.character.findMany({
-    where: { dramaId: character.dramaId, id: { not: id } },
+    where: { dramaId: character.dramaId, id: { not: id }, deletedAt: null },
     select: { id: true, name: true },
     orderBy: { name: "asc" },
   });

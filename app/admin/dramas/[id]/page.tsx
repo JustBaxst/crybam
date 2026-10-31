@@ -56,6 +56,7 @@ export default async function AdminDramaEditPage({
   });
 
   const allPersons = await prisma.person.findMany({
+    where: { deletedAt: null },
     orderBy: { name: "asc" },
     select: { name: true },
   });

@@ -24,7 +24,7 @@ export default async function EditPersonPage({
   if (!Number.isInteger(id) || id <= 0) notFound();
 
   const person = await prisma.person.findUnique({
-    where: { id },
+    where: { id, deletedAt: null },
     include: { aliases: true, socialLinks: true }
   });
 
