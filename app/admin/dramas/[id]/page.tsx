@@ -35,7 +35,7 @@ export default async function AdminDramaEditPage({
   if (!Number.isInteger(id) || id <= 0) notFound();
 
   const drama = await prisma.drama.findUnique({
-    where: { id },
+    where: { id, deletedAt: null },
     include: {
       titles: { orderBy: { isPrimary: "desc" } },
       platforms: { include: { platform: true } },

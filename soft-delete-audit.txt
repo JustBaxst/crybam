@@ -1,0 +1,270 @@
+﻿
+> app\admin\characters\new\page.tsx:6:  const dramas = await prisma.drama.findMany({
+  app\admin\characters\new\page.tsx:7:    where: { deletedAt: null },
+  app\admin\characters\new\page.tsx:8:    select: { id: true, title: true, year: true },
+  app\admin\characters\new\page.tsx:9:    orderBy: [{ year: "desc" }, { title: "asc" }],
+  app\admin\characters\new\page.tsx:10:  });
+  app\admin\characters\new\page.tsx:11:
+  app\admin\characters\new\page.tsx:12:  return (
+> app\admin\characters\[id]\page.tsx:27:  const character = await prisma.character.findUnique({
+  app\admin\characters\[id]\page.tsx:28:    where: { id },
+  app\admin\characters\[id]\page.tsx:29:    include: {
+  app\admin\characters\[id]\page.tsx:30:      drama: { select: { id: true, title: true, year: true } },
+  app\admin\characters\[id]\page.tsx:31:      aliases: true,
+  app\admin\characters\[id]\page.tsx:32:    },
+  app\admin\characters\[id]\page.tsx:33:  });
+> app\admin\characters\[id]\page.tsx:42:  const availableCharacters = await prisma.character.findMany({
+  app\admin\characters\[id]\page.tsx:43:    where: { dramaId: character.dramaId, id: { not: id } },
+  app\admin\characters\[id]\page.tsx:44:    select: { id: true, name: true },
+  app\admin\characters\[id]\page.tsx:45:    orderBy: { name: "asc" },
+  app\admin\characters\[id]\page.tsx:46:  });
+  app\admin\characters\[id]\page.tsx:47:
+> app\admin\characters\[id]\page.tsx:48:  const dramas = await prisma.drama.findMany({
+  app\admin\characters\[id]\page.tsx:49:    where: { deletedAt: null },
+  app\admin\characters\[id]\page.tsx:50:    select: { id: true, title: true, year: true },
+  app\admin\characters\[id]\page.tsx:51:    orderBy: [{ year: "desc" }, { title: "asc" }],
+  app\admin\characters\[id]\page.tsx:52:  });
+  app\admin\characters\[id]\page.tsx:53:
+  app\admin\characters\[id]\page.tsx:54:  const formattedRelations = relations.map(r => ({
+> app\admin\characters\actions.ts:140:  const character = await prisma.character.findUnique({
+  app\admin\characters\actions.ts:141:    where: { id: characterId },
+  app\admin\characters\actions.ts:142:    select: { dramaId: true },
+  app\admin\characters\actions.ts:143:  });
+  app\admin\characters\actions.ts:144:
+  app\admin\characters\actions.ts:145:  revalidatePath("/admin/characters");
+  app\admin\characters\actions.ts:146:  revalidatePath(`/admin/characters/${characterId}`);
+> app\admin\characters\actions.ts:171:    prisma.character.findUnique({ where: { id: fromId }, select: { dramaId: true } }),
+> app\admin\characters\actions.ts:172:    prisma.character.findUnique({ where: { id: toId }, select: { dramaId: true } }),
+  app\admin\characters\actions.ts:173:  ]);
+  app\admin\characters\actions.ts:174:
+  app\admin\characters\actions.ts:175:  if (!fromChar || !toChar) return { error: "Персонаж не найден" };
+  app\admin\characters\actions.ts:176:  if (fromChar.dramaId !== toChar.dramaId) {
+  app\admin\characters\actions.ts:177:    return { error: "Нельзя связать персонажей из разных дорам" };
+  app\admin\characters\actions.ts:178:  }
+> app\admin\characters\actions.ts:239:    const character = await prisma.character.findUnique({ where: { id: characterId }, select: { name: true } });
+  app\admin\characters\actions.ts:240:    await prisma.adminLog.create({
+  app\admin\characters\actions.ts:241:      data: {
+  app\admin\characters\actions.ts:242:        userId: CURRENT_USER_ID,
+  app\admin\characters\actions.ts:243:        action: "CHARACTER_COMPLETED",
+  app\admin\characters\actions.ts:244:        entityType: "character",
+  app\admin\characters\actions.ts:245:        entityId: characterId,
+> app\admin\characters\page.tsx:55:  const characters = await prisma.character.findMany({
+  app\admin\characters\page.tsx:56:    where: {
+  app\admin\characters\page.tsx:57:      deletedAt: null,
+  app\admin\characters\page.tsx:58:      ...(whereConditions.length > 0 ? { AND: whereConditions } : {})
+  app\admin\characters\page.tsx:59:    },
+  app\admin\characters\page.tsx:60:    include: {
+  app\admin\characters\page.tsx:61:      drama: { select: { id: true, title: true } },
+> app\admin\dramas\[id]\page.tsx:37:  const drama = await prisma.drama.findUnique({
+  app\admin\dramas\[id]\page.tsx:38:    where: { id, deletedAt: null },
+  app\admin\dramas\[id]\page.tsx:39:    include: {
+  app\admin\dramas\[id]\page.tsx:40:      titles: { orderBy: { isPrimary: "desc" } },
+  app\admin\dramas\[id]\page.tsx:41:      platforms: { include: { platform: true } },
+  app\admin\dramas\[id]\page.tsx:42:      studios: { include: { studio: true } },
+  app\admin\dramas\[id]\page.tsx:43:      genres: { include: { genre: true } },
+> app\admin\dramas\[id]\page.tsx:58:  const allPersons = await prisma.person.findMany({
+  app\admin\dramas\[id]\page.tsx:59:    orderBy: { name: "asc" },
+  app\admin\dramas\[id]\page.tsx:60:    select: { name: true },
+  app\admin\dramas\[id]\page.tsx:61:  });
+  app\admin\dramas\[id]\page.tsx:62:
+  app\admin\dramas\[id]\page.tsx:63:  const linkedGenreIds = drama.genres.map((g) => g.genre.id);
+  app\admin\dramas\[id]\page.tsx:64:
+> app\admin\dramas\page.tsx:61:  const dramas = await prisma.drama.findMany({
+  app\admin\dramas\page.tsx:62:    where: {
+  app\admin\dramas\page.tsx:63:      deletedAt: null,
+  app\admin\dramas\page.tsx:64:      ...(whereConditions.length > 0 ? { AND: whereConditions } : {})
+  app\admin\dramas\page.tsx:65:    },
+  app\admin\dramas\page.tsx:66:    include: {
+  app\admin\dramas\page.tsx:67:      titles: true,
+> app\admin\people\[id]\page.tsx:26:  const person = await prisma.person.findUnique({
+  app\admin\people\[id]\page.tsx:27:    where: { id },
+  app\admin\people\[id]\page.tsx:28:    include: { aliases: true, socialLinks: true }
+  app\admin\people\[id]\page.tsx:29:  });
+  app\admin\people\[id]\page.tsx:30:
+  app\admin\people\[id]\page.tsx:31:  if (!person) notFound();
+  app\admin\people\[id]\page.tsx:32:
+> app\admin\people\actions.ts:217:  const person = await prisma.person.findUnique({ where: { id: personId }, select: { name: true } });
+  app\admin\people\actions.ts:218:
+  app\admin\people\actions.ts:219:  // Мягкое удаление
+  app\admin\people\actions.ts:220:  await prisma.person.update({
+  app\admin\people\actions.ts:221:    where: { id: personId },
+  app\admin\people\actions.ts:222:    data: { deletedAt: new Date() }
+  app\admin\people\actions.ts:223:  });
+> app\admin\people\actions.ts:272:    const person = await prisma.person.findUnique({ where: { id: personId }, select: { name: true } });
+  app\admin\people\actions.ts:273:    await prisma.adminLog.create({
+  app\admin\people\actions.ts:274:      data: {
+  app\admin\people\actions.ts:275:        userId: CURRENT_USER_ID,
+  app\admin\people\actions.ts:276:        action: "PERSON_COMPLETED",
+  app\admin\people\actions.ts:277:        entityType: "person",
+  app\admin\people\actions.ts:278:        entityId: personId,
+> app\admin\people\page.tsx:55:  const people = await prisma.person.findMany({
+  app\admin\people\page.tsx:56:    where: {
+  app\admin\people\page.tsx:57:      deletedAt: null,
+  app\admin\people\page.tsx:58:      ...(whereConditions.length > 0 ? { AND: whereConditions } : {})
+  app\admin\people\page.tsx:59:    },
+  app\admin\people\page.tsx:60:    include: {
+  app\admin\people\page.tsx:61:      aliases: true,
+> app\admin\actions.ts:40:  const exactDuplicate = await prisma.drama.findFirst({
+  app\admin\actions.ts:41:    where: {
+  app\admin\actions.ts:42:      titleLower: normalizedTitle,
+  app\admin\actions.ts:43:      deletedAt: null, // ← Проверяем только среди неудаленных
+  app\admin\actions.ts:44:      ...(year ? { year } : {}),
+  app\admin\actions.ts:45:      ...(country ? { country } : {}),
+  app\admin\actions.ts:46:    },
+> app\admin\actions.ts:120:  const drama = await prisma.drama.findUnique({ where: { id: dramaId }, select: { title: true } });
+  app\admin\actions.ts:121:  if (!drama) return { error: "Дорама не найдена" };
+  app\admin\actions.ts:122:
+  app\admin\actions.ts:123:  // Мягкое удаление
+  app\admin\actions.ts:124:  await prisma.drama.update({
+  app\admin\actions.ts:125:    where: { id: dramaId },
+  app\admin\actions.ts:126:    data: { deletedAt: new Date() }
+> app\admin\actions.ts:149:  const dramas = await prisma.drama.findMany({
+  app\admin\actions.ts:150:    where: { deletedAt: null }, // ← Только активные
+  app\admin\actions.ts:151:    select: {
+  app\admin\actions.ts:152:      id: true, title: true, posterUrl: true, synopsis: true,
+  app\admin\actions.ts:153:      titles: { select: { id: true } },
+  app\admin\actions.ts:154:      _count: { select: { genres: true, credits: true } },
+  app\admin\actions.ts:155:    },
+> app\admin\actions.ts:188:  const dramas = await prisma.drama.findMany({
+  app\admin\actions.ts:189:    where: { deletedAt: null },
+  app\admin\actions.ts:190:    select: {
+  app\admin\actions.ts:191:      id: true, posterUrl: true, synopsis: true, createdAt: true,
+  app\admin\actions.ts:192:      titles: { select: { id: true } },
+  app\admin\actions.ts:193:      _count: { select: { genres: true, credits: true } },
+  app\admin\actions.ts:194:    },
+> app\admin\actions.ts:210:  const persons = await prisma.person.findMany({
+  app\admin\actions.ts:211:    where: { deletedAt: null },
+  app\admin\actions.ts:212:    select: { id: true, photoUrl: true, bio: true, createdAt: true, aliases: { select: { id: true } } },
+  app\admin\actions.ts:213:  });
+  app\admin\actions.ts:214:  let pGreen = 0, pYellow = 0, pRed = 0;
+  app\admin\actions.ts:215:  for (const p of persons) {
+  app\admin\actions.ts:216:    const hasPhoto = !!p.photoUrl;
+> app\admin\actions.ts:225:  const characters = await prisma.character.findMany({
+  app\admin\actions.ts:226:    where: { deletedAt: null },
+  app\admin\actions.ts:227:    select: { id: true, imageUrl: true, description: true, createdAt: true, aliases: { select: { id: true } } },
+  app\admin\actions.ts:228:  });
+  app\admin\actions.ts:229:  let cGreen = 0, cYellow = 0, cRed = 0;
+  app\admin\actions.ts:230:  for (const c of characters) {
+  app\admin\actions.ts:231:    const hasImage = !!c.imageUrl;
+> app\api\search\route.ts:18:    prisma.drama.findMany({
+  app\api\search\route.ts:19:      where: getDramaSearchWhere(query),
+  app\api\search\route.ts:20:      select: {
+  app\api\search\route.ts:21:        id: true,
+  app\api\search\route.ts:22:        title: true,
+  app\api\search\route.ts:23:        year: true,
+  app\api\search\route.ts:24:        country: true,
+> app\api\search\route.ts:32:    prisma.person.findMany({
+  app\api\search\route.ts:33:      where: getPersonSearchWhere(query),
+  app\api\search\route.ts:34:      select: { id: true, name: true, photoUrl: true },
+  app\api\search\route.ts:35:      take: 5,
+  app\api\search\route.ts:36:    }),
+> app\api\search\route.ts:37:    prisma.character.findMany({
+  app\api\search\route.ts:38:      where: getCharacterSearchWhere(query),
+  app\api\search\route.ts:39:      select: {
+  app\api\search\route.ts:40:        id: true,
+  app\api\search\route.ts:41:        name: true,
+  app\api\search\route.ts:42:        imageUrl: true,
+  app\api\search\route.ts:43:        drama: { select: { id: true, title: true } }
+> app\characters\[id]\page.tsx:26:  const character = await prisma.character.findUnique({
+  app\characters\[id]\page.tsx:27:    where: { id, deletedAt: null },
+  app\characters\[id]\page.tsx:28:    include: {
+  app\characters\[id]\page.tsx:29:      drama: true,
+  app\characters\[id]\page.tsx:30:      aliases: true,
+  app\characters\[id]\page.tsx:31:      credits: {
+  app\characters\[id]\page.tsx:32:        include: { person: true },
+> app\characters\page.tsx:17:  const characters = await prisma.character.findMany({
+  app\characters\page.tsx:18:    where: getCharacterSearchWhere(query),
+  app\characters\page.tsx:19:    include: {
+  app\characters\page.tsx:20:      drama: { select: { id: true, title: true, year: true } },
+  app\characters\page.tsx:21:      credits: {
+  app\characters\page.tsx:22:        where: { roleType: "actor" },
+  app\characters\page.tsx:23:        include: { person: { select: { id: true, name: true, photoUrl: true } } },
+> app\dramas\[id]\actions.ts:242:    const d = await prisma.drama.findUnique({ where: { id: dramaId }, select: { title: true } });
+  app\dramas\[id]\actions.ts:243:    await prisma.adminLog.create({
+  app\dramas\[id]\actions.ts:244:      data: { userId: CURRENT_USER_ID, action: "DRAMA_COMPLETED", entityType: "drama", entityId: dramaId, entityName: d?.title || "Без названия", isPublic
+: true }
+  app\dramas\[id]\actions.ts:245:    });
+  app\dramas\[id]\actions.ts:246:  }
+  app\dramas\[id]\actions.ts:247:
+  app\dramas\[id]\actions.ts:248:  revalidatePath(`/dramas/${dramaId}`);
+> app\dramas\[id]\actions.ts:278:  let person = await prisma.person.findFirst({ where: { nameLower: personName.toLowerCase() } });
+  app\dramas\[id]\actions.ts:279:  if (!person) {
+  app\dramas\[id]\actions.ts:280:    person = await prisma.person.create({
+  app\dramas\[id]\actions.ts:281:      data: {
+  app\dramas\[id]\actions.ts:282:        name: personName,
+  app\dramas\[id]\actions.ts:283:        nameLower: personName.toLowerCase()
+  app\dramas\[id]\actions.ts:284:      }
+> app\dramas\[id]\actions.ts:305:      const existing = await prisma.character.findFirst({
+  app\dramas\[id]\actions.ts:306:        where: { dramaId, name: finalName },
+  app\dramas\[id]\actions.ts:307:      });
+  app\dramas\[id]\actions.ts:308:
+  app\dramas\[id]\actions.ts:309:      if (existing) {
+  app\dramas\[id]\actions.ts:310:        characterId = existing.id;
+  app\dramas\[id]\actions.ts:311:        if (characterDescription && !existing.description) {
+> app\dramas\[id]\actions.ts:358:    const d = await prisma.drama.findUnique({ where: { id: dramaId }, select: { title: true } });
+  app\dramas\[id]\actions.ts:359:    await prisma.adminLog.create({
+  app\dramas\[id]\actions.ts:360:      data: { userId: CURRENT_USER_ID, action: "DRAMA_COMPLETED", entityType: "drama", entityId: dramaId, entityName: d?.title || "Без названия", isPublic
+: true }
+  app\dramas\[id]\actions.ts:361:    });
+  app\dramas\[id]\actions.ts:362:  }
+  app\dramas\[id]\actions.ts:363:
+  app\dramas\[id]\actions.ts:364:  return { success: true, isJustCompleted };
+> app\dramas\[id]\actions.ts:526:    const d = await prisma.drama.findUnique({ where: { id: dramaId }, select: { title: true } });
+  app\dramas\[id]\actions.ts:527:    await prisma.adminLog.create({
+  app\dramas\[id]\actions.ts:528:      data: { userId: CURRENT_USER_ID, action: "DRAMA_COMPLETED", entityType: "drama", entityId: dramaId, entityName: d?.title || "Без названия", isPublic
+: true }
+  app\dramas\[id]\actions.ts:529:    });
+  app\dramas\[id]\actions.ts:530:  }
+  app\dramas\[id]\actions.ts:531:
+  app\dramas\[id]\actions.ts:532:  revalidatePath(`/dramas/${dramaId}`);
+> app\dramas\[id]\page.tsx:43:  const drama = await prisma.drama.findUnique({
+  app\dramas\[id]\page.tsx:44:    where: { id, deletedAt: null },
+  app\dramas\[id]\page.tsx:45:    include: {
+  app\dramas\[id]\page.tsx:46:      titles: { orderBy: { isPrimary: "desc" } },
+  app\dramas\[id]\page.tsx:47:      platforms: { include: { platform: true } },
+  app\dramas\[id]\page.tsx:48:      studios: { include: { studio: true } },
+  app\dramas\[id]\page.tsx:49:      genres: { include: { genre: true } },
+> app\dramas\page.tsx:18:  const dramas = await prisma.drama.findMany({
+  app\dramas\page.tsx:19:    where: {
+  app\dramas\page.tsx:20:      deletedAt: null,
+  app\dramas\page.tsx:21:      ...getDramaSearchWhere(query),
+  app\dramas\page.tsx:22:    },
+  app\dramas\page.tsx:23:    include: {
+  app\dramas\page.tsx:24:      genres: { include: { genre: true } },
+> app\people\[id]\page.tsx:73:  const person = await prisma.person.findUnique({
+  app\people\[id]\page.tsx:74:    where: { id, deletedAt: null },
+  app\people\[id]\page.tsx:75:    include: {
+  app\people\[id]\page.tsx:76:      aliases: true,
+  app\people\[id]\page.tsx:77:      socialLinks: true, // ← Подтягиваем соцсети
+  app\people\[id]\page.tsx:78:      credits: {
+  app\people\[id]\page.tsx:79:        include: {
+> app\people\page.tsx:17:  const people = await prisma.person.findMany({
+  app\people\page.tsx:18:    where: {
+  app\people\page.tsx:19:      deletedAt: null,
+  app\people\page.tsx:20:      ...getPersonSearchWhere(query)
+  app\people\page.tsx:21:    },
+  app\people\page.tsx:22:    include: {
+  app\people\page.tsx:23:      _count: { select: { credits: true } },
+> lib\check-character-status.ts:4:    const character = await prisma.character.findUnique({
+  lib\check-character-status.ts:5:        where: { id: characterId },
+  lib\check-character-status.ts:6:        select: {
+  lib\check-character-status.ts:7:            imageUrl: true,
+  lib\check-character-status.ts:8:            description: true,
+  lib\check-character-status.ts:9:            aliases: { select: { id: true } }
+  lib\check-character-status.ts:10:        }
+> lib\check-drama-status.ts:6:    const drama = await prisma.drama.findUnique({
+  lib\check-drama-status.ts:7:        where: { id: dramaId },
+  lib\check-drama-status.ts:8:        select: {
+  lib\check-drama-status.ts:9:            posterUrl: true,
+  lib\check-drama-status.ts:10:            synopsis: true,
+  lib\check-drama-status.ts:11:            titles: { select: { id: true } },
+  lib\check-drama-status.ts:12:            _count: { select: { genres: true, credits: true } }
+> lib\check-person-status.ts:4:    const person = await prisma.person.findUnique({
+  lib\check-person-status.ts:5:        where: { id: personId },
+  lib\check-person-status.ts:6:        select: {
+  lib\check-person-status.ts:7:            photoUrl: true,
+  lib\check-person-status.ts:8:            bio: true,
+  lib\check-person-status.ts:9:            aliases: { select: { id: true } }
+  lib\check-person-status.ts:10:        }
+
+

@@ -275,7 +275,9 @@ export async function addCredit(formData: FormData) {
   const note = String(formData.get("note") ?? "").trim() || null;
 
   /// Ищем или создаём Person
-  let person = await prisma.person.findFirst({ where: { nameLower: personName.toLowerCase() } });
+  let person = await prisma.person.findFirst({
+    where: { nameLower: personName.toLowerCase(), deletedAt: null },
+  });
   if (!person) {
     person = await prisma.person.create({
       data: {
@@ -303,7 +305,7 @@ export async function addCredit(formData: FormData) {
 
     if (finalName) {
       const existing = await prisma.character.findFirst({
-        where: { dramaId, name: finalName },
+        where: { dramaId, name: finalName, deletedAt: null },
       });
 
       if (existing) {

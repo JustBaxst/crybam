@@ -11,17 +11,17 @@ import { AdminBreadcrumbs } from "@/components/AdminBreadcrumbs";
 type Params = Promise<{ id: string }>;
 type SearchParams = Promise<{ fromDrama?: string }>;
 
-export default async function EditCharacterPage({ 
-  params, 
-  searchParams 
-}: { 
+export default async function EditCharacterPage({
+  params,
+  searchParams
+}: {
   params: Params;
   searchParams: SearchParams;
 }) {
   const { id: rawId } = await params;
   const { fromDrama } = await searchParams;
   const id = Number(rawId);
-  
+
   if (!Number.isInteger(id) || id <= 0) notFound();
 
   const character = await prisma.character.findUnique({
@@ -46,6 +46,7 @@ export default async function EditCharacterPage({
   });
 
   const dramas = await prisma.drama.findMany({
+    where: { deletedAt: null },
     select: { id: true, title: true, year: true },
     orderBy: [{ year: "desc" }, { title: "asc" }],
   });
@@ -57,12 +58,12 @@ export default async function EditCharacterPage({
     target: r.to,
   }));
 
-   // Ищем актера этого персонажа в контексте дорамы (если мы пришли из неё)
+  // Ищем актера этого персонажа в контексте дорамы (если мы пришли из неё)
   let linkedActor = null;
   if (fromDrama) {
     const credit = await prisma.credit.findFirst({
-      where: { 
-        characterId: id, 
+      where: {
+        characterId: id,
         dramaId: Number(fromDrama),
         roleType: "actor"
       },
@@ -73,9 +74,9 @@ export default async function EditCharacterPage({
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-10">
-      
+
       {/* Кнопка возврата, если мы пришли из дорамы */}
-            {fromDrama && (
+      {fromDrama && (
         <div className="flex flex-wrap items-center gap-4 mb-4">
           <Link
             href={`/admin/dramas/${fromDrama}`}
@@ -84,11 +85,11 @@ export default async function EditCharacterPage({
             <ArrowLeft className="w-4 h-4" />
             Вернуться к дораме
           </Link>
-          
+
           {linkedActor && (
             <span className="text-sm text-muted flex items-center gap-1.5">
-              Актёр: 
-              <Link 
+              Актёр:
+              <Link
                 href={`/admin/people/${linkedActor.id}?fromDrama=${fromDrama}`}
                 className="text-accent hover:underline font-medium"
               >
@@ -99,20 +100,20 @@ export default async function EditCharacterPage({
         </div>
       )}
 
-      <AdminBreadcrumbs 
+      <AdminBreadcrumbs
         items={[
           { label: "Персонажи", href: "/admin/characters" },
           { label: character.name }
-        ]} 
+        ]}
       />
 
       <div className="mb-8 flex items-start justify-between gap-4 flex-wrap mt-2">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-4 flex-wrap">
             <h1 className="text-2xl font-bold">{character.name}</h1>
-            <CharacterAliasEditButton 
-              characterId={character.id} 
-              currentAliases={character.aliases.map(a => a.name)} 
+            <CharacterAliasEditButton
+              characterId={character.id}
+              currentAliases={character.aliases.map(a => a.name)}
             />
           </div>
           <p className="text-sm text-muted">
@@ -125,7 +126,7 @@ export default async function EditCharacterPage({
             </Link>
           </p>
         </div>
-        
+
         <div className="shrink-0">
           <DeleteCharacterButton
             characterId={character.id}
