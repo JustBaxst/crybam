@@ -132,7 +132,6 @@ export default async function HomePage() {
           dropped: droppedCount,
         }}
       />
-
       {/* ─── Активность ─── */}
       <section>
         <SectionHeader
