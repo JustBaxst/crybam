@@ -41,3 +41,5 @@ import-dramas.mjs
 check-db.mjs
 fill-name-lower.mjs
 assets/test_generate_image/
+# Аудит-выгрузки (не коммитим)
+*-audit.txt
