@@ -33,11 +33,13 @@ export default async function EditPersonPage({
   // Ищем персонажа этого актера в контексте дорамы (если мы пришли из неё)
   let linkedCharacter = null;
   if (fromDrama) {
+
     const credit = await prisma.credit.findFirst({
       where: {
         personId: id,
         dramaId: Number(fromDrama),
-        characterId: { not: null } // Ищем только если есть привязка к персонажу
+        characterId: { not: null },
+        character: { deletedAt: null }
       },
       include: { character: true }
     });

@@ -65,10 +65,12 @@ export default async function EditCharacterPage({
       where: {
         characterId: id,
         dramaId: Number(fromDrama),
-        roleType: "actor"
+        roleType: "actor",
+        person: { deletedAt: null }
       },
       include: { person: true }
     });
+
     linkedActor = credit?.person;
   }
 

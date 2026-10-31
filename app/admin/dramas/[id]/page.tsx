@@ -43,6 +43,7 @@ export default async function AdminDramaEditPage({
       genres: { include: { genre: true } },
       soundtrack: true,
       credits: {
+        where: { person: { deletedAt: null } },
         include: { person: true, character: true },
         orderBy: { order: "asc" },
       },

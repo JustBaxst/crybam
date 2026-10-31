@@ -73,6 +73,7 @@ export default async function AdminDramasPage({
         take: 5 // Берем только 5 для тултипа
       },
       credits: {
+        where: { person: { deletedAt: null } },
         include: { person: true },
         take: 8 // Берем только 8 для тултипа
       },
