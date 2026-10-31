@@ -7,15 +7,7 @@ import { requireModerator } from "@/lib/auth";
 import { CURRENT_USER_ID } from "@/lib/current-user"; // ← Добавили для логов
 import { Gender } from "@prisma/client";
 import { getPersonStatus } from "@/lib/check-person-status";
-
-const detectLanguage = (text: string) => {
-  if (/[\uAC00-\uD7AF]/.test(text)) return "ko";
-  if (/[а-яА-Я]/.test(text)) return "ru";
-  if (/[\u4e00-\u9fa5]/.test(text)) return "zh";
-  if (/[\u3040-\u30ff]/.test(text)) return "ja";
-  if (/[a-zA-Z]/.test(text)) return "en";
-  return "unknown";
-};
+import { detectLanguage } from "@/lib/language-utils";
 
 const parseSocialLinks = (raw: string) => {
   if (!raw) return [];

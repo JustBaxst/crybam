@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { CURRENT_USER_ID } from "@/lib/current-user";
 import { normalizeTitle } from "@/lib/drama-utils";
 import { getDramaStatus } from "@/lib/check-drama-status";
+import { detectLanguage } from "@/lib/language-utils";
 
 export async function updateEntry(formData: FormData) {
   const dramaId = Number(formData.get("dramaId"));
@@ -502,16 +503,6 @@ export async function updateTitles(formData: FormData) {
 
   if (titlesRaw) {
     const titles = titlesRaw.split(/\n/).map(t => t.trim()).filter(Boolean);
-
-    // Функция для определения языка
-    const detectLanguage = (text: string) => {
-      if (/[\uAC00-\uD7AF]/.test(text)) return "ko"; // Корейский
-      if (/[а-яА-Я]/.test(text)) return "ru";       // Русский
-      if (/[\u4e00-\u9fa5]/.test(text)) return "zh"; // Китайский
-      if (/[\u3040-\u30ff]/.test(text)) return "ja"; // Японский
-      if (/[a-zA-Z]/.test(text)) return "en";       // Английский
-      return "unknown";
-    };
 
     for (const title of titles) {
       await prisma.dramaTitle.create({
