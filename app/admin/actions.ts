@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { normalizeTitle } from "@/lib/drama-utils";
 import { CURRENT_USER_ID } from "@/lib/current-user"; // ← Добавили для логов
-import { getDramaStatusLevel } from "@/lib/status-utils";
+import { getDramaStatusLevel, getPersonStatusLevel, getCharacterStatusLevel } from "@/lib/status-utils";
 
 export async function createDrama(
   formData: FormData
@@ -193,45 +193,53 @@ export async function getAdminOverviewData() {
 
   let dGreen = 0, dYellow = 0, dRed = 0;
   for (const d of dramas) {
-    const hasPoster = !!d.posterUrl;
-    const hasAltTitles = d.titles.length > 1;
-    const hasGenres = d._count.genres > 0;
-    const hasCredits = d._count.credits > 0;
-    const hasSynopsis = !!d.synopsis;
+    const status = getDramaStatusLevel({
+      hasPoster: !!d.posterUrl,
+      hasAltTitles: d.titles.length > 1,
+      hasGenres: d._count.genres > 0,
+      hasCredits: d._count.credits > 0,
+      hasSynopsis: !!d.synopsis,
+    });
 
-    if (!hasAltTitles) dRed++;
-    else if (hasPoster && hasGenres && hasCredits && hasSynopsis) dGreen++;
-    else dYellow++;
+    if (status === "green") dGreen++;
+    else if (status === "yellow") dYellow++;
+    else dRed++;
   }
 
   const persons = await prisma.person.findMany({
     where: { deletedAt: null },
     select: { id: true, photoUrl: true, bio: true, createdAt: true, aliases: { select: { id: true } } },
   });
+
   let pGreen = 0, pYellow = 0, pRed = 0;
   for (const p of persons) {
-    const hasPhoto = !!p.photoUrl;
-    const hasAliases = p.aliases.length > 0;
-    const hasBio = !!p.bio;
+    const status = getPersonStatusLevel({
+      hasPhoto: !!p.photoUrl,
+      hasAliases: p.aliases.length > 0,
+      hasBio: !!p.bio,
+    });
 
-    if (!hasAliases) pRed++;
-    else if (hasPhoto && hasBio) pGreen++;
-    else pYellow++;
+    if (status === "green") pGreen++;
+    else if (status === "yellow") pYellow++;
+    else pRed++;
   }
 
   const characters = await prisma.character.findMany({
     where: { deletedAt: null },
     select: { id: true, imageUrl: true, description: true, createdAt: true, aliases: { select: { id: true } } },
   });
+
   let cGreen = 0, cYellow = 0, cRed = 0;
   for (const c of characters) {
-    const hasImage = !!c.imageUrl;
-    const hasAliases = c.aliases.length > 0;
-    const hasDescription = !!c.description;
+    const status = getCharacterStatusLevel({
+      hasImage: !!c.imageUrl,
+      hasAliases: c.aliases.length > 0,
+      hasDescription: !!c.description,
+    });
 
-    if (!hasAliases) cRed++;
-    else if (hasImage && hasDescription) cGreen++;
-    else cYellow++;
+    if (status === "green") cGreen++;
+    else if (status === "yellow") cYellow++;
+    else cRed++;
   }
 
   const total = dramas.length;
