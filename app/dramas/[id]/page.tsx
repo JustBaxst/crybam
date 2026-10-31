@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import {
   Star, Calendar, MapPin, Film, Clock, PlayCircle, Eye,
   BookOpen, Users, Music, Video, ChevronRight, Crown, Languages, Tv,
-  Info, Tag, Heart, Star as StarIcon
+  Info, Tag, Heart, FaceSlightlySmilingPlus, Star as StarIcon
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { CURRENT_USER_ID } from "@/lib/current-user";
@@ -323,11 +323,11 @@ export default async function DramaPage({
         </div>
 
         {/* Колонка 3: Оценки и Эмоции (занимает 1 часть из 4) */}
-        <div className="lg:col-span-1 bg-surface/20 p-4 rounded-2xl border border-border/50 flex flex-col gap-3 shrink-0">
+        <div className="lg:col-span-1 bg-surface/20 p-5 rounded-2xl border border-border/50 flex flex-col gap-4 shrink-0 md:min-w-70 md:max-w-100">
 
           <div>
-            <h3 className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <StarIcon className="w-3.5 h-3.5 text-accent" /> Ваша оценка | Внешний рейтинг
+            <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <StarIcon className="w-3.5 h-3.5 text-accent" /> Оценка и Рейтинги
             </h3>
             <RatingWidget dramaId={drama.id} initialRating={entry?.rating} />
           </div>
@@ -338,7 +338,7 @@ export default async function DramaPage({
             {externalRatings.map((r) => {
               const shortName = r.name === "Кинопоиск" ? "KP" : r.name === "MyDramaList" ? "MDL" : r.name;
               return (
-                <div key={r.name} className="flex items-center justify-center gap-1 bg-surface border border-border rounded-md px-2 py-1.5 text-[11px]">
+                <div key={r.name} className="flex items-center justify-center gap-1.5 bg-surface border border-border rounded-md px-2 py-2 text-xs">
                   <span className="text-muted">{shortName}</span>
                   <span className="font-semibold tabular-nums text-foreground">{r.value?.toFixed(1)}</span>
                 </div>
@@ -347,7 +347,9 @@ export default async function DramaPage({
           </div>
 
           <div>
-            <h3 className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-2">Ваша эмоция | Настроение зрителей</h3>
+            <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <FaceSlightlySmilingPlus className="w-3.5 h-3.5 text-accent" />Эмоции и настроение
+            </h3>
             <CryTagSelector dramaId={drama.id} initialTag={entry?.cryTag} />
 
             <div className="border-t border-border/50 w-full my-3" />

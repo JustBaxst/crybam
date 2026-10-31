@@ -13,8 +13,8 @@ export function Rating({
     const displayValue = hoverValue || initialValue || 0;
 
     return (
-        <div className="flex items-center gap-3 w-full">
-            {/* CSS Grid гарантирует, что 10 полосок ровно заполнят доступное место */}
+        <div className="flex items-center gap-2 w-full">
+            {/* Жесткая сетка на 10 колонок, чтобы ничего не переносилось */}
             <div
                 className="grid grid-cols-10 gap-1 cursor-pointer flex-1"
                 onMouseLeave={() => setHoverValue(0)}
@@ -35,7 +35,8 @@ export function Rating({
                             key={val}
                             onMouseMove={(e) => handleInteraction(e, true)}
                             onClick={(e) => handleInteraction(e, false)}
-                            className="relative h-7 w-full rounded-sm overflow-hidden"
+                            // aspect-square делает их идеальными квадратами, w-full подстраивает под ширину колонки
+                            className="relative w-full aspect-square rounded-sm overflow-hidden transition-transform hover:scale-110"
                         >
                             <div className="absolute inset-0 bg-surface border border-border rounded-sm" />
 
@@ -51,8 +52,9 @@ export function Rating({
                 })}
             </div>
 
-            <span className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap min-w-14 text-right shrink-0">
-                {displayValue > 0 ? `${displayValue} / 10` : ""}
+            {/* Уменьшили min-w до 1.5rem, чтобы текст не съедал место */}
+            <span className="text-sm md:text-base font-semibold tabular-nums text-foreground whitespace-nowrap min-w-[1.5rem] text-right shrink-0">
+                {displayValue > 0 ? displayValue : ""}
             </span>
         </div>
     );

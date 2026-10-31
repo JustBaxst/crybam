@@ -32,21 +32,21 @@ export function CryTagStats({ stats }: { stats: CryTagData[] }) {
                 "Рыдай";
 
     return (
-        <div className="flex flex-col gap-2.5">
+        <div className="flex flex-col gap-3">
             {stats.map((stat) => {
                 const percent = Math.round((stat.count / total) * 100);
 
                 return (
-                    <div key={stat.cryTag} className="flex items-center gap-3">
+                    <div key={stat.cryTag} className="flex items-center gap-2 w-full">
 
                         <Popover>
                             <PopoverTrigger asChild>
-                                {/* Текст стал text-xs, ширина w-28 */}
-                                <button className={`flex items-center gap-1.5 w-28 shrink-0 text-xs cursor-pointer hover:underline ${getColor(stat.cryTag)}`}>
-                                    {getIcon(stat.cryTag, "w-3.5 h-3.5")}
+                                <button className={`flex items-center gap-1.5 w-25 shrink-0 text-[14px] cursor-pointer hover:underline ${getColor(stat.cryTag)}`}>
+                                    {getIcon(stat.cryTag, "w-4 h-4")}
                                     <span>{getLabel(stat.cryTag)}</span>
                                 </button>
                             </PopoverTrigger>
+                            {/* ... (код поповера оставляем без изменений) ... */}
                             <PopoverContent className="w-64 p-4 bg-surface border border-border rounded-xl shadow-lg" align="start">
                                 <h4 className="text-sm font-semibold mb-3">Настроение зрителей</h4>
                                 <div className="space-y-3">
@@ -71,13 +71,15 @@ export function CryTagStats({ stats }: { stats: CryTagData[] }) {
                             </PopoverContent>
                         </Popover>
 
-                        {/* Полоска стала толще - h-2.5 */}
+                        {/* Сам прогресс-бар: используем w-full и h-2.5 */}
                         <div className="flex-1 h-2.5 bg-surface border border-border/50 rounded-full overflow-hidden">
-                            <div className={`h-full ${getBgColor(stat.cryTag)}`} style={{ width: `${percent}%` }} />
+                            <div
+                                className={`h-full ${getBgColor(stat.cryTag)} rounded-full transition-all duration-500`}
+                                style={{ width: `${percent}%` }}
+                            />
                         </div>
 
-                        {/* Текст процента тоже увеличили до text-xs и w-10 */}
-                        <span className="text-xs text-muted tabular-nums w-10 text-right shrink-0">
+                        <span className="text-xs text-muted tabular-nums w-9 text-right shrink-0">
                             {percent}%
                         </span>
                     </div>
