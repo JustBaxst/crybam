@@ -14,6 +14,7 @@ import { SoundtrackPlayer } from "./SoundtrackPlayer";
 import { EditEntryButton } from "./EditEntryButton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { RatingWidget } from "@/components/drama/RatingWidget";
+import { TagsPopover } from "@/components/drama/TagsPopover";
 
 type Params = Promise<{ id: string }>;
 type SearchParams = Promise<{ from?: string }>;
@@ -81,6 +82,17 @@ export default async function DramaPage({
     { name: "Douban", value: drama.ratingDouban },
   ].filter((r) => r.value != null);
 
+  // Получаем темы (если ты их уже добавил в БД)
+  const dramaThemes = await prisma.dramaThemeLink.findMany({
+    where: { dramaId: id },
+    include: { theme: true }
+  });
+  const themesList = dramaThemes.map(t => t.theme.name);
+
+  // Считаем скрытые теги
+  const totalTags = genres.length + themesList.length + (drama.curatorCryTag ? 1 : 0);
+  const hiddenTagsCount = Math.max(0, totalTags - 3);
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
 
@@ -125,16 +137,17 @@ export default async function DramaPage({
           {/* Теги */}
           <div className="flex flex-wrap gap-2 mt-5">
             {genres.slice(0, 3).map((g) => (
-              <span key={g} className="px-3 py-1 rounded-full bg-accent-soft text-accent text-sm font-medium">
+              <span key={g} className="px-3 py-1 rounded-full bg-accent-soft text-accent text-xs font-medium">
                 {g}
               </span>
             ))}
-            {genres.length > 3 && (
-              <button className="px-3 py-1 rounded-full border border-border text-muted text-sm hover:border-accent transition-colors">
-                +{genres.length - 3} тегов
-              </button>
-            )}
-            {isCryTag(drama.curatorCryTag) && <CryBadge tag={drama.curatorCryTag} size="md" />}
+
+            <TagsPopover
+              genres={drama.genres.map(g => g.genre)}
+              themes={themesList}
+              mood={drama.curatorCryTag}
+              hiddenCount={hiddenTagsCount}
+            />
           </div>
 
           {/* Оценка */}
@@ -143,15 +156,20 @@ export default async function DramaPage({
             <RatingWidget dramaId={drama.id} initialRating={entry?.rating} />
           </div>
 
-          {/* Внешние рейтинги */}
+          {/* Внешние рейтинги и Агрегатор */}
           {externalRatings.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-4">
-              {externalRatings.map((r) => (
-                <div key={r.name} className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-surface text-sm">
-                  <span className="text-xs text-muted">{r.name}</span>
-                  <span className="font-semibold">{r.value?.toFixed(1)}</span>
+            <div className="flex flex-wrap items-center gap-2 mt-6">
+              {externalRatings.slice(0, 3).map((r) => (
+                <div key={r.name} className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border bg-surface text-xs">
+                  <span className="text-muted">{r.name}</span>
+                  <span className="font-semibold tabular-nums text-foreground">{r.value?.toFixed(1)}</span>
                 </div>
               ))}
+              {externalRatings.length > 3 && (
+                <div className="flex items-center justify-center px-2.5 py-1 rounded-md border border-border bg-surface text-xs text-muted cursor-help" title="Есть еще рейтинги">
+                  +{externalRatings.length - 3}
+                </div>
+              )}
             </div>
           )}
 

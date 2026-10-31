@@ -2,8 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { Rating } from "@/components/ui/rating";
-// Импортируем экшен, который мы создадим на следующем шаге
 import { rateDrama } from "@/app/dramas/[id]/actions";
+import { toast } from "sonner";
 
 export function RatingWidget({
     dramaId,
@@ -16,12 +16,22 @@ export function RatingWidget({
     const [currentRating, setCurrentRating] = useState(initialRating);
 
     const handleRate = (val: number) => {
-        // Оптимистичное обновление (сразу показываем на экране)
-        setCurrentRating(val);
+        // Имитация проверки авторизации (в будущем заменим на реальную)
+        const isAuthorized = true;
+        if (!isAuthorized) {
+            toast.info("Войдите, чтобы сохранить оценку");
+            return;
+        }
 
-        // Отправляем на сервер в фоне
+        setCurrentRating(val); // Оптимистично обновляем UI
+
         startTransition(async () => {
-            await rateDrama(dramaId, val);
+            const res = await rateDrama(dramaId, val);
+            if (res?.success) {
+                toast.success("Оценка сохранена!");
+            } else {
+                toast.error("Не удалось сохранить оценку");
+            }
         });
     };
 
