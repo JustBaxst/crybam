@@ -33,7 +33,7 @@ export default async function LibraryPage({
 
   const countsRaw = await prisma.userDramaEntry.groupBy({
     by: ["status"],
-    where: { userId: CURRENT_USER_ID },
+    where: { userId: CURRENT_USER_ID, drama: { deletedAt: null }, },
     _count: { _all: true },
   });
 

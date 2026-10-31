@@ -4,8 +4,12 @@ import { CURRENT_USER_ID } from "@/lib/current-user";
 import { isCryTag } from "@/lib/cry-tags";
 
 export async function DramaGrid() {
+
   const entries = await prisma.userDramaEntry.findMany({
-    where: { userId: CURRENT_USER_ID },
+    where: {
+      userId: CURRENT_USER_ID,
+      drama: { deletedAt: null },
+    },
     include: { drama: true },
     orderBy: { createdAt: "desc" },
   });
