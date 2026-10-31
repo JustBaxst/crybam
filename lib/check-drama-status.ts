@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getDramaStatusLevel } from "@/lib/status-utils";
 
 export type DramaStatus = "green" | "yellow" | "red";
 
@@ -14,18 +15,11 @@ export async function getDramaStatus(dramaId: number): Promise<"green" | "yellow
     });
     if (!drama) return "red";
 
-    const hasAltTitles = drama.titles.length > 1; // 1 - это основное название
-    const hasPoster = !!drama.posterUrl;
-    const hasGenres = drama._count.genres > 0;
-    const hasCredits = drama._count.credits > 0;
-    const hasSynopsis = !!drama.synopsis;
-
-    // 🔴 Красный: нет альтернативных названий
-    if (!hasAltTitles) return "red";
-
-    // 🟢 Зеленый: есть альт. названия + всё остальное
-    if (hasPoster && hasGenres && hasCredits && hasSynopsis) return "green";
-
-    // 🟡 Желтый: есть альт. названия, но чего-то не хватает
-    return "yellow";
+    return getDramaStatusLevel({
+        hasAltTitles: drama.titles.length > 1,
+        hasPoster: !!drama.posterUrl,
+        hasGenres: drama._count.genres > 0,
+        hasCredits: drama._count.credits > 0,
+        hasSynopsis: !!drama.synopsis,
+    });
 }

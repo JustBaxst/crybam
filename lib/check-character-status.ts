@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getCharacterStatusLevel } from "@/lib/status-utils";
 
 export async function getCharacterStatus(characterId: number): Promise<"green" | "yellow" | "red"> {
     const character = await prisma.character.findUnique({
@@ -11,11 +12,9 @@ export async function getCharacterStatus(characterId: number): Promise<"green" |
     });
     if (!character) return "red";
 
-    const hasAliases = character.aliases.length > 0;
-    const hasImage = !!character.imageUrl;
-    const hasDescription = !!character.description;
-
-    if (!hasAliases) return "red";
-    if (hasImage && hasDescription) return "green";
-    return "yellow";
+    return getCharacterStatusLevel({
+        hasAliases: character.aliases.length > 0,
+        hasImage: !!character.imageUrl,
+        hasDescription: !!character.description,
+    });
 }

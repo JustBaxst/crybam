@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getPersonStatusLevel } from "@/lib/status-utils";
 
 export async function getPersonStatus(personId: number): Promise<"green" | "yellow" | "red"> {
     const person = await prisma.person.findUnique({
@@ -11,11 +12,9 @@ export async function getPersonStatus(personId: number): Promise<"green" | "yell
     });
     if (!person) return "red";
 
-    const hasAliases = person.aliases.length > 0;
-    const hasPhoto = !!person.photoUrl;
-    const hasBio = !!person.bio;
-
-    if (!hasAliases) return "red";
-    if (hasPhoto && hasBio) return "green";
-    return "yellow";
+    return getPersonStatusLevel({
+        hasAliases: person.aliases.length > 0,
+        hasPhoto: !!person.photoUrl,
+        hasBio: !!person.bio,
+    });
 }
