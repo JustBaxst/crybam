@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { normalizeTitle } from "@/lib/drama-utils";
 import { CURRENT_USER_ID } from "@/lib/current-user"; // ← Добавили для логов
+import { getDramaStatusLevel } from "@/lib/status-utils";
 
 export async function createDrama(
   formData: FormData
@@ -158,17 +159,13 @@ export async function fixRandomDrama(): Promise<{ dramaId?: number; error?: stri
   if (dramas.length === 0) return { error: "В базе нет дорам" };
 
   const dramasWithStatus = dramas.map((d) => {
-    const hasPoster = !!d.posterUrl;
-    const hasAltTitles = d.titles.length > 1;
-    const hasGenres = d._count.genres > 0;
-    const hasCredits = d._count.credits > 0;
-    const hasSynopsis = !!d.synopsis;
-
-    let status: "green" | "yellow" | "red";
-    // Новая строгая логика: нет альт. названий = красный
-    if (!hasAltTitles) status = "red";
-    else if (hasPoster && hasGenres && hasCredits && hasSynopsis) status = "green";
-    else status = "yellow";
+    const status = getDramaStatusLevel({
+      hasPoster: !!d.posterUrl,
+      hasAltTitles: d.titles.length > 1,
+      hasGenres: d._count.genres > 0,
+      hasCredits: d._count.credits > 0,
+      hasSynopsis: !!d.synopsis,
+    });
 
     return { id: d.id, title: d.title, status };
   });
