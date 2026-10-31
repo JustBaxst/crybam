@@ -385,22 +385,28 @@ export async function removeCredit(formData: FormData) {
   // 2. Удаляем кредит
   await prisma.credit.delete({ where: { id: creditId } });
 
-  // 3. Если у персонажа больше нет кредитов — удаляем и его
+  // 3. Если у персонажа больше нет кредитов — мягко удаляем и его
   if (credit.characterId) {
     const remainingCharCredits = await prisma.credit.count({
       where: { characterId: credit.characterId },
     });
     if (remainingCharCredits === 0) {
-      await prisma.character.delete({ where: { id: credit.characterId } });
+      await prisma.character.update({
+        where: { id: credit.characterId },
+        data: { deletedAt: new Date() }, // ← мягкое удаление
+      });
     }
   }
 
-  // 4. Если у человека больше нет кредитов — удаляем его
+  // 4. Если у человека больше нет кредитов — мягко удаляем его
   const remainingPersonCredits = await prisma.credit.count({
     where: { personId: credit.personId },
   });
   if (remainingPersonCredits === 0) {
-    await prisma.person.delete({ where: { id: credit.personId } });
+    await prisma.person.update({
+      where: { id: credit.personId },
+      data: { deletedAt: new Date() }, // ← мягкое удаление
+    });
   }
 
   revalidatePath(`/dramas/${dramaId}`);
