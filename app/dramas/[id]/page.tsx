@@ -18,6 +18,7 @@ import { RatingWidget } from "@/components/drama/RatingWidget";
 import { TagsPopover } from "@/components/drama/TagsPopover";
 import { CryTagSelector } from "@/components/drama/CryTagSelector";
 import { CryTagStats } from "@/components/drama/CryTagStats";
+import { MoreItemsPopover } from "@/components/drama/MoreItemsPopover";
 
 type Params = Promise<{ id: string }>;
 type SearchParams = Promise<{ from?: string }>;
@@ -74,19 +75,25 @@ export default async function DramaPage({
   const crew = drama.credits.filter((c) => c.roleType !== "actor");
 
   // ─── ЛОГИКА ОБРЕЗКИ (ПУНКТ 1) ───
-  const truncateList = (arr: string[], limit = 2) => {
-    if (arr.length <= limit) return arr.join(", ");
-    return `${arr.slice(0, limit).join(", ")} + ${arr.length - limit}`;
+  const processList = (arr: string[], limit = 2) => {
+    return {
+      visible: arr.slice(0, limit),
+      hidden: arr.slice(limit)
+    };
   };
 
-  const displayPlatforms = truncateList(drama.platforms.map(p => p.platform.name));
-  const displayStudios = truncateList(drama.studios.map(s => s.studio.name));
-
+  const platformsData = processList(drama.platforms.map(p => p.platform.name));
+  const studiosData = processList(drama.studios.map(s => s.studio.name));
+  const dubbingData = processList(
+    drama.dubbingStudios
+      ? drama.dubbingStudios.split(",").map(s => s.trim()).filter(Boolean)
+      : []
+  );
   // Озвучка хранится строкой, разделенной запятыми
   const dubbingArr = drama.dubbingStudios
     ? drama.dubbingStudios.split(",").map(s => s.trim()).filter(Boolean)
     : [];
-  const displayDubbing = truncateList(dubbingArr);
+  const displayDubbing = processList(dubbingArr);
 
   // ─── ЛОГИКА ДАТ (ПУНКТ 3) ───
   const formatAired = (from: Date | null, to: Date | null) => {
@@ -179,7 +186,7 @@ export default async function DramaPage({
 
         {/* Колонка 2: О дораме (занимает 2 части из 4) */}
         <div className="lg:col-span-2 bg-surface/20 p-6 rounded-2xl border border-border/50">
-          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-semibold mb-4 pb-4 border-b border-border/50 flex items-center gap-2">
             <Info className="w-5 h-5 text-accent" /> О дораме
           </h2>
 
@@ -247,32 +254,47 @@ export default async function DramaPage({
                 </div>
               )}
 
-              {displayPlatforms && (
+              {platformsData.visible.length > 0 && (
                 <div className="flex items-start gap-2">
                   <Tv className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <div className="flex flex-col gap-0.5">
                     <span className="text-muted/70 text-[11px]">Канал:</span>
-                    <span className="text-foreground font-medium leading-snug">{displayPlatforms}</span>
+                    <span className="text-foreground font-medium leading-snug flex flex-wrap items-center gap-x-1.5">
+                      {platformsData.visible.join(", ")}
+                      {platformsData.hidden.length > 0 && (
+                        <MoreItemsPopover hiddenItems={platformsData.hidden} title="Все каналы" />
+                      )}
+                    </span>
                   </div>
                 </div>
               )}
 
-              {displayStudios && (
+              {studiosData.visible.length > 0 && (
                 <div className="flex items-start gap-2">
                   <Video className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <div className="flex flex-col gap-0.5">
                     <span className="text-muted/70 text-[11px]">Производство:</span>
-                    <span className="text-foreground font-medium leading-snug">{displayStudios}</span>
+                    <span className="text-foreground font-medium leading-snug flex flex-wrap items-center gap-x-1.5">
+                      {studiosData.visible.join(", ")}
+                      {studiosData.hidden.length > 0 && (
+                        <MoreItemsPopover hiddenItems={studiosData.hidden} title="Все студии" />
+                      )}
+                    </span>
                   </div>
                 </div>
               )}
 
-              {displayDubbing && (
+              {dubbingData.visible.length > 0 && (
                 <div className="flex items-start gap-2">
                   <Languages className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <div className="flex flex-col gap-0.5">
                     <span className="text-muted/70 text-[11px]">Озвучка:</span>
-                    <span className="text-foreground font-medium leading-snug">{displayDubbing}</span>
+                    <span className="text-foreground font-medium leading-snug flex flex-wrap items-center gap-x-1.5">
+                      {dubbingData.visible.join(", ")}
+                      {dubbingData.hidden.length > 0 && (
+                        <MoreItemsPopover hiddenItems={dubbingData.hidden} title="Вся озвучка" />
+                      )}
+                    </span>
                   </div>
                 </div>
               )}
@@ -304,7 +326,9 @@ export default async function DramaPage({
         <div className="lg:col-span-1 bg-surface/20 p-4 rounded-2xl border border-border/50 flex flex-col gap-3 shrink-0">
 
           <div>
-            <h3 className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-2">Ваша оценка | Внешний рейтинг</h3>
+            <h3 className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <StarIcon className="w-3.5 h-3.5 text-accent" /> Ваша оценка | Внешний рейтинг
+            </h3>
             <RatingWidget dramaId={drama.id} initialRating={entry?.rating} />
           </div>
 
