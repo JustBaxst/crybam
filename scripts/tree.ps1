@@ -8,13 +8,13 @@ $exclude = @(
 
 function Show-Tree {
     param([string]$Path, [string]$Prefix = '')
-    $items = Get-ChildItem -Path $Path -Force | 
+    # Используем -LiteralPath, чтобы [id] воспринимался буквально
+    $items = Get-ChildItem -LiteralPath $Path -Force | 
         Where-Object { $exclude -notcontains $_.Name } | 
         Sort-Object @{Expression={-not $_.PSIsContainer}}, Name
     for ($i = 0; $i -lt $items.Count; $i++) {
         $item = $items[$i]
         $isLast = $i -eq ($items.Count - 1)
-        # Используем только ASCII-символы
         $connector = if ($isLast) { '\-- ' } else { '|-- ' }
         $newPrefix = if ($isLast) { '    ' } else { '|   ' }
         if ($item.PSIsContainer) {
