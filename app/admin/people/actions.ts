@@ -276,5 +276,10 @@ export async function updatePersonAliases(formData: FormData) {
 
   revalidatePath(`/admin/people/${personId}`);
   revalidatePath(`/people/${personId}`);
+
+  await prisma.adminLog.create({
+    data: { userId: CURRENT_USER_ID, action: "PERSON_ALIASES_UPDATED", entityType: "person", entityId: personId, entityName: "Обновлены имена", isPublic: false }
+  });
+
   return { success: true };
 }

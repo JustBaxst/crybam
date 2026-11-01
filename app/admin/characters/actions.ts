@@ -180,6 +180,10 @@ export async function addCharacterRelation(formData: FormData) {
 
   revalidatePath(`/admin/characters/${fromId}`);
   revalidatePath(`/admin/characters/${toId}`);
+
+  await prisma.adminLog.create({
+    data: { userId: CURRENT_USER_ID, action: "CHARACTER_RELATION_ADDED", entityType: "character", entityId: fromId, entityName: relation, isPublic: false }
+  });
   return { success: true };
 }
 
@@ -194,6 +198,10 @@ export async function deleteCharacterRelation(formData: FormData) {
   await prisma.characterRelation.delete({ where: { id: relationId } });
 
   revalidatePath(`/admin/characters/${characterId}`);
+
+  await prisma.adminLog.create({
+    data: { userId: CURRENT_USER_ID, action: "CHARACTER_RELATION_REMOVED", entityType: "character", entityId: characterId, entityName: "Связь удалена", isPublic: false }
+  });
   return { success: true };
 }
 
@@ -242,6 +250,11 @@ export async function updateCharacterAliases(formData: FormData) {
   }
 
   revalidatePath(`/admin/characters/${characterId}`);
+
+  await prisma.adminLog.create({
+    data: { userId: CURRENT_USER_ID, action: "CHARACTER_ALIASES_UPDATED", entityType: "character", entityId: characterId, entityName: "Обновлены имена", isPublic: false }
+  });
+
   return { success: true };
 }
 export async function deleteCharacter(formData: FormData) {

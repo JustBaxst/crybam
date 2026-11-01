@@ -197,6 +197,10 @@ export async function updateDrama(formData: FormData) {
   revalidatePath("/library");
   revalidatePath("/");
 
+  await prisma.adminLog.create({
+    data: { userId: CURRENT_USER_ID, action: "DRAMA_UPDATED", entityType: "drama", entityId: dramaId, entityName: title, isPublic: true }
+  });
+
 
   return { success: true, isJustCompleted };
 }
@@ -263,6 +267,12 @@ export async function updateGenres(formData: FormData) {
 
   revalidatePath(`/dramas/${dramaId}`);
   revalidatePath("/library");
+
+
+  await prisma.adminLog.create({
+    data: { userId: CURRENT_USER_ID, action: "DRAMA_GENRES_UPDATED", entityType: "drama", entityId: dramaId, entityName: "Жанры обновлены", isPublic: false }
+  });
+
   return { success: true, isJustCompleted };
 }
 
@@ -489,6 +499,10 @@ export async function updateCredit(formData: FormData) {
   }
 
   revalidatePath(`/dramas/${dramaId}`);
+
+  await prisma.adminLog.create({
+    data: { userId: CURRENT_USER_ID, action: "CREDIT_UPDATED", entityType: "drama", entityId: dramaId, entityName: "Роль в касте обновлена", isPublic: false }
+  });
   return { success: true };
 }
 
@@ -573,6 +587,12 @@ export async function updateTitles(formData: FormData) {
 
   revalidatePath(`/dramas/${dramaId}`);
   revalidatePath(`/admin/dramas/${dramaId}`);
+
+
+  await prisma.adminLog.create({
+    data: { userId: CURRENT_USER_ID, action: "DRAMA_TITLES_UPDATED", entityType: "drama", entityId: dramaId, entityName: "Названия обновлены", isPublic: false }
+  });
+
   return { success: true, isJustCompleted };
 }
 export async function addSoundtrack(formData: FormData) {
@@ -614,8 +634,13 @@ export async function addSoundtrack(formData: FormData) {
     data: { dramaId, title, url, artist, kind, provider, embedId },
   });
 
+  await prisma.adminLog.create({
+    data: { userId: CURRENT_USER_ID, action: "SOUNDTRACK_ADDED", entityType: "drama", entityId: dramaId, entityName: title, isPublic: false }
+  });
+
   revalidatePath(`/dramas/${dramaId}`);
   revalidatePath(`/admin/dramas/${dramaId}`);
+
   return { success: true };
 }
 
@@ -625,7 +650,26 @@ export async function removeSoundtrack(formData: FormData) {
 
   if (!Number.isInteger(soundtrackId)) return { error: "Неверный ID" };
 
+  // 1. Сначала находим трек, чтобы узнать его название для лога
+  const track = await prisma.soundtrackLink.findUnique({
+    where: { id: soundtrackId },
+    select: { title: true }
+  });
+
+  // 2. Удаляем
   await prisma.soundtrackLink.delete({ where: { id: soundtrackId } });
+
+  // 3. Логируем (используем track?.title)
+  await prisma.adminLog.create({
+    data: {
+      userId: CURRENT_USER_ID,
+      action: "SOUNDTRACK_REMOVED",
+      entityType: "drama",
+      entityId: dramaId,
+      entityName: track?.title || "Неизвестный трек",
+      isPublic: false
+    }
+  });
 
   revalidatePath(`/dramas/${dramaId}`);
   revalidatePath(`/admin/dramas/${dramaId}`);
@@ -767,6 +811,12 @@ export async function updateMoods(formData: FormData) {
 
   revalidatePath(`/dramas/${dramaId}`);
   revalidatePath(`/admin/dramas/${dramaId}`);
+
+  await prisma.adminLog.create({
+    data: { userId: CURRENT_USER_ID, action: "DRAMA_MOODS_UPDATED", entityType: "drama", entityId: dramaId, entityName: "Настроения обновлены", isPublic: false }
+  });
+
+
   return { success: true, isJustCompleted };
 }
 
@@ -803,5 +853,11 @@ export async function updateThemes(formData: FormData) {
 
   revalidatePath(`/dramas/${dramaId}`);
   revalidatePath(`/admin/dramas/${dramaId}`);
+
+  await prisma.adminLog.create({
+    data: { userId: CURRENT_USER_ID, action: "DRAMA_THEMES_UPDATED", entityType: "drama", entityId: dramaId, entityName: "Темы обновлены", isPublic: false }
+  });
+
+
   return { success: true };
 }
