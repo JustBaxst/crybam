@@ -33,8 +33,8 @@ export function CryTagSelector({
                         key={key}
                         onClick={() => handleSelect(key)}
                         className={`flex items-center justify-center gap-2 h-8 w-full rounded-md border transition-all text-xs font-medium whitespace-nowrap cursor-pointer ${isActive
-                                ? `${config.bg}/15 ${config.color} ${config.border}`
-                                : "bg-surface border-border text-muted hover:text-foreground hover:bg-surface/80"
+                            ? `${config.bg}/15 ${config.color} ${config.border}`
+                            : "bg-surface border-border text-muted hover:text-foreground hover:bg-surface/80"
                             }`}
                     >
                         <Icon className="w-3.5 h-3.5" />
