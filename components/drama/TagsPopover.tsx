@@ -34,7 +34,7 @@ export function TagsPopover({ genres, themes, moods, hiddenCount }: TagsPopoverP
                                 <Link
                                     key={g.id}
                                     href={`/dramas?genre=${g.id}`}
-                                    className="text-sm text-foreground hover:text-accent transition-colors"
+                                    className="text-sm text-foreground hover:text-accent hover:underline transition-colors"
                                 >
                                     {g.name}
                                 </Link>
@@ -56,7 +56,7 @@ export function TagsPopover({ genres, themes, moods, hiddenCount }: TagsPopoverP
                                     <Link
                                         key={m}
                                         href={`/dramas?search=${m}`}
-                                        className="text-sm text-purple-400 hover:underline"
+                                        className="text-sm text-purple-400 hover:text-accent hover:underline transition-colors"
                                     >
                                         {m}
                                     </Link>
@@ -79,7 +79,7 @@ export function TagsPopover({ genres, themes, moods, hiddenCount }: TagsPopoverP
                                     <Link
                                         key={t}
                                         href={`/dramas?search=${t}`}
-                                        className="text-sm text-blue-400 hover:underline"
+                                        className="text-sm text-blue-400 hover:text-accent hover:underline transition-colors"
                                     >
                                         #{t}
                                     </Link>
