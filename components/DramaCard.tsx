@@ -3,6 +3,7 @@ import { Star } from "lucide-react";
 import { CryBadge } from "@/components/CryBadge";
 import { PosterImage } from "@/components/PosterImage";
 import type { CryTag } from "@/lib/cry-tags";
+import { getStatusLabel } from "@/lib/drama-status";
 
 type DramaCardProps = {
   dramaId: number;
@@ -28,8 +29,8 @@ export function DramaCard({
   status,
   impression,
   posterUrl,
-  genres, // <-- ДОБАВИЛИ СЮДА
-  themes, // <-- ДОБАВИЛИ СЮДА
+  genres,
+  themes,
 }: DramaCardProps) {
   return (
     <Link
@@ -77,7 +78,7 @@ export function DramaCard({
           <div className="flex items-center gap-1.5 flex-wrap min-h-6.5">
             {status && (
               <span className="text-xs px-2 py-1 rounded-full border border-border text-muted leading-none">
-                {statusLabel(status)}
+                {getStatusLabel(status)}
               </span>
             )}
             {cryTag && <CryBadge tag={cryTag} size="sm" />}
@@ -94,15 +95,4 @@ export function DramaCard({
       </div>
     </Link>
   );
-}
-
-function statusLabel(status: string) {
-  const map: Record<string, string> = {
-    watched: "Просмотрено",
-    watching: "Смотрю",
-    planned: "В планах",
-    on_hold: "Отложено",
-    dropped: "Брошено",
-  };
-  return map[status] ?? status;
 }

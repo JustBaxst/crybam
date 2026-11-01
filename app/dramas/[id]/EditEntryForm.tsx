@@ -14,14 +14,8 @@ import { FormSection } from "@/components/FormSection";
 import { useLockBodyScroll } from "@/lib/use-lock-body-scroll";
 import type { EntryData } from "@/lib/types";
 import { CRY_TAGS, type CryTag } from "@/lib/cry-tags";
+import { DRAMA_STATUSES, type DramaStatus } from "@/lib/drama-status";
 
-const STATUS_OPTIONS = [
-  { value: "planned", label: "В планах" },
-  { value: "watching", label: "Смотрю" },
-  { value: "watched", label: "Просмотрено" },
-  { value: "on_hold", label: "Отложено" },
-  { value: "dropped", label: "Брошено" },
-];
 
 export function EditEntryForm({
   dramaId,
@@ -100,10 +94,8 @@ export function EditEntryForm({
                   defaultValue={entry?.status ?? "planned"}
                   className={inputCls}
                 >
-                  {STATUS_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
+                  {(Object.entries(DRAMA_STATUSES) as [DramaStatus, { label: string }][]).map(([value, config]) => (
+                    <option key={value} value={value}>{config.label}</option>
                   ))}
                 </select>
               </div>

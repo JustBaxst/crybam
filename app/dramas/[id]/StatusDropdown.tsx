@@ -4,14 +4,7 @@ import { useTransition } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { ChevronDown, Plus, PlayCircle, Clock, Eye, XCircle, PauseCircle, Trash2 } from "lucide-react";
 import { quickSetStatus, incrementProgress, removeEntry } from "./actions";
-
-const STATUSES = [
-    { value: "watching", label: "Смотрю", Icon: PlayCircle },
-    { value: "planned", label: "В планах", Icon: Clock },
-    { value: "watched", label: "Просмотрено", Icon: Eye },
-    { value: "on_hold", label: "Отложено", Icon: PauseCircle },
-    { value: "dropped", label: "Брошено", Icon: XCircle },
-];
+import { DRAMA_STATUSES, type DramaStatus } from "@/lib/drama-status";
 
 type EntryData = {
     status: string;
@@ -51,7 +44,7 @@ export function StatusDropdown({
         });
     };
 
-    const currentStatusObj = entry ? STATUSES.find(s => s.value === entry.status) : null;
+    const currentStatusObj = entry ? DRAMA_STATUSES[entry.status as DramaStatus] : null;
     const progress = entry?.progress || 0;
     const totalEpisodes = episodes || 0;
 
@@ -93,13 +86,13 @@ export function StatusDropdown({
                             align="start"
                             className="w-(--radix-dropdown-menu-trigger-width) rounded-xl border border-border bg-surface shadow-xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200 mt-1 p-1"
                         >
-                            {STATUSES.map((s) => (
+                            {Object.entries(DRAMA_STATUSES).map(([value, config]) => (
                                 <DropdownMenu.Item
-                                    key={s.value}
-                                    onSelect={() => setStatus(s.value)}
+                                    key={value}
+                                    onSelect={() => setStatus(value)}
                                     className={`flex items-center px-3 py-2 text-sm text-foreground hover:bg-foreground/5 rounded-lg transition-colors cursor-pointer data-highlighted:bg-foreground/5 ${btnResetCls}`}
                                 >
-                                    {s.label}
+                                    {config.label}
                                 </DropdownMenu.Item>
                             ))}
                         </DropdownMenu.Content>
@@ -125,13 +118,13 @@ export function StatusDropdown({
                             align="start"
                             className="w-(--radix-dropdown-menu-trigger-width) rounded-xl border border-border bg-surface shadow-xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200 mt-1 p-1"
                         >
-                            {STATUSES.map((s) => (
+                            {Object.entries(DRAMA_STATUSES).map(([value, config]) => (
                                 <DropdownMenu.Item
-                                    key={s.value}
-                                    onSelect={() => setStatus(s.value)}
+                                    key={value}
+                                    onSelect={() => setStatus(value)}
                                     className={`flex items-center px-3 py-2 text-sm text-foreground hover:bg-foreground/5 rounded-lg transition-colors cursor-pointer data-highlighted:bg-foreground/5 ${btnResetCls}`}
                                 >
-                                    {s.label}
+                                    {config.label}
                                 </DropdownMenu.Item>
                             ))}
 

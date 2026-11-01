@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { Star } from "lucide-react";
 import { CryBadge } from "@/components/CryBadge";
-import { PosterImage } from "@/components/PosterImage"; // ← Добавили импорт
+import { PosterImage } from "@/components/PosterImage";
 import type { CryTag } from "@/lib/cry-tags";
+import { getStatusLabel } from "@/lib/drama-status";
 
 type DramaListItemProps = {
   dramaId: number;
@@ -59,21 +60,10 @@ export function DramaListItem({
         {cryTag && <CryBadge tag={cryTag} size="sm" />}
         {status && (
           <span className="hidden sm:inline text-xs px-2 py-1 rounded-full border border-border text-muted leading-none">
-            {statusLabel(status)}
+            {getStatusLabel(status)}
           </span>
         )}
       </div>
     </Link>
   );
-}
-
-function statusLabel(status: string) {
-  const map: Record<string, string> = {
-    watched: "Просмотрено",
-    watching: "Смотрю",
-    planned: "В планах",
-    on_hold: "Отложено",
-    dropped: "Брошено",
-  };
-  return map[status] ?? status;
 }
