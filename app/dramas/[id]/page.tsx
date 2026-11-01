@@ -89,11 +89,6 @@ export default async function DramaPage({
       ? drama.dubbingStudios.split(",").map(s => s.trim()).filter(Boolean)
       : []
   );
-  // Озвучка хранится строкой, разделенной запятыми
-  const dubbingArr = drama.dubbingStudios
-    ? drama.dubbingStudios.split(",").map(s => s.trim()).filter(Boolean)
-    : [];
-  const displayDubbing = processList(dubbingArr);
 
   // ─── ЛОГИКА ДАТ (ПУНКТ 3) ───
   const formatAired = (from: Date | null, to: Date | null) => {
@@ -323,7 +318,7 @@ export default async function DramaPage({
         </div>
 
         {/* Колонка 3: Оценки и Эмоции (занимает 1 часть из 4) */}
-        <div className="lg:col-span-1 bg-surface/20 p-5 rounded-2xl border border-border/50 flex flex-col gap-4 shrink-0 md:min-w-70 md:max-w-100">
+        <div className="lg:col-span-1 bg-surface/20 p-5 rounded-2xl border border-border/50 flex flex-col gap-4">
 
           <div>
             <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-2 flex items-center gap-1.5">
@@ -362,11 +357,13 @@ export default async function DramaPage({
 
       {/* ─── СИНОПСИС ─── */}
       {drama.synopsis && (
-        <div className="mb-10 bg-surface/20 p-6 rounded-2xl border border-border/50">
-          <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+        <div className="w-full mb-10 bg-surface/20 p-6 rounded-2xl border border-border/50">
+          <h2 className="text-lg font-semibold mb-4 pb-3 border-b border-border/50 flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-accent" /> О чем?
           </h2>
-          <p className="text-muted leading-relaxed text-base max-w-5xl">{drama.synopsis}</p>
+          <p className="w-full text-muted leading-relaxed text-base">
+            {drama.synopsis}
+          </p>
         </div>
       )}
 
