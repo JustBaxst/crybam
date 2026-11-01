@@ -244,3 +244,45 @@ export async function updateCharacterAliases(formData: FormData) {
   revalidatePath(`/admin/characters/${characterId}`);
   return { success: true };
 }
+export async function deleteCharacter(formData: FormData) {
+  await requireModerator();
+
+  const characterId = Number(formData.get("characterId"));
+  if (!Number.isInteger(characterId) || characterId <= 0) {
+    return { error: "Неверный ID" };
+  }
+
+  // Проверяем, не привязан ли персонаж к каким-то актерам (кредитам)
+  const creditsCount = await prisma.credit.count({ where: { characterId } });
+  if (creditsCount > 0) {
+    return { error: "Нельзя удалить. Сначала удалите его роли из дорам." };
+  }
+
+  const character = await prisma.character.findUnique({
+    where: { id: characterId },
+    select: { name: true }
+  });
+
+  // Мягкое удаление
+  await prisma.character.update({
+    where: { id: characterId },
+    data: { deletedAt: new Date() }
+  });
+
+  // Логирование
+  if (character) {
+    await prisma.adminLog.create({
+      data: {
+        userId: CURRENT_USER_ID,
+        action: "CHARACTER_DELETED",
+        entityType: "character",
+        entityId: characterId,
+        entityName: character.name,
+        isPublic: true,
+      }
+    });
+  }
+
+  revalidatePath("/admin/characters");
+  redirect("/admin/characters");
+}
