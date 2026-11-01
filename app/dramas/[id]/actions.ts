@@ -301,18 +301,6 @@ export async function addCredit(formData: FormData) {
         nameLower: personName.toLowerCase()
       }
     });
-
-    // Логируем, что из формы дорамы создалась новая персона
-    await prisma.adminLog.create({
-      data: {
-        userId: CURRENT_USER_ID,
-        action: "PERSON_CREATED",
-        entityType: "person",
-        entityId: person.id,
-        entityName: person.name,
-        isPublic: true,
-      }
-    });
   }
 
   // Если actor с персонажем — ищем или создаём Character
