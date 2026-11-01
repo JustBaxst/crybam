@@ -3,7 +3,8 @@ import { HeartCrack, Sparkles, Smile, type LucideIcon } from "lucide-react";
 export const CRY_TAGS = {
   sad: {
     Icon: HeartCrack,
-    label: "Рыдай",
+    label: "❤️‍🩹 Рыдай", // Вернули эмодзи для селектов
+    plainLabel: "Рыдай",  // Текст без эмодзи для красивого UI
     description: "Грустная, тяжёлая, стоит подготовиться",
     color: "text-cry-sad",
     bg: "bg-cry-sad",
@@ -11,7 +12,8 @@ export const CRY_TAGS = {
   },
   bittersweet: {
     Icon: Sparkles,
-    label: "Слёзы счастья",
+    label: "✨ Слёзы счастья",
+    plainLabel: "Слёзы счастья",
     description: "Тёплая, трогательная, счастливые слёзы",
     color: "text-cry-happy",
     bg: "bg-cry-happy",
@@ -19,7 +21,8 @@ export const CRY_TAGS = {
   },
   safe: {
     Icon: Smile,
-    label: "Безопасно",
+    label: "❤️ Безопасно",
+    plainLabel: "Безопасно",
     description: "Лёгкая, без эмоциональных потрясений",
     color: "text-cry-safe",
     bg: "bg-cry-safe",
@@ -28,6 +31,7 @@ export const CRY_TAGS = {
 } as const satisfies Record<string, {
   Icon: LucideIcon;
   label: string;
+  plainLabel: string;
   description: string;
   color: string;
   bg: string;
