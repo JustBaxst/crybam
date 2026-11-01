@@ -2,8 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   Star, Calendar, MapPin, Film, Clock, PlayCircle, Eye,
-  BookOpen, Users, Music, Video, ChevronRight, Crown, Languages, Tv,
-  Info, Tag, Heart, FaceSlightlySmilingPlus, Star as StarIcon
+  BookOpen, Video, ChevronRight, Crown, Languages, Tv,
+  Info, Tag, FaceSlightlySmilingPlus, Star as StarIcon,
+
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { CURRENT_USER_ID } from "@/lib/current-user";
@@ -50,6 +51,7 @@ export default async function DramaPage({
       },
       soundtrack: { orderBy: { id: "asc" } },
       nominations: { include: { nomination: true } },
+      moods: { include: { mood: true } }
     },
   });
 
@@ -133,7 +135,7 @@ export default async function DramaPage({
     include: { theme: true }
   });
   const themesList = dramaThemes.map(t => t.theme.name);
-  const totalTags = genres.length + themesList.length;
+  const totalTags = genres.length + themesList.length + drama.moods.length;
   const hiddenTagsCount = Math.max(0, totalTags - 3);
 
   // Данные для CryTag
@@ -294,6 +296,8 @@ export default async function DramaPage({
                 </div>
               )}
 
+
+
               {/* Жанры */}
               <div className="flex items-start gap-2 pt-1">
                 <Tag className="w-4 h-4 text-accent shrink-0 mt-0.5" />
@@ -308,6 +312,7 @@ export default async function DramaPage({
                     <TagsPopover
                       genres={drama.genres.map(g => g.genre)}
                       themes={themesList}
+                      moods={drama.moods.map(m => m.mood.name)}
                       hiddenCount={hiddenTagsCount}
                     />
                   </div>
