@@ -55,7 +55,7 @@ export function TagsPopover({ genres, themes, moods, hiddenCount }: TagsPopoverP
                                 {moods.map((m) => (
                                     <Link
                                         key={m}
-                                        href={`/dramas?search=${m}`}
+                                        href={`/dramas?mood=${m}`}
                                         className="text-sm text-purple-400 hover:text-accent hover:underline transition-colors"
                                     >
                                         {m}
@@ -78,7 +78,7 @@ export function TagsPopover({ genres, themes, moods, hiddenCount }: TagsPopoverP
                                 {themes.map((t) => (
                                     <Link
                                         key={t}
-                                        href={`/dramas?search=${t}`}
+                                        href={`/dramas?theme=${t}`}
                                         className="text-sm text-blue-400 hover:text-accent hover:underline transition-colors"
                                     >
                                         #{t}

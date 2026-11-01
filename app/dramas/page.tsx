@@ -3,33 +3,66 @@ import { prisma } from "@/lib/prisma";
 import { CatalogCard } from "@/components/CatalogCard";
 import { getDramaSearchWhere } from "@/lib/search-queries";
 import { AdminSearchBar } from "@/components/AdminSearchBar";
+import Link from "next/link";
 
-type SearchParams = Promise<{ q?: string; sort?: string }>;
+// 1. Добавили новые параметры в тип
+type SearchParams = Promise<{
+  q?: string;
+  sort?: string;
+  genre?: string;
+  mood?: string;
+  theme?: string;
+}>;
 
 export default async function DramasCatalogPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const { q, sort } = await searchParams;
+  // 2. Достаем все параметры
+  const { q, sort, genre, mood, theme } = await searchParams;
   const query = (q ?? "").trim();
   const currentSort = sort || "year_desc";
 
+  const genreId = genre ? Number(genre) : null;
+
+  // 3. Собираем умное условие для базы
+  const whereCondition: any = {
+    deletedAt: null,
+    ...getDramaSearchWhere(query),
+  };
+
+  if (genreId) {
+    whereCondition.genres = { some: { genreId } };
+  }
+  if (mood) {
+    whereCondition.moods = { some: { mood: { name: mood } } };
+  }
+  if (theme) {
+    whereCondition.themes = { some: { theme: { name: theme } } };
+  }
+
+  // 4. Делаем запрос
   const dramas = await prisma.drama.findMany({
-    where: {
-      deletedAt: null,
-      ...getDramaSearchWhere(query),
-    },
+    where: whereCondition,
     include: {
       genres: { include: { genre: true } },
+      moods: { include: { mood: true } },
     },
     orderBy:
       currentSort === "rating_desc"
         ? [{ ratingKinopoisk: "desc" }, { ratingIMDB: "desc" }]
         : currentSort === "title_asc"
           ? [{ title: "asc" }]
-          : [{ year: "desc" }, { title: "asc" }], // year_desc
+          : [{ year: "desc" }, { title: "asc" }],
   });
+
+  // 5. Формируем плашки активных фильтров
+  const activeFilters = [];
+  if (mood) activeFilters.push({ label: `Настроение: ${mood}`, clearUrl: `/dramas?${q ? `q=${q}&` : ""}sort=${currentSort}` });
+  if (theme) activeFilters.push({ label: `Тема: #${theme}`, clearUrl: `/dramas?${q ? `q=${q}&` : ""}sort=${currentSort}` });
+  // Для жанра ссылку на сброс сделать сложнее, так как мы знаем только ID, но мы можем просто скрыть его при клике
+  if (genreId) activeFilters.push({ label: `Жанр (ID: ${genreId})`, clearUrl: `/dramas?${q ? `q=${q}&` : ""}sort=${currentSort}` });
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
@@ -81,6 +114,27 @@ export default async function DramasCatalogPage({
       <div className="mb-8 max-w-2xl">
         <AdminSearchBar placeholder="Поиск по имени..." />
       </div>
+
+
+      {/* Активные фильтры */}
+      {activeFilters.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 mb-6">
+          <span className="text-sm text-muted">Активные фильтры:</span>
+          {activeFilters.map((f, i) => (
+            <Link
+              key={i}
+              href={f.clearUrl}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 text-accent border border-accent/20 text-xs font-medium hover:bg-accent/20 transition-colors"
+            >
+              {f.label}
+              <span className="text-base leading-none">&times;</span>
+            </Link>
+          ))}
+          <Link href="/dramas" className="text-xs text-muted hover:text-foreground underline ml-2">
+            Сбросить все
+          </Link>
+        </div>
+      )}
 
       {/* Сетка */}
       {dramas.length === 0 ? (
