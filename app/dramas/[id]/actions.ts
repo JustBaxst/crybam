@@ -424,7 +424,7 @@ export async function removeCredit(formData: FormData) {
       action: "CREDIT_REMOVED",
       entityType: "drama",
       entityId: dramaId,
-      entityName: `${personInfo?.name || "Неизвестный"} (Удален из каста)`,
+      entityName: personInfo?.name || "Неизвестный",
       isPublic: false,
     }
   });

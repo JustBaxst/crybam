@@ -15,6 +15,10 @@ export function getActionLabel(action: string): string {
         case "CHARACTER_DELETED": return "удалил(а) персонажа";
         case "CHARACTER_COMPLETED": return "завершил(а) карточку";
 
+
+        case "CREDIT_ADDED": return "добавил(а) в каст";
+        case "CREDIT_REMOVED": return "удалил(а) из каста";
+
         default: return action;
     }
 }
