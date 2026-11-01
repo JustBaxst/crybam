@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Trash2, X, AlertTriangle } from "lucide-react";
 import { deleteCharacter } from "./actions";
+import { useLockBodyScroll } from "@/lib/use-lock-body-scroll";
 
 export function DeleteCharacterModal({
     characterId,
@@ -15,6 +16,8 @@ export function DeleteCharacterModal({
 }) {
     const [isPending, startTransition] = useTransition();
     const [error, setError] = useState<string | null>(null);
+
+    useLockBodyScroll();
 
     const handleDelete = () => {
         const formData = new FormData();

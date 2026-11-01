@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import {
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { DeleteCharacterModal } from "./DeleteCharacterModal";
 
@@ -12,41 +18,36 @@ export function CharacterActions({ characterId, characterName }: { characterId: 
 
     return (
         <div className="flex items-center justify-end relative">
-            <DropdownMenu.Root>
-                <DropdownMenu.Trigger asChild>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
                     <button
-                        className="w-8 h-8 rounded-md border border-border hover:border-accent/40 hover:text-accent flex items-center justify-center transition-colors outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                        className="w-8 h-8 rounded-md border border-border hover:border-accent/40 hover:text-accent flex items-center justify-center transition-colors outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
                         aria-label="Действия"
                     >
                         <MoreHorizontal className="w-4 h-4" />
                     </button>
-                </DropdownMenu.Trigger>
+                </DropdownMenuTrigger>
 
-                <DropdownMenu.Portal>
-                    <DropdownMenu.Content
-                        align="end"
-                        className="w-40 rounded-xl border border-border bg-surface shadow-xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200"
+                <DropdownMenuContent align="end" className="w-40">
+                    <DropdownMenuItem
+                        onClick={() => router.push(`/admin/characters/${characterId}`)}
+                        className="cursor-pointer"
                     >
-                        <DropdownMenu.Item
-                            onSelect={() => router.push(`/admin/characters/${characterId}`)}
-                            className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-foreground/5 transition-colors outline-none cursor-pointer data-highlighted:bg-foreground/5"
-                        >
-                            <Pencil className="w-4 h-4 text-muted" />
-                            Редактировать
-                        </DropdownMenu.Item>
+                        <Pencil className="w-4 h-4 text-muted mr-2" />
+                        Редактировать
+                    </DropdownMenuItem>
 
-                        <DropdownMenu.Separator className="h-px bg-border" />
+                    <DropdownMenuSeparator />
 
-                        <DropdownMenu.Item
-                            onSelect={() => setModalOpen(true)}
-                            className="flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors outline-none cursor-pointer data-highlighted:bg-red-500/10"
-                        >
-                            <Trash2 className="w-4 h-4" />
-                            Удалить
-                        </DropdownMenu.Item>
-                    </DropdownMenu.Content>
-                </DropdownMenu.Portal>
-            </DropdownMenu.Root>
+                    <DropdownMenuItem
+                        onClick={() => setModalOpen(true)}
+                        className="text-red-400 focus:text-red-400 focus:bg-red-500/10 cursor-pointer"
+                    >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Удалить
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
 
             {modalOpen && (
                 <DeleteCharacterModal
