@@ -301,6 +301,18 @@ export async function addCredit(formData: FormData) {
         nameLower: personName.toLowerCase()
       }
     });
+
+    // Логируем, что из формы дорамы создалась новая персона
+    await prisma.adminLog.create({
+      data: {
+        userId: CURRENT_USER_ID,
+        action: "PERSON_CREATED",
+        entityType: "person",
+        entityId: person.id,
+        entityName: person.name,
+        isPublic: true,
+      }
+    });
   }
 
   // Если actor с персонажем — ищем или создаём Character
@@ -367,6 +379,19 @@ export async function addCredit(formData: FormData) {
     },
   });
 
+  // Логируем добавление в каст
+  const dramaInfo = await prisma.drama.findUnique({ where: { id: dramaId }, select: { title: true } });
+  await prisma.adminLog.create({
+    data: {
+      userId: CURRENT_USER_ID,
+      action: "CREDIT_ADDED",
+      entityType: "drama",
+      entityId: dramaId,
+      entityName: `${personName} (${roleType === 'actor' ? 'Актер' : roleType === 'director' ? 'Режиссер' : 'Сценарист'})`,
+      isPublic: true, // Поставь true, если хочешь, чтобы это светилось в Хронике
+    }
+  });
+
   revalidatePath(`/dramas/${dramaId}`);
 
   const newStatus = await getDramaStatus(dramaId);
@@ -400,6 +425,21 @@ export async function removeCredit(formData: FormData) {
 
   // 2. Удаляем кредит
   await prisma.credit.delete({ where: { id: creditId } });
+
+  // Логируем удаление из каста
+  const dramaInfo = await prisma.drama.findUnique({ where: { id: dramaId }, select: { title: true } });
+  const personInfo = await prisma.person.findUnique({ where: { id: credit.personId }, select: { name: true } });
+
+  await prisma.adminLog.create({
+    data: {
+      userId: CURRENT_USER_ID,
+      action: "CREDIT_REMOVED",
+      entityType: "drama",
+      entityId: dramaId,
+      entityName: `${personInfo?.name || "Неизвестный"} (Удален из каста)`,
+      isPublic: false,
+    }
+  });
 
   // 3. Если у персонажа больше нет кредитов — мягко удаляем и его
   if (credit.characterId) {
