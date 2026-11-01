@@ -5,18 +5,34 @@ export const CRY_TAGS = {
     Icon: HeartCrack,
     label: "Рыдай",
     description: "Грустная, тяжёлая, стоит подготовиться",
+    color: "text-cry-sad",
+    bg: "bg-cry-sad",
+    border: "border-cry-sad/30",
   },
   bittersweet: {
     Icon: Sparkles,
     label: "Слёзы счастья",
     description: "Тёплая, трогательная, счастливые слёзы",
+    color: "text-cry-happy",
+    bg: "bg-cry-happy",
+    border: "border-cry-happy/30",
   },
   safe: {
     Icon: Smile,
     label: "Безопасно",
     description: "Лёгкая, без эмоциональных потрясений",
+    color: "text-cry-safe",
+    bg: "bg-cry-safe",
+    border: "border-cry-safe/30",
   },
-} as const satisfies Record<string, { Icon: LucideIcon; label: string; description: string }>;
+} as const satisfies Record<string, {
+  Icon: LucideIcon;
+  label: string;
+  description: string;
+  color: string;
+  bg: string;
+  border: string;
+}>;
 
 export type CryTag = keyof typeof CRY_TAGS;
 

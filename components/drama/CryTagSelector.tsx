@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { saveCryTag } from "@/app/dramas/[id]/actions";
+import { CRY_TAGS, type CryTag } from "@/lib/cry-tags";
 
 export function CryTagSelector({
     dramaId,
@@ -20,27 +21,24 @@ export function CryTagSelector({
         });
     };
 
-    const options = [
-        { id: "safe", label: "Безопасно" },
-        { id: "bittersweet", label: "Слёзы счастья" },
-        { id: "sad", label: "Рыдай" },
-    ];
-
     return (
-        <div className={`flex flex-col items-center gap-1.5 w-full ${isPending ? "opacity-50 pointer-events-none" : ""}`}>
-            {options.map((opt) => {
-                const isActive = selected === opt.id;
+        <div className={`flex flex-col gap-1.5 w-full ${isPending ? "opacity-50 pointer-events-none" : ""}`}>
+            {(Object.keys(CRY_TAGS) as CryTag[]).map((key) => {
+                const config = CRY_TAGS[key];
+                const isActive = selected === key;
+                const Icon = config.Icon;
 
                 return (
                     <button
-                        key={opt.id}
-                        onClick={() => handleSelect(opt.id)}
-                        className={`flex items-center justify-center h-7 w-full px-2.5 rounded-md border transition-all text-[11px] font-medium whitespace-nowrap cursor-pointer ${isActive
-                            ? "bg-accent/15 text-accent border-accent/40" // Акцентный цвет для выбранного
-                            : "bg-surface border-border text-muted hover:text-accent hover:bg-accent/10 hover:border-accent/30" // Hover
+                        key={key}
+                        onClick={() => handleSelect(key)}
+                        className={`flex items-center justify-center gap-2 h-8 w-full rounded-md border transition-all text-xs font-medium whitespace-nowrap cursor-pointer ${isActive
+                                ? `${config.bg}/15 ${config.color} ${config.border}`
+                                : "bg-surface border-border text-muted hover:text-foreground hover:bg-surface/80"
                             }`}
                     >
-                        {opt.label}
+                        <Icon className="w-3.5 h-3.5" />
+                        {config.label}
                     </button>
                 );
             })}
