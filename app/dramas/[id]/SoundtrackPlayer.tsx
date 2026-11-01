@@ -1,10 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Music, ExternalLink, Trophy, PlayCircle } from "lucide-react";
 import { SiYoutube, SiSpotify, SiSoundcloud, SiVk } from "react-icons/si";
 
-// Компонент для иконки сервиса (вынесем отдельно, чтобы использовать и в кнопке, и в модалке)
+// Типизируем трек вместо any
+type SoundtrackTrack = {
+  id: number;
+  title: string;
+  artist: string | null;
+  url: string;
+  kind: string | null;
+  provider: string | null;
+  embedId: string | null;
+};
+
 export function ProviderIcon({ provider }: { provider: string | null }) {
   switch (provider) {
     case "youtube": return <SiYoutube className="w-4 h-4" />;
@@ -21,10 +31,21 @@ export function ProviderIcon({ provider }: { provider: string | null }) {
   }
 }
 
-export function SoundtrackPlayer({ track }: { track: any }) {
+export function SoundtrackPlayer({ track }: { track: SoundtrackTrack }) {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Генерируем URL для iframe в зависимости от сервиса
+  // Блокировка скролла фона при открытой модалке
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
+
   const getEmbedUrl = () => {
     if (!track.embedId) return null;
     switch (track.provider) {
@@ -33,7 +54,6 @@ export function SoundtrackPlayer({ track }: { track: any }) {
       case "spotify":
         return `https://open.spotify.com/embed/track/${track.embedId}?utm_source=generator&theme=0`;
       case "yandex":
-        // Яндекс использует свой формат, для простоты оставим ссылку (или общий iframe)
         return `https://music.yandex.ru/iframe/#track/${track.embedId}/`;
       case "soundcloud":
         return `https://w.soundcloud.com/player/?url=${track.embedId}&color=%23ff5500&auto_play=true&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true`;
@@ -69,13 +89,15 @@ export function SoundtrackPlayer({ track }: { track: any }) {
             <ProviderIcon provider={track.provider} />
             <span className="hidden sm:inline">Слушать</span>
           </button>
-          <button className="w-8 h-8 rounded-lg border border-border hover:border-yellow-400/50 hover:text-yellow-400 flex items-center justify-center transition-colors" title="Номинировать">
+
+          {/* Кнопка "Номинировать" пока скрыта, так как функционал не реализован. 
+              Когда будешь делать номинации, просто раскомментируй её. */}
+          {/* <button className="w-8 h-8 rounded-lg border border-border hover:border-yellow-400/50 hover:text-yellow-400 flex items-center justify-center transition-colors" title="Номинировать">
             <Trophy className="w-4 h-4" />
-          </button>
+          </button> */}
         </div>
       </div>
 
-      {/* Модалка с плеером */}
       {isOpen && (
         <div className="fixed inset-0 z-100 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setIsOpen(false)}>
           <div className="w-full max-w-2xl rounded-2xl border border-border bg-surface shadow-2xl overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
@@ -109,7 +131,6 @@ export function SoundtrackPlayer({ track }: { track: any }) {
                     />
                   </div>
                 ) : (
-                  // Универсальный рендер для YouTube, SoundCloud и Яндекс.Музыки
                   <iframe
                     src={embedUrl}
                     className="w-full aspect-video rounded-lg"
@@ -132,6 +153,7 @@ export function SoundtrackPlayer({ track }: { track: any }) {
     </>
   );
 }
+
 function kindLabel(kind: string) {
   const map: Record<string, string> = {
     ost_part: "OST Part",
