@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Trash2, X, AlertTriangle } from "lucide-react";
 import { deleteDrama } from "../actions";
+import { useLockBodyScroll } from "@/lib/use-lock-body-scroll";
 
 export function DeleteDramaModal({
   dramaId,
@@ -14,6 +15,7 @@ export function DeleteDramaModal({
   onClose: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
+  useLockBodyScroll();
 
   const handleDelete = () => {
     const formData = new FormData();

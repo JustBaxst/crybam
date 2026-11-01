@@ -1,7 +1,13 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 
 export function ActionDropdown({
@@ -11,49 +17,38 @@ export function ActionDropdown({
   editHref: string;
   onDeleteClick: () => void;
 }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  const router = useRouter();
 
   return (
-    <div className="relative" ref={ref}>
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-8 h-8 rounded-md border border-border hover:border-accent/40 hover:text-accent flex items-center justify-center transition-colors"
-      >
-        <MoreHorizontal className="w-4 h-4" />
-      </button>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          className="w-8 h-8 rounded-md border border-border hover:border-accent/40 hover:text-accent flex items-center justify-center transition-colors outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+          aria-label="Действия"
+        >
+          <MoreHorizontal className="w-4 h-4" />
+        </button>
+      </DropdownMenuTrigger>
 
-      {open && (
-        <div className="absolute right-0 top-full mt-1 w-40 rounded-xl border border-border bg-surface shadow-xl overflow-hidden z-50">
-          <Link
-            href={editHref}
-            className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-foreground/5 transition-colors"
-          >
-            <Pencil className="w-4 h-4 text-muted" />
-            Редактировать
-          </Link>
-          <button
-            onClick={() => {
-              setOpen(false);
-              onDeleteClick();
-            }}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors border-t border-border"
-          >
-            <Trash2 className="w-4 h-4" />
-            Удалить
-          </button>
-        </div>
-      )}
-    </div>
+      <DropdownMenuContent align="end" className="w-40">
+        <DropdownMenuItem
+          onClick={() => router.push(editHref)}
+          className="cursor-pointer"
+        >
+          <Pencil className="w-4 h-4 text-muted mr-2" />
+          Редактировать
+        </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem
+          onClick={onDeleteClick}
+          className="text-red-400 focus:text-red-400 focus:bg-red-500/10 cursor-pointer"
+        >
+          <Trash2 className="w-4 h-4 mr-2" />
+          Удалить
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

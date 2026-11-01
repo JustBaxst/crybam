@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Trash2, X, AlertTriangle } from "lucide-react";
 import { deletePerson } from "./actions";
+import { useLockBodyScroll } from "@/lib/use-lock-body-scroll";
 
 export function DeletePersonModal({
   personId,
@@ -19,6 +20,8 @@ export function DeletePersonModal({
   const handleDelete = () => {
     const formData = new FormData();
     formData.set("personId", String(personId));
+
+    useLockBodyScroll();
 
     startTransition(async () => {
       const result = await deletePerson(formData);
