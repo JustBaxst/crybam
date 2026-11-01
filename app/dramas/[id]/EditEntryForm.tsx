@@ -11,16 +11,9 @@ import {
 } from "lucide-react";
 import { updateEntry } from "./actions";
 import { FormSection } from "@/components/FormSection";
-import type { CryTag } from "@/lib/cry-tags";
 import { useLockBodyScroll } from "@/lib/use-lock-body-scroll";
 import type { EntryData } from "@/lib/types";
-
-
-const CRY_OPTIONS: { value: CryTag; label: string }[] = [
-  { value: "safe", label: "❤️ Безопасно" },
-  { value: "bittersweet", label: "❤️‍🩹 Слёзы счастья" },
-  { value: "sad", label: "💔 Рыдай" },
-];
+import { CRY_TAGS, type CryTag } from "@/lib/cry-tags";
 
 const STATUS_OPTIONS = [
   { value: "planned", label: "В планах" },
@@ -135,9 +128,9 @@ export function EditEntryForm({
                   className={inputCls}
                 >
                   <option value="">— не выбрано —</option>
-                  {CRY_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
+                  {(Object.keys(CRY_TAGS) as CryTag[]).map((key) => (
+                    <option key={key} value={key}>
+                      {CRY_TAGS[key].label}
                     </option>
                   ))}
                 </select>
