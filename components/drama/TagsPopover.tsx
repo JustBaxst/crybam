@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Smile } from "lucide-react";
+import { Tag, Hash, Sparkles } from "lucide-react";
 
 type TagsPopoverProps = {
     genres: { id: number; name: string }[];
     themes: string[];
-    moods: string[]; // <-- Добавили настроения
+    moods: string[];
     hiddenCount: number;
 };
 
@@ -26,7 +26,9 @@ export function TagsPopover({ genres, themes, moods, hiddenCount }: TagsPopoverP
                 {/* Жанры */}
                 {genres.length > 0 && (
                     <div>
-                        <h4 className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">Жанры</h4>
+                        <h4 className="text-xs font-semibold text-muted uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                            <Tag className="w-3.5 h-3.5" /> Жанры
+                        </h4>
                         <div className="flex flex-wrap gap-x-3 gap-y-2">
                             {genres.map((g) => (
                                 <Link
@@ -47,13 +49,17 @@ export function TagsPopover({ genres, themes, moods, hiddenCount }: TagsPopoverP
                         {genres.length > 0 && <div className="border-t border-border my-3" />}
                         <div>
                             <h4 className="text-xs font-semibold text-muted uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                                <Smile className="w-3.5 h-3.5" /> Настроения
+                                <Sparkles className="w-3.5 h-3.5" /> Настроения
                             </h4>
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-x-3 gap-y-2">
                                 {moods.map((m) => (
-                                    <span key={m} className="text-sm text-muted">
+                                    <Link
+                                        key={m}
+                                        href={`/dramas?search=${m}`}
+                                        className="text-sm text-purple-400 hover:underline"
+                                    >
                                         {m}
-                                    </span>
+                                    </Link>
                                 ))}
                             </div>
                         </div>
@@ -65,7 +71,9 @@ export function TagsPopover({ genres, themes, moods, hiddenCount }: TagsPopoverP
                     <>
                         {(genres.length > 0 || moods.length > 0) && <div className="border-t border-border my-3" />}
                         <div>
-                            <h4 className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">Темы</h4>
+                            <h4 className="text-xs font-semibold text-muted uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                <Hash className="w-3.5 h-3.5" /> Темы
+                            </h4>
                             <div className="flex flex-wrap gap-x-3 gap-y-2">
                                 {themes.map((t) => (
                                     <Link
