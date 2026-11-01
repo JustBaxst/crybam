@@ -17,11 +17,12 @@ export function DeletePersonModal({
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
+  useLockBodyScroll();
+
   const handleDelete = () => {
     const formData = new FormData();
     formData.set("personId", String(personId));
 
-    useLockBodyScroll();
 
     startTransition(async () => {
       const result = await deletePerson(formData);
