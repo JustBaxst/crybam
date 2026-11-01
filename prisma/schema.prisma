@@ -91,6 +91,7 @@ model Drama {
   soundtrack  SoundtrackLink[]
   media       DramaMedia[]
   themes      DramaThemeLink[]
+  moods       DramaMoodLink[]
 
   @@index([year])
   @@index([country])
@@ -151,6 +152,24 @@ model DramaThemeLink {
   theme   DramaTheme @relation(fields: [themeId], references: [id], onDelete: Cascade)
 
   @@id([dramaId, themeId])
+}
+
+// ─────────────────────────────────────────────
+// Настроения (Комфорт, Мотивация и т.д.)
+// ─────────────────────────────────────────────
+model Mood {
+  id     Int             @id @default(autoincrement())
+  name   String          @unique
+  dramas DramaMoodLink[]
+}
+
+model DramaMoodLink {
+  dramaId Int
+  moodId  Int
+  drama   Drama @relation(fields: [dramaId], references: [id], onDelete: Cascade)
+  mood    Mood  @relation(fields: [moodId], references: [id], onDelete: Cascade)
+
+  @@id([dramaId, moodId])
 }
 
 // ─────────────────────────────────────────────

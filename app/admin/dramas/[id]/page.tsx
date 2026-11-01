@@ -12,10 +12,14 @@ import {
   Tv,
   Layers,
   Music,
+  Smile, // <-- Иконка для настроений
+  Hash,  // <-- Иконка для тем
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { EditDramaButton } from "../../../dramas/[id]/EditDramaButton";
 import { GenresEditButton } from "../../../dramas/[id]/GenresEditButton";
+import { MoodsEditButton } from "../../../dramas/[id]/MoodsEditButton";
+import { ThemesEditButton } from "../../../dramas/[id]/ThemesEditButton";
 import { CreditsEditButton } from "../../../dramas/[id]/CreditsEditButton";
 import { DeleteDramaButton } from "../DeleteDramaButton";
 import { TitlesEditButton } from "@/app/dramas/[id]/TitlesEditButton";
@@ -41,9 +45,10 @@ export default async function AdminDramaEditPage({
       platforms: { include: { platform: true } },
       studios: { include: { studio: true } },
       genres: { include: { genre: true } },
+      moods: { include: { mood: true } },   // <-- Подтягиваем настроения
+      themes: { include: { theme: true } }, // <-- Подтягиваем темы
       soundtrack: true,
       credits: {
-        where: { person: { deletedAt: null } },
         include: { person: true, character: true },
         orderBy: { order: "asc" },
       },
@@ -52,9 +57,10 @@ export default async function AdminDramaEditPage({
 
   if (!drama) notFound();
 
-  const allGenres = await prisma.genre.findMany({
-    orderBy: { name: "asc" },
-  });
+  // Получаем все возможные жанры, настроения и темы для модалок
+  const allGenres = await prisma.genre.findMany({ orderBy: { name: "asc" } });
+  const allMoods = await prisma.mood.findMany({ orderBy: { name: "asc" } });
+  const allThemes = await prisma.dramaTheme.findMany({ orderBy: { name: "asc" } });
 
   const allPersons = await prisma.person.findMany({
     where: { deletedAt: null },
@@ -63,6 +69,8 @@ export default async function AdminDramaEditPage({
   });
 
   const linkedGenreIds = drama.genres.map((g) => g.genre.id);
+  const linkedMoodIds = drama.moods.map((m) => m.mood.id);
+  const linkedThemeIds = drama.themes.map((t) => t.theme.id);
 
   const importanceOrder: Record<string, number> = {
     lead: 0,
@@ -102,20 +110,19 @@ export default async function AdminDramaEditPage({
           { label: drama.title }
         ]}
       />
+
       {/* Заголовок с действиями */}
       <div className="flex items-start justify-between gap-4 mb-8 flex-wrap">
         <div className="min-w-0 flex items-center gap-4 flex-wrap">
           <h1 className="text-2xl font-bold leading-tight">
             {drama.title}
           </h1>
-          {/* Кнопка переехала сюда */}
           <TitlesEditButton
             dramaId={drama.id}
             currentTitles={drama.titles.filter(t => !t.isPrimary).map(t => t.title)}
           />
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          {/* Возвращаем нормальные пропсы для EditDramaButton */}
           <EditDramaButton
             dramaId={drama.id}
             drama={{
@@ -136,6 +143,7 @@ export default async function AdminDramaEditPage({
               dubbingStudios: drama.dubbingStudios,
               platforms: platforms,
               studios: productionStudios,
+              themes: drama.themes.map(t => t.theme.name), // <-- Передаем темы в форму
               airStatus: drama.airStatus,
               curatorCryTag: drama.curatorCryTag,
             }}
@@ -229,6 +237,70 @@ export default async function AdminDramaEditPage({
         )}
       </section>
 
+      {/* Настроения (НОВЫЙ БЛОК) */}
+      <section className="rounded-2xl border border-border bg-surface p-6 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-medium text-muted uppercase tracking-wide flex items-center gap-2">
+            <Smile className="w-4 h-4" />
+            Настроения
+          </h2>
+          <MoodsEditButton
+            dramaId={drama.id}
+            allMoods={allMoods}
+            linkedMoodIds={linkedMoodIds}
+          />
+        </div>
+
+        {drama.moods.length === 0 ? (
+          <p className="text-xs text-muted/70 italic">
+            Настроения пока не заполнены
+          </p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {drama.moods.map((m) => (
+              <span
+                key={m.mood.id}
+                className="text-sm px-3 py-1 rounded-full border border-border text-muted"
+              >
+                {m.mood.name}
+              </span>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Темы (НОВЫЙ БЛОК) */}
+      <section className="rounded-2xl border border-border bg-surface p-6 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-medium text-muted uppercase tracking-wide flex items-center gap-2">
+            <Hash className="w-4 h-4" />
+            Темы
+          </h2>
+          <ThemesEditButton
+            dramaId={drama.id}
+            allThemes={allThemes}
+            linkedThemeIds={linkedThemeIds}
+          />
+        </div>
+
+        {drama.themes.length === 0 ? (
+          <p className="text-xs text-muted/70 italic">
+            Темы пока не заполнены
+          </p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {drama.themes.map((t) => (
+              <span
+                key={t.theme.id}
+                className="text-sm px-3 py-1 rounded-full border border-border text-muted"
+              >
+                #{t.theme.name}
+              </span>
+            ))}
+          </div>
+        )}
+      </section>
+
       {/* Съёмочная группа */}
       <section className="rounded-2xl border border-border bg-surface p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
@@ -313,7 +385,6 @@ export default async function AdminDramaEditPage({
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    {/* АКТЕР - ССЫЛКА В АДМИНКУ */}
                     <Link
                       href={`/admin/people/${a.person.id}?fromDrama=${drama.id}`}
                       className="text-sm font-semibold truncate hover:text-accent transition-colors"
@@ -327,7 +398,6 @@ export default async function AdminDramaEditPage({
                     )}
                   </div>
 
-                  {/* ПЕРСОНАЖ - ССЫЛКА В АДМИНКУ */}
                   {a.character?.name && (
                     <Link
                       href={`/admin/characters/${a.character.id}?fromDrama=${drama.id}`}

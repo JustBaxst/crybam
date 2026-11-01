@@ -161,6 +161,21 @@ export async function updateDrama(formData: FormData) {
     }
   }
 
+  // Обновляем темы
+  const themesRaw = String(formData.get("themes") ?? "").trim();
+  await prisma.dramaThemeLink.deleteMany({ where: { dramaId } });
+  if (themesRaw) {
+    const names = themesRaw.split(",").map(s => s.trim()).filter(Boolean);
+    for (const name of names) {
+      const theme = await prisma.dramaTheme.upsert({
+        where: { name }, update: {}, create: { name },
+      });
+      await prisma.dramaThemeLink.create({
+        data: { dramaId, themeId: theme.id },
+      });
+    }
+  }
+
   const newStatus = await getDramaStatus(dramaId);
   let isJustCompleted = false;
 
@@ -675,5 +690,90 @@ export async function saveCryTag(dramaId: number, cryTag: string) {
 
   revalidatePath(`/dramas/${dramaId}`);
   revalidatePath("/library");
+  return { success: true };
+}
+
+export async function updateMoods(formData: FormData) {
+  const dramaId = Number(formData.get("dramaId"));
+  if (!Number.isInteger(dramaId) || dramaId <= 0) return { error: "Неверный ID" };
+
+  const oldStatus = await getDramaStatus(dramaId);
+
+  const existingIds: number[] = [];
+  for (const [key, value] of formData.entries()) {
+    if (key.startsWith("mood_") && value === "on") {
+      const id = Number(key.replace("mood_", ""));
+      if (Number.isInteger(id)) existingIds.push(id);
+    }
+  }
+
+  const newMoodsRaw = String(formData.get("newMoods") ?? "").trim();
+  const newMoodNames = newMoodsRaw ? newMoodsRaw.split(",").map((s) => s.trim()).filter(Boolean) : [];
+
+  const newMoodIds: number[] = [];
+  for (const name of newMoodNames) {
+    const normalized = name[0].toUpperCase() + name.slice(1);
+    const m = await prisma.mood.upsert({
+      where: { name: normalized }, update: {}, create: { name: normalized },
+    });
+    newMoodIds.push(m.id);
+  }
+
+  const allMoodIds = Array.from(new Set([...existingIds, ...newMoodIds]));
+  await prisma.dramaMoodLink.deleteMany({ where: { dramaId } });
+  if (allMoodIds.length > 0) {
+    await prisma.dramaMoodLink.createMany({
+      data: allMoodIds.map((moodId) => ({ dramaId, moodId })),
+    });
+  }
+
+  const newStatus = await getDramaStatus(dramaId);
+  let isJustCompleted = false;
+  if (oldStatus !== "green" && newStatus === "green") {
+    isJustCompleted = true;
+    const d = await prisma.drama.findUnique({ where: { id: dramaId }, select: { title: true } });
+    await prisma.adminLog.create({
+      data: { userId: CURRENT_USER_ID, action: "DRAMA_COMPLETED", entityType: "drama", entityId: dramaId, entityName: d?.title || "Без названия", isPublic: true }
+    });
+  }
+
+  revalidatePath(`/dramas/${dramaId}`);
+  revalidatePath(`/admin/dramas/${dramaId}`);
+  return { success: true, isJustCompleted };
+}
+
+export async function updateThemes(formData: FormData) {
+  const dramaId = Number(formData.get("dramaId"));
+  if (!Number.isInteger(dramaId) || dramaId <= 0) return { error: "Неверный ID" };
+
+  const existingIds: number[] = [];
+  for (const [key, value] of formData.entries()) {
+    if (key.startsWith("theme_") && value === "on") {
+      const id = Number(key.replace("theme_", ""));
+      if (Number.isInteger(id)) existingIds.push(id);
+    }
+  }
+
+  const newThemesRaw = String(formData.get("newThemes") ?? "").trim();
+  const newThemeNames = newThemesRaw ? newThemesRaw.split(",").map((s) => s.trim()).filter(Boolean) : [];
+
+  const newThemeIds: number[] = [];
+  for (const name of newThemeNames) {
+    const m = await prisma.dramaTheme.upsert({
+      where: { name }, update: {}, create: { name },
+    });
+    newThemeIds.push(m.id);
+  }
+
+  const allThemeIds = Array.from(new Set([...existingIds, ...newThemeIds]));
+  await prisma.dramaThemeLink.deleteMany({ where: { dramaId } });
+  if (allThemeIds.length > 0) {
+    await prisma.dramaThemeLink.createMany({
+      data: allThemeIds.map((themeId) => ({ dramaId, themeId })),
+    });
+  }
+
+  revalidatePath(`/dramas/${dramaId}`);
+  revalidatePath(`/admin/dramas/${dramaId}`);
   return { success: true };
 }

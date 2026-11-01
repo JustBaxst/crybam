@@ -9,6 +9,7 @@ import {
   Star,
   Image,
   Sliders,
+  Hash, // <-- Добавили иконку для тем
 } from "lucide-react";
 import { updateDrama } from "./actions";
 import { FormSection } from "@/components/FormSection";
@@ -34,6 +35,7 @@ type DramaData = {
   dubbingStudios: string | null;
   platforms: string[];
   studios: string[];
+  themes: string[]; // <-- Добавили темы
   airStatus: string;
   curatorCryTag: string | null;
 };

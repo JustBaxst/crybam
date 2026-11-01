@@ -14,6 +14,8 @@ type DramaCardProps = {
   status?: string;
   impression?: string | null;
   posterUrl?: string | null;
+  genres?: string[];
+  themes?: string[];
 };
 
 export function DramaCard({
@@ -26,6 +28,8 @@ export function DramaCard({
   status,
   impression,
   posterUrl,
+  genres, // <-- ДОБАВИЛИ СЮДА
+  themes, // <-- ДОБАВИЛИ СЮДА
 }: DramaCardProps) {
   return (
     <Link
@@ -53,7 +57,24 @@ export function DramaCard({
         </p>
 
         <div className="mt-auto pt-2 flex flex-col gap-1.5">
-          <div className="flex items-center gap-1.5 flex-wrap min-h-26px">
+
+          {/* Жанры и Темы */}
+          {(genres?.length || themes?.length) ? (
+            <div className="flex flex-wrap gap-1">
+              {genres?.slice(0, 2).map((g) => (
+                <span key={g} className="text-[10px] px-1.5 py-0.5 rounded bg-accent/10 text-accent border border-accent/20">
+                  {g}
+                </span>
+              ))}
+              {themes?.slice(0, 1).map((t) => (
+                <span key={t} className="text-[10px] px-1.5 py-0.5 rounded bg-blue-400/10 text-blue-400 border border-blue-400/20">
+                  #{t}
+                </span>
+              ))}
+            </div>
+          ) : null}
+
+          <div className="flex items-center gap-1.5 flex-wrap min-h-6.5">
             {status && (
               <span className="text-xs px-2 py-1 rounded-full border border-border text-muted leading-none">
                 {statusLabel(status)}

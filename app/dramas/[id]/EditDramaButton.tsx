@@ -22,6 +22,7 @@ type DramaData = {
   dubbingStudios: string | null;
   platforms: string[];
   studios: string[];
+  themes: string[]; // <-- ДОБАВИЛИ СЮДА
   airStatus: string;
   curatorCryTag: string | null;
 };

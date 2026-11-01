@@ -53,7 +53,7 @@ export function Rating({
             </div>
 
             {/* Уменьшили min-w до 1.5rem, чтобы текст не съедал место */}
-            <span className="text-sm md:text-base font-semibold tabular-nums text-foreground whitespace-nowrap min-w-[1.5rem] text-right shrink-0">
+            <span className="text-sm md:text-base font-semibold tabular-nums text-foreground whitespace-nowrap min-w-6 text-right shrink-0">
                 {displayValue > 0 ? displayValue : ""}
             </span>
         </div>

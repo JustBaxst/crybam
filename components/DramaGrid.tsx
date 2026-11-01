@@ -10,7 +10,14 @@ export async function DramaGrid() {
       userId: CURRENT_USER_ID,
       drama: { deletedAt: null },
     },
-    include: { drama: true },
+    include: {
+      drama: {
+        include: {
+          genres: { include: { genre: true } },
+          themes: { include: { theme: true } }
+        }
+      }
+    },
     orderBy: { createdAt: "desc" },
   });
 
@@ -36,6 +43,8 @@ export async function DramaGrid() {
           status={entry.status}
           impression={entry.impression}
           posterUrl={entry.drama.posterUrl}
+          genres={entry.drama.genres.map(g => g.genre.name)}
+          themes={entry.drama.themes.map(t => t.theme.name)}
         />
       ))}
     </div>

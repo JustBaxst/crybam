@@ -51,14 +51,15 @@ export default async function LibraryPage({
   }
 
   const entries = await prisma.userDramaEntry.findMany({
-    where: {
-      userId: CURRENT_USER_ID,
-      status: activeStatus,
+    where: { userId: CURRENT_USER_ID, status: activeStatus, drama: { deletedAt: null } },
+    include: {
       drama: {
-        deletedAt: null,
+        include: {
+          genres: { include: { genre: true } },
+          themes: { include: { theme: true } }
+        }
       }
     },
-    include: { drama: true },
     orderBy: { createdAt: "desc" },
   });
 
@@ -91,6 +92,8 @@ export default async function LibraryPage({
               status={entry.status}
               impression={entry.impression}
               posterUrl={entry.drama.posterUrl}
+              genres={entry.drama.genres.map(g => g.genre.name)}
+              themes={entry.drama.themes.map(t => t.theme.name)}
             />
           ))}
         </div>
