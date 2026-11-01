@@ -67,19 +67,19 @@ export function NewDramaForm() {
               placeholder="2020"
               className={inputCls}
             />
-            <div>
-              <label className={labelCls}>Страна</label>
-              <select
-                name="country"
-                defaultValue=""
-                className={inputCls}
-              >
-                <option value="">— не выбрана —</option>
-                {COUNTRIES.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-            </div>
+          </div>
+          <div>
+            <label className={labelCls}>Страна</label>
+            <select
+              name="country"
+              defaultValue=""
+              className={inputCls}
+            >
+              <option value="">— не выбрана —</option>
+              {COUNTRIES.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
           </div>
         </div>
       </FormSection>
