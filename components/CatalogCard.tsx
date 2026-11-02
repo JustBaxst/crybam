@@ -1,4 +1,4 @@
-"use client"; // <-- Добавили, так как у нас теперь есть интерактивное состояние
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -32,7 +32,7 @@ export function CatalogCard({
   dramaId, title, year, country, posterUrl, ratingKinopoisk, ratingIMDB,
   genres, themes, moods, episodes, synopsis, dominantCryTag, entry
 }: CatalogCardProps) {
-  const [showTags, setShowTags] = useState(false); // <-- Состояние для переключения
+  const [showTags, setShowTags] = useState(false);
 
   const rating = ratingKinopoisk ?? ratingIMDB ?? null;
   const metaString = [year, country, episodes ? `${episodes} сер.` : null].filter(Boolean).join(" · ");
@@ -42,9 +42,10 @@ export function CatalogCard({
   const hiddenTagsCount = Math.max(0, totalTags - 3);
 
   return (
-    <div className="group relative flex flex-col rounded-xl border border-border bg-surface transition-colors hover:border-accent/50"
-      onMouseLeave={() => setShowTags(false)}>
-
+    <div
+      className="group relative flex flex-col rounded-xl border border-border bg-surface transition-colors hover:border-accent/50"
+      onMouseLeave={() => setShowTags(false)}
+    >
       {/* ─── ПОСТЕР И HOVER-ОВЕРЛЕЙ ─── */}
       <div className="relative aspect-2/3 bg-accent-soft overflow-hidden rounded-t-xl">
 
@@ -54,8 +55,6 @@ export function CatalogCard({
 
         {/* Верхние пилюли (исчезают при наведении) */}
         <div className="absolute top-2 left-2 right-2 flex justify-between items-start z-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-0">
-
-          {/* Рейтинг */}
           <div className="inline-flex items-center gap-1.5 h-6 px-2 rounded-full border border-white/20 bg-black/60 backdrop-blur-md text-xs font-semibold shadow-sm">
             <Star className={`w-3.5 h-3.5 shrink-0 ${rating ? "fill-current text-yellow-400" : "text-white/50"}`} />
             <span className="text-white translate-y-0">
@@ -63,7 +62,6 @@ export function CatalogCard({
             </span>
           </div>
 
-          {/* CryTag */}
           {cryTagConfig ? (
             <div className="inline-flex items-center gap-1.5 h-6 px-2 rounded-full border border-white/20 bg-black/60 backdrop-blur-md text-xs font-semibold shadow-sm">
               <cryTagConfig.Icon className={`w-3.5 h-3.5 shrink-0 ${cryTagConfig.color}`} />
@@ -94,50 +92,60 @@ export function CatalogCard({
                   <ArrowLeft className="w-3 h-3" /> Назад к описанию
                 </button>
 
-                {/* Контейнер с ограничением высоты и градиентом */}
-                <div className="relative flex-1 overflow-hidden">
-                  <div className="flex flex-col gap-3 text-white/90 pb-6">
-                    {genres.length > 0 && (
-                      <div>
-                        <span className="text-[10px] text-white/50 uppercase mb-1 block">Жанры</span>
-                        <div className="flex flex-wrap gap-x-3 gap-y-1">
-                          {genres.map(g => (
-                            <Link key={g.id} href={`/dramas?genre=${g.id}`} className="text-xs text-white/90 hover:text-accent hover:underline transition-colors cursor-pointer">
+                {/* Контейнер с line-clamp-14 */}
+                <div className="text-white/90 text-xs leading-relaxed line-clamp-12">
+
+                  {genres.length > 0 && (
+                    <div className="mb-1.5">
+                      <span className="text-[10px] text-white/50 uppercase mb-1 block">Жанры</span>
+                      {/* Текст в строку через запятую */}
+                      <span>
+                        {genres.map((g, i) => (
+                          <span key={g.id}>
+                            <Link href={`/dramas?genre=${g.id}`} className="hover:text-accent hover:underline cursor-pointer">
                               {g.name}
                             </Link>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                            {i < genres.length - 1 && ", "}
+                          </span>
+                        ))}
+                      </span>
+                    </div>
+                  )}
 
-                    {moods.length > 0 && (
-                      <div>
-                        <span className="text-[10px] text-white/50 uppercase mb-1 block">Настроение</span>
-                        <div className="flex flex-wrap gap-x-3 gap-y-1">
-                          {moods.map(m => (
-                            <Link key={m} href={`/dramas?mood=${encodeURIComponent(m)}`} className="text-xs text-white/90 hover:text-accent hover:underline transition-colors cursor-pointer">
+                  {moods.length > 0 && (
+                    <div className="mb-1.5">
+                      <span className="text-[10px] text-white/50 uppercase mb-1 block">Настроение</span>
+                      {/* Текст в строку через запятую */}
+                      <span>
+                        {moods.map((m, i) => (
+                          <span key={m}>
+                            <Link href={`/dramas?mood=${encodeURIComponent(m)}`} className="hover:text-accent hover:underline cursor-pointer">
                               {m}
                             </Link>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                            {i < moods.length - 1 && ", "}
+                          </span>
+                        ))}
+                      </span>
+                    </div>
+                  )}
 
-                    {themes.length > 0 && (
-                      <div>
-                        <span className="text-[10px] text-white/50 uppercase mb-1 block">Темы</span>
-                        <div className="flex flex-wrap gap-x-3 gap-y-1">
-                          {themes.map(t => (
-                            <Link key={t} href={`/dramas?theme=${encodeURIComponent(t)}`} className="text-xs text-white/90 hover:text-accent hover:underline transition-colors cursor-pointer">
+                  {themes.length > 0 && (
+                    <div className="mb-1.5">
+                      <span className="text-[10px] text-white/50 uppercase mb-1 block">Темы</span>
+                      {/* Текст в строку через пробел */}
+                      <span>
+                        {themes.map((t, i) => (
+                          <span key={t}>
+                            <Link href={`/dramas?theme=${encodeURIComponent(t)}`} className="hover:text-accent hover:underline cursor-pointer">
                               #{t}
                             </Link>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  {/* Градиентная шторка снизу, чтобы показать, что текст обрезан */}
-                  <div className="absolute bottom-0 left-0 right-0 h-8 bg-linear-to-t from-black/85 to-transparent pointer-events-none" />
+                            {i < themes.length - 1 && " "}
+                          </span>
+                        ))}
+                      </span>
+                    </div>
+                  )}
+
                 </div>
               </div>
             )}
@@ -167,7 +175,6 @@ export function CatalogCard({
             </span>
           ))}
 
-          {/* Вместо Popover используем кнопку, которая меняет стейт карточки */}
           {hiddenTagsCount > 0 && (
             <button
               onClick={() => setShowTags(true)}
