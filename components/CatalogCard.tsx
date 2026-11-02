@@ -54,22 +54,25 @@ export function CatalogCard({
 
         {/* Верхние пилюли (исчезают при наведении) */}
         <div className="absolute top-2 left-2 right-2 flex justify-between items-start z-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-0">
-          <div className="inline-flex items-center gap-1.5 h-6 px-2 rounded-full border border-border bg-background/80 text-xs font-semibold">
-            <Star className={`w-3.5 h-3.5 shrink-0 ${rating ? "fill-current text-yellow-400" : "text-muted"}`} />
-            <span className={`${rating ? "text-foreground" : "text-muted"} translate-y-0`}>
+
+          {/* Рейтинг */}
+          <div className="inline-flex items-center gap-1.5 h-6 px-2 rounded-full border border-white/20 bg-black/60 backdrop-blur-md text-xs font-semibold shadow-sm">
+            <Star className={`w-3.5 h-3.5 shrink-0 ${rating ? "fill-current text-yellow-400" : "text-white/50"}`} />
+            <span className="text-white translate-y-0">
               {rating != null ? rating.toFixed(1) : "—"}
             </span>
           </div>
 
+          {/* CryTag */}
           {cryTagConfig ? (
-            <div className={`inline-flex items-center gap-1.5 h-6 px-2 rounded-full border ${cryTagConfig.border} ${cryTagConfig.bg}/15 text-xs font-semibold ${cryTagConfig.color}`}>
-              <cryTagConfig.Icon className="w-3.5 h-3.5 shrink-0" />
-              <span className="-translate-y-px">{cryTagConfig.label}</span>
+            <div className="inline-flex items-center gap-1.5 h-6 px-2 rounded-full border border-white/20 bg-black/60 backdrop-blur-md text-xs font-semibold shadow-sm">
+              <cryTagConfig.Icon className={`w-3.5 h-3.5 shrink-0 ${cryTagConfig.color}`} />
+              <span className="text-white -translate-y-px">{cryTagConfig.label}</span>
             </div>
           ) : (
-            <div className="inline-flex items-center gap-1.5 h-6 px-2 rounded-full border border-border bg-background/80 text-xs font-semibold text-muted">
-              <Eye className="w-3.5 h-3.5 shrink-0" />
-              <span className="-translate-y-px">Сбор данных</span>
+            <div className="inline-flex items-center gap-1.5 h-6 px-2 rounded-full border border-white/20 bg-black/60 backdrop-blur-md text-xs font-semibold shadow-sm">
+              <Eye className="w-3.5 h-3.5 shrink-0 text-white/50" />
+              <span className="text-white -translate-y-px">Сбор данных</span>
             </div>
           )}
         </div>
@@ -83,64 +86,59 @@ export function CatalogCard({
                 {synopsis || "Описание пока отсутствует..."}
               </p>
             ) : (
-              <div className="flex flex-col gap-3 text-white/90">
+              <div className="flex flex-col h-full">
                 <button
                   onClick={() => setShowTags(false)}
-                  className="text-[10px] text-accent hover:underline flex items-center gap-1 w-fit mb-1 cursor-pointer"
+                  className="text-[10px] text-accent hover:underline flex items-center gap-1 w-fit mb-2 cursor-pointer shrink-0"
                 >
                   <ArrowLeft className="w-3 h-3" /> Назад к описанию
                 </button>
 
-                {genres.length > 0 && (
-                  <div>
-                    <span className="text-[10px] text-white/50 uppercase mb-1.5 block">Жанры</span>
-                    <div className="flex flex-wrap gap-x-3 gap-y-1.5">
-                      {genres.map(g => (
-                        <Link
-                          key={g.id}
-                          href={`/dramas?genre=${g.id}`}
-                          className="text-xs text-white/90 hover:text-accent hover:underline transition-colors cursor-pointer"
-                        >
-                          {g.name}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                {/* Контейнер с ограничением высоты и градиентом */}
+                <div className="relative flex-1 overflow-hidden">
+                  <div className="flex flex-col gap-3 text-white/90 pb-6">
+                    {genres.length > 0 && (
+                      <div>
+                        <span className="text-[10px] text-white/50 uppercase mb-1 block">Жанры</span>
+                        <div className="flex flex-wrap gap-x-3 gap-y-1">
+                          {genres.map(g => (
+                            <Link key={g.id} href={`/dramas?genre=${g.id}`} className="text-xs text-white/90 hover:text-accent hover:underline transition-colors cursor-pointer">
+                              {g.name}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
-                {moods.length > 0 && (
-                  <div>
-                    <span className="text-[10px] text-white/50 uppercase mb-1.5 block">Настроение</span>
-                    <div className="flex flex-wrap gap-x-3 gap-y-1.5">
-                      {moods.map(m => (
-                        <Link
-                          key={m}
-                          href={`/dramas?mood=${encodeURIComponent(m)}`}
-                          className="text-xs text-white/90 hover:text-accent hover:underline transition-colors cursor-pointer"
-                        >
-                          {m}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                    {moods.length > 0 && (
+                      <div>
+                        <span className="text-[10px] text-white/50 uppercase mb-1 block">Настроение</span>
+                        <div className="flex flex-wrap gap-x-3 gap-y-1">
+                          {moods.map(m => (
+                            <Link key={m} href={`/dramas?mood=${encodeURIComponent(m)}`} className="text-xs text-white/90 hover:text-accent hover:underline transition-colors cursor-pointer">
+                              {m}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
-                {themes.length > 0 && (
-                  <div>
-                    <span className="text-[10px] text-white/50 uppercase mb-1.5 block">Темы</span>
-                    <div className="flex flex-wrap gap-x-3 gap-y-1.5">
-                      {themes.map(t => (
-                        <Link
-                          key={t}
-                          href={`/dramas?theme=${encodeURIComponent(t)}`}
-                          className="text-xs text-white/90 hover:text-accent hover:underline transition-colors cursor-pointer"
-                        >
-                          #{t}
-                        </Link>
-                      ))}
-                    </div>
+                    {themes.length > 0 && (
+                      <div>
+                        <span className="text-[10px] text-white/50 uppercase mb-1 block">Темы</span>
+                        <div className="flex flex-wrap gap-x-3 gap-y-1">
+                          {themes.map(t => (
+                            <Link key={t} href={`/dramas?theme=${encodeURIComponent(t)}`} className="text-xs text-white/90 hover:text-accent hover:underline transition-colors cursor-pointer">
+                              #{t}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
+                  {/* Градиентная шторка снизу, чтобы показать, что текст обрезан */}
+                  <div className="absolute bottom-0 left-0 right-0 h-8 bg-linear-to-t from-black/85 to-transparent pointer-events-none" />
+                </div>
               </div>
             )}
           </div>
