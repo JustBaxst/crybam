@@ -4,36 +4,11 @@ import {
   ChevronRight, Calendar, Briefcase, Film, User as UserIcon, MapPin,
   Ruler, Link as LinkIcon, Droplet, Brain, Sparkles, Flag, Info, BookOpen, Image as ImageIcon
 } from "lucide-react";
-import {
-  FaInstagram, FaYoutube, FaTwitter, FaTiktok, FaWikipediaW,
-  FaGlobe, FaFacebook, FaLinkedin, FaTelegram, FaDiscord,
-  FaRedditAlien, FaPinterest, FaSnapchat, FaTwitch, FaVk,
-  FaSpotify, FaSoundcloud, FaImdb, FaGithub, FaMedium, FaWeibo, FaYandex
-} from "react-icons/fa6";
-import {
-  SiThreads, SiBluesky, SiLine, SiWechat,
-  SiBilibili, SiNaver, SiKakaotalk, SiApplemusic,
-  SiTumblr, SiVimeo, SiDailymotion, SiPatreon,
-  SiMastodon, SiSubstack, SiFlickr
-} from "react-icons/si";
 import { prisma } from "@/lib/prisma";
 import { AlternativeTitles } from "@/app/dramas/[id]/AlternativeTitles";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { FavoriteActorButton } from "@/components/people/FavoriteActorButton";
-
-// Словарь для быстрого сопоставления платформы и иконки
-const SOCIAL_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  instagram: FaInstagram, youtube: FaYoutube, twitter: FaTwitter, x: FaTwitter,
-  tiktok: FaTiktok, weibo: FaWeibo, wikipedia: FaWikipediaW, website: FaGlobe,
-  facebook: FaFacebook, linkedin: FaLinkedin, telegram: FaTelegram, discord: FaDiscord,
-  reddit: FaRedditAlien, pinterest: FaPinterest, snapchat: FaSnapchat, twitch: FaTwitch,
-  vk: FaVk, spotify: FaSpotify, soundcloud: FaSoundcloud, imdb: FaImdb,
-  github: FaGithub, medium: FaMedium, threads: SiThreads, bluesky: SiBluesky,
-  line: SiLine, wechat: SiWechat, bilibili: SiBilibili, naver: SiNaver,
-  kakao: SiKakaotalk, applemusic: SiApplemusic, yandexmusic: FaYandex, douyin: FaTiktok,
-  tumblr: SiTumblr, vimeo: SiVimeo, dailymotion: SiDailymotion, patreon: SiPatreon,
-  mastodon: SiMastodon, substack: SiSubstack, flickr: SiFlickr,
-};
+import { SocialLinks } from "@/components/people/SocialLinks";
 
 type Params = Promise<{ id: string }>;
 
@@ -223,38 +198,23 @@ export default async function PersonPage({ params }: { params: Params }) {
               )}
             </div>
           </div>
+        </div>
+
+        {/* Колонка 3: Действия */}
+        <div className="lg:col-span-1 bg-surface/20 p-5 rounded-2xl border border-border/50 flex flex-col justify-between shrink-0">
+
+          <div>
+            <h3 className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-2">Действия</h3>
+            <div className="text-sm text-muted italic">Скоро здесь появятся функции...</div>
+          </div>
 
           {/* Соцсети */}
           {person.socialLinks.length > 0 && (
             <div className="mt-6 pt-4 border-t border-border/50">
-              <span className="text-[11px] text-muted/70 mb-2 block">Социальные сети:</span>
-              <div className="flex flex-wrap gap-2">
-                {person.socialLinks.map((link) => {
-                  const p = link.platform.toLowerCase();
-                  const Icon = SOCIAL_ICONS[p] || LinkIcon;
-                  return (
-                    <a
-                      key={link.id}
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border bg-surface text-muted hover:text-accent hover:border-accent/40 transition-all text-xs"
-                      title={link.platform}
-                    >
-                      <Icon className="w-3.5 h-3.5" />
-                      <span className="capitalize">{link.platform}</span>
-                    </a>
-                  );
-                })}
-              </div>
+              <span className="text-[11px] text-muted/70 mb-3 block">Социальные сети:</span>
+              <SocialLinks links={person.socialLinks} />
             </div>
           )}
-        </div>
-
-        {/* Колонка 3: Пустой блок (на будущее) */}
-        <div className="lg:col-span-1 bg-surface/20 p-5 rounded-2xl border border-border/50 flex flex-col gap-4 shrink-0">
-          <h3 className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-2">Действия</h3>
-          <div className="text-sm text-muted italic">Скоро здесь появятся функции...</div>
         </div>
       </div>
 
