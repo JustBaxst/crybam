@@ -1,9 +1,10 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { ChevronDown, ArrowUpDown, Filter, Check } from "lucide-react";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 
 export function CharactersToolbar({ allDramas, allPersons }: { allDramas: { id: number, title: string }[]; allPersons: { id: number, name: string }[]; }) {
     const router = useRouter();
@@ -35,22 +36,14 @@ export function CharactersToolbar({ allDramas, allPersons }: { allDramas: { id: 
             <div className="flex flex-wrap items-center gap-2">
                 <div className="flex items-center gap-1.5 text-sm text-muted mr-2"><Filter className="w-4 h-4" /> Фильтры:</div>
 
-                {/* Дорама */}
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className={`gap-2 ${dramaIds.length ? "border-accent text-accent" : ""}`}>
-                            Дорама {dramaIds.length > 0 && `(${dramaIds.length})`} <ChevronDown className="w-3.5 h-3.5 opacity-50" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-64 max-h-60 overflow-y-auto">
-                        {allDramas.map((d) => (
-                            <DropdownMenuItem key={d.id} onClick={() => toggleParam("dramaId", String(d.id))} className="cursor-pointer flex items-center justify-between gap-2">
-                                <span className="whitespace-normal text-left leading-snug flex-1 min-w-0">{d.title}</span>
-                                {dramaIds.includes(String(d.id)) && <Check className="w-4 h-4 text-accent shrink-0" />}
-                            </DropdownMenuItem>
-                        ))}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                {/* Дорама с поиском */}
+                <SearchableSelect
+                    options={allDramas.map(d => ({ id: String(d.id), label: d.title }))}
+                    selectedValues={dramaIds}
+                    onToggle={(val) => toggleParam("dramaId", val)}
+                    placeholder="Поиск дорамы..."
+                    buttonLabel="Дорама"
+                />
 
                 {/* Тип роли */}
                 <DropdownMenu>
@@ -68,21 +61,14 @@ export function CharactersToolbar({ allDramas, allPersons }: { allDramas: { id: 
                     </DropdownMenuContent>
                 </DropdownMenu>
 
-                {/* Актер */}
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className={`gap-2 ${personIds.length ? "border-accent text-accent" : ""}`}>
-                            Актер {personIds.length > 0 && `(${personIds.length})`} <ChevronDown className="w-3.5 h-3.5 opacity-50" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-64 max-h-60 overflow-y-auto">
-                        {allPersons.map((p) => (
-                            <DropdownMenuItem key={p.id} onClick={() => toggleParam("personId", String(p.id))} className="cursor-pointer flex justify-between">
-                                {p.name} {personIds.includes(String(p.id)) && <Check className="w-4 h-4 text-accent shrink-0" />}
-                            </DropdownMenuItem>
-                        ))}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                {/* Актер с поиском */}
+                <SearchableSelect
+                    options={allPersons.map(p => ({ id: String(p.id), label: p.name }))}
+                    selectedValues={personIds}
+                    onToggle={(val) => toggleParam("personId", val)}
+                    placeholder="Поиск актера..."
+                    buttonLabel="Актер"
+                />
 
                 {/* Пол */}
                 <DropdownMenu>
@@ -101,7 +87,7 @@ export function CharactersToolbar({ allDramas, allPersons }: { allDramas: { id: 
                 </DropdownMenu>
             </div>
 
-            {/* Сортировка */}
+            {/* Сортировка с галочками */}
             <div className="flex items-center gap-2">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -112,11 +98,11 @@ export function CharactersToolbar({ allDramas, allPersons }: { allDramas: { id: 
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56">
-                        <DropdownMenuItem onClick={() => setParam("sort", "name_asc")} className="cursor-pointer">По имени (А-Я)</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setParam("sort", "name_desc")} className="cursor-pointer">По имени (Я-А)</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setParam("sort", "name_asc")} className="cursor-pointer flex justify-between">По имени (А-Я) {currentSort === "name_asc" && <Check className="w-4 h-4 text-accent shrink-0" />}</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setParam("sort", "name_desc")} className="cursor-pointer flex justify-between">По имени (Я-А) {currentSort === "name_desc" && <Check className="w-4 h-4 text-accent shrink-0" />}</DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => setParam("sort", "importance_desc")} className="cursor-pointer">По важности (Главные)</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setParam("sort", "importance_asc")} className="cursor-pointer">По важности (Эпизоды)</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setParam("sort", "importance_desc")} className="cursor-pointer flex justify-between">По важности (Главные) {currentSort === "importance_desc" && <Check className="w-4 h-4 text-accent shrink-0" />}</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setParam("sort", "importance_asc")} className="cursor-pointer flex justify-between">По важности (Эпизоды) {currentSort === "importance_asc" && <Check className="w-4 h-4 text-accent shrink-0" />}</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>

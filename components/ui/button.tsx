@@ -8,11 +8,13 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ({ className = "", variant = "default", size = "default", ...props }, ref) => {
 
-        const baseStyles = "inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent disabled:pointer-events-none disabled:opacity-50";
+        // Добавили cursor-pointer в базовые стили, чтобы палец был всегда
+        const baseStyles = "inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent disabled:pointer-events-none disabled:opacity-50 cursor-pointer";
 
         const variants = {
             default: "bg-accent text-white hover:opacity-90",
-            outline: "border border-border bg-surface hover:bg-surface/80 text-foreground",
+            // Для outline добавили более заметный ховер (фон и рамку)
+            outline: "border border-border bg-surface hover:bg-foreground/5 hover:border-accent/40 text-foreground",
             ghost: "hover:bg-accent/10 hover:text-accent text-foreground",
             destructive: "bg-red-500/10 text-red-500 hover:bg-red-500/20",
         };

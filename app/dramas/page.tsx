@@ -44,6 +44,7 @@ export default async function DramasCatalogPage({ searchParams }: { searchParams
 
   let orderBy: any = [{ year: "desc" }, { title: "asc" }];
   if (currentSort === "rating_desc") orderBy = [{ ratingKinopoisk: "desc" }, { ratingIMDB: "desc" }];
+  else if (currentSort === "rating_asc") orderBy = [{ ratingKinopoisk: "asc" }, { ratingIMDB: "asc" }];
   else if (currentSort === "title_asc") orderBy = [{ title: "asc" }];
   else if (currentSort === "year_asc") orderBy = [{ year: "asc" }, { title: "asc" }];
   else if (currentSort === "episodes_desc") orderBy = [{ episodes: "desc" }, { title: "asc" }];

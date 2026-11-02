@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ArrowUpDown, Filter, Check } from "lucide-react";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 
 type Option = { id?: number; name: string };
 
@@ -47,61 +48,36 @@ export function CatalogToolbar({ allGenres, allMoods, allThemes, allCountries }:
     };
 
     return (
-        // Убрали рамки и фон, оставили только flex-контейнер
         <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-2">
                 <div className="flex items-center gap-1.5 text-sm text-muted mr-2"><Filter className="w-4 h-4" /> Фильтры:</div>
 
-                {/* Жанр */}
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className={`gap-2 ${genreIds.length ? "border-accent text-accent" : ""}`}>
-                            Жанр {genreIds.length > 0 && `(${genreIds.length})`} <ChevronDown className="w-3.5 h-3.5 opacity-50" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-64 max-h-60 overflow-y-auto">
-                        {allGenres.map((g) => (
-                            <DropdownMenuItem key={g.id} onClick={() => toggleParam("genre", String(g.id))} className="cursor-pointer flex items-center justify-between gap-2">
-                                <span className="whitespace-normal text-left leading-snug flex-1 min-w-0" title={g.name}>{g.name}</span>
-                                {genreIds.includes(String(g.id)) && <Check className="w-4 h-4 text-accent shrink-0" />}
-                            </DropdownMenuItem>
-                        ))}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                {/* Жанр с поиском */}
+                <SearchableSelect
+                    options={allGenres.map(g => ({ id: String(g.id), label: g.name }))}
+                    selectedValues={genreIds}
+                    onToggle={(val) => toggleParam("genre", val)}
+                    placeholder="Поиск жанра..."
+                    buttonLabel="Жанр"
+                />
 
-                {/* Настроение */}
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className={`gap-2 ${moods.length ? "border-accent text-accent" : ""}`}>
-                            Настроение {moods.length > 0 && `(${moods.length})`} <ChevronDown className="w-3.5 h-3.5 opacity-50" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-64 max-h-60 overflow-y-auto">
-                        {allMoods.map((m) => (
-                            <DropdownMenuItem key={m.name} onClick={() => toggleParam("mood", m.name)} className="cursor-pointer flex items-center justify-between gap-2">
-                                <span className="whitespace-normal text-left leading-snug flex-1 min-w-0" title={m.name}>{m.name}</span>
-                                {moods.includes(m.name) && <Check className="w-4 h-4 text-accent shrink-0" />}
-                            </DropdownMenuItem>
-                        ))}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                {/* Настроение с поиском */}
+                <SearchableSelect
+                    options={allMoods.map(m => ({ id: m.name, label: m.name }))}
+                    selectedValues={moods}
+                    onToggle={(val) => toggleParam("mood", val)}
+                    placeholder="Поиск настроения..."
+                    buttonLabel="Настроение"
+                />
 
-                {/* Тема */}
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className={`gap-2 ${themes.length ? "border-accent text-accent" : ""}`}>
-                            Тема {themes.length > 0 && `(${themes.length})`} <ChevronDown className="w-3.5 h-3.5 opacity-50" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-64 max-h-60 overflow-y-auto">
-                        {allThemes.map((t) => (
-                            <DropdownMenuItem key={t.name} onClick={() => toggleParam("theme", t.name)} className="cursor-pointer flex items-center justify-between gap-2">
-                                <span className="whitespace-normal text-left leading-snug flex-1 min-w-0" title={`#${t.name}`}>#{t.name}</span>
-                                {themes.includes(t.name) && <Check className="w-4 h-4 text-accent shrink-0" />}
-                            </DropdownMenuItem>
-                        ))}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                {/* Тема с поиском */}
+                <SearchableSelect
+                    options={allThemes.map(t => ({ id: t.name, label: t.name }))}
+                    selectedValues={themes}
+                    onToggle={(val) => toggleParam("theme", val)}
+                    placeholder="Поиск темы..."
+                    buttonLabel="Тема"
+                />
 
                 {/* Статус */}
                 <DropdownMenu>
@@ -120,22 +96,14 @@ export function CatalogToolbar({ allGenres, allMoods, allThemes, allCountries }:
                     </DropdownMenuContent>
                 </DropdownMenu>
 
-                {/* Страна */}
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className={`gap-2 ${countries.length ? "border-accent text-accent" : ""}`}>
-                            Страна {countries.length > 0 && `(${countries.length})`} <ChevronDown className="w-3.5 h-3.5 opacity-50" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-64 max-h-60 overflow-y-auto">
-                        {allCountries.map((c) => (
-                            <DropdownMenuItem key={c} onClick={() => toggleParam("country", c)} className="cursor-pointer flex items-center justify-between gap-2">
-                                <span className="whitespace-normal text-left leading-snug flex-1 min-w-0" title={c}>{c}</span>
-                                {countries.includes(c) && <Check className="w-4 h-4 text-accent shrink-0" />}
-                            </DropdownMenuItem>
-                        ))}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                {/* Страна с поиском */}
+                <SearchableSelect
+                    options={allCountries.map(c => ({ id: c, label: c }))}
+                    selectedValues={countries}
+                    onToggle={(val) => toggleParam("country", val)}
+                    placeholder="Поиск страны..."
+                    buttonLabel="Страна"
+                />
 
                 {/* Серии */}
                 <DropdownMenu>
@@ -145,33 +113,86 @@ export function CatalogToolbar({ allGenres, allMoods, allThemes, allCountries }:
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="w-56">
-                        <DropdownMenuItem onClick={() => setParam("episodes", "1-12")} className="cursor-pointer flex justify-between">До 12 {currentEpisodes === "1-12" && <Check className="w-4 h-4 text-accent shrink-0" />}</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setParam("episodes", "13-20")} className="cursor-pointer flex justify-between">13–20 {currentEpisodes === "13-20" && <Check className="w-4 h-4 text-accent shrink-0" />}</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setParam("episodes", "21+")} className="cursor-pointer flex justify-between">21 и больше {currentEpisodes === "21+" && <Check className="w-4 h-4 text-accent shrink-0" />}</DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={() => setParam("episodes", currentEpisodes === "1-12" ? null : "1-12")}
+                            className="cursor-pointer flex justify-between"
+                        >
+                            До 12 {currentEpisodes === "1-12" && <Check className="w-4 h-4 text-accent shrink-0" />}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={() => setParam("episodes", currentEpisodes === "13-20" ? null : "13-20")}
+                            className="cursor-pointer flex justify-between"
+                        >
+                            13–20 {currentEpisodes === "13-20" && <Check className="w-4 h-4 text-accent shrink-0" />}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={() => setParam("episodes", currentEpisodes === "21+" ? null : "21+")}
+                            className="cursor-pointer flex justify-between"
+                        >
+                            21 и больше {currentEpisodes === "21+" && <Check className="w-4 h-4 text-accent shrink-0" />}
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
 
-            {/* Сортировка */}
+            {/* Сортировка с галочками */}
             <div className="flex items-center gap-2">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm" className="gap-2 text-muted hover:text-foreground">
                             <ArrowUpDown className="w-4 h-4" />
-                            {currentSort === "year_desc" ? "По году ↓" : currentSort === "year_asc" ? "По году ↑" : currentSort === "rating_desc" ? "По рейтингу" : currentSort === "title_asc" ? "По алфавиту" : currentSort === "episodes_desc" ? "По сериям ↓" : currentSort === "episodes_asc" ? "По сериям ↑" : currentSort === "random" ? "Случайно" : "Сортировка"}
+                            {currentSort === "year_desc" ? "По году ↓" :
+                                currentSort === "year_asc" ? "По году ↑" :
+                                    currentSort === "rating_desc" ? "По рейтингу ↓" :
+                                        currentSort === "rating_asc" ? "По рейтингу ↑" :
+                                            currentSort === "title_asc" ? "По алфавиту (А-Я)" :
+                                                currentSort === "title_desc" ? "По алфавиту (Я-А)" :
+                                                    currentSort === "episodes_desc" ? "По сериям ↓" :
+                                                        currentSort === "episodes_asc" ? "По сериям ↑" :
+                                                            currentSort === "random" ? "Случайно" : "Сортировка"}
                             <ChevronDown className="w-3.5 h-3.5 opacity-50" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56">
-                        <DropdownMenuItem onClick={() => setParam("sort", "year_desc")} className="cursor-pointer">По году (новые)</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setParam("sort", "year_asc")} className="cursor-pointer">По году (старые)</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setParam("sort", "rating_desc")} className="cursor-pointer">По рейтингу</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setParam("sort", "title_asc")} className="cursor-pointer">По алфавиту</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setParam("sort", "year_desc")} className="cursor-pointer flex justify-between">
+                            По году (новые) {currentSort === "year_desc" && <Check className="w-4 h-4 text-accent shrink-0" />}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setParam("sort", "year_asc")} className="cursor-pointer flex justify-between">
+                            По году (старые) {currentSort === "year_asc" && <Check className="w-4 h-4 text-accent shrink-0" />}
+                        </DropdownMenuItem>
+
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => setParam("sort", "episodes_desc")} className="cursor-pointer">По сериям (больше)</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setParam("sort", "episodes_asc")} className="cursor-pointer">По сериям (меньше)</DropdownMenuItem>
+
+                        <DropdownMenuItem onClick={() => setParam("sort", "rating_desc")} className="cursor-pointer flex justify-between">
+                            По рейтингу (высокий) {currentSort === "rating_desc" && <Check className="w-4 h-4 text-accent shrink-0" />}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setParam("sort", "rating_asc")} className="cursor-pointer flex justify-between">
+                            По рейтингу (низкий) {currentSort === "rating_asc" && <Check className="w-4 h-4 text-accent shrink-0" />}
+                        </DropdownMenuItem>
+
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => setParam("sort", "random")} className="cursor-pointer text-accent">🎲 Случайно</DropdownMenuItem>
+
+                        <DropdownMenuItem onClick={() => setParam("sort", "title_asc")} className="cursor-pointer flex justify-between">
+                            По алфавиту (А-Я) {currentSort === "title_asc" && <Check className="w-4 h-4 text-accent shrink-0" />}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setParam("sort", "title_desc")} className="cursor-pointer flex justify-between">
+                            По алфавиту (Я-А) {currentSort === "title_desc" && <Check className="w-4 h-4 text-accent shrink-0" />}
+                        </DropdownMenuItem>
+
+                        <DropdownMenuSeparator />
+
+                        <DropdownMenuItem onClick={() => setParam("sort", "episodes_desc")} className="cursor-pointer flex justify-between">
+                            По сериям (больше) {currentSort === "episodes_desc" && <Check className="w-4 h-4 text-accent shrink-0" />}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setParam("sort", "episodes_asc")} className="cursor-pointer flex justify-between">
+                            По сериям (меньше) {currentSort === "episodes_asc" && <Check className="w-4 h-4 text-accent shrink-0" />}
+                        </DropdownMenuItem>
+
+                        <DropdownMenuSeparator />
+
+                        <DropdownMenuItem onClick={() => setParam("sort", "random")} className="cursor-pointer flex justify-between text-accent">
+                            🎲 Случайно {currentSort === "random" && <Check className="w-4 h-4 text-accent shrink-0" />}
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
