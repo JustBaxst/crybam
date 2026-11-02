@@ -84,32 +84,32 @@ export default async function FavoriteActorsPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-10">
                 <div className="bg-surface/20 p-4 rounded-2xl border border-border/50 flex flex-col items-center justify-center text-center">
                     <Users className="w-6 h-6 text-accent mb-2" />
-                    <span className="text-2xl font-bold">{totalActors}</span>
+                    <span className="text-xl font-bold">{totalActors}</span>
                     <span className="text-[11px] text-muted mt-0.5">В избранном</span>
                 </div>
                 <div className="bg-surface/20 p-4 rounded-2xl border border-border/50 flex flex-col items-center justify-center text-center">
                     <Calendar className="w-6 h-6 text-accent mb-2" />
-                    <span className="text-2xl font-bold">{averageAge}</span>
+                    <span className="text-xl font-bold">{averageAge}</span>
                     <span className="text-[11px] text-muted mt-0.5">Средний возраст</span>
                 </div>
                 <div className="bg-surface/20 p-4 rounded-2xl border border-border/50 flex flex-col items-center justify-center text-center">
                     <Film className="w-6 h-6 text-accent mb-2" />
-                    <span className="text-2xl font-bold">{totalRoles}</span>
+                    <span className="text-xl font-bold">{totalRoles}</span>
                     <span className="text-[11px] text-muted mt-0.5">Всего ролей</span>
                 </div>
                 <div className="bg-surface/20 p-4 rounded-2xl border border-border/50 flex flex-col items-center justify-center text-center">
                     <Briefcase className="w-6 h-6 text-accent mb-2" />
-                    <span className="text-sm font-bold truncate max-w-full px-1">{topAgency}</span>
+                    <span className="text-sm font-bold leading-tight line-clamp-2 px-1">{topAgency}</span>
                     <span className="text-[11px] text-muted mt-1">Топ агентство</span>
                 </div>
                 <div className="bg-surface/20 p-4 rounded-2xl border border-border/50 flex flex-col items-center justify-center text-center">
                     <Brain className="w-6 h-6 text-accent mb-2" />
-                    <span className="text-xl font-bold">{topMbti}</span>
+                    <span className="text-lg font-bold">{topMbti}</span>
                     <span className="text-[11px] text-muted mt-0.5">Топ MBTI</span>
                 </div>
                 <div className="bg-surface/20 p-4 rounded-2xl border border-border/50 flex flex-col items-center justify-center text-center">
                     <Sparkles className="w-6 h-6 text-accent mb-2" />
-                    <span className="text-sm font-bold truncate max-w-full px-1">{topZodiac}</span>
+                    <span className="text-sm font-bold leading-tight line-clamp-2 px-1">{topZodiac}</span>
                     <span className="text-[11px] text-muted mt-1">Топ Зодиак</span>
                 </div>
             </div>
@@ -117,7 +117,7 @@ export default async function FavoriteActorsPage() {
             {/* --- ВСЕ ИЗБРАННЫЕ (ПЕРЕНЕСЕНО НАВЕРХ) --- */}
             <section className="mb-12">
                 <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                    Твои избранные
+                    <Heart className="w-5 h-5 text-accent" /> Твои избранные
                 </h2>
                 {actors.length === 0 ? (
                     <div className="text-center py-16 bg-surface/20 rounded-2xl border border-border/50 border-dashed">
