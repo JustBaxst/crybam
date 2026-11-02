@@ -5,6 +5,8 @@ import { AdminSearchBar } from "@/components/AdminSearchBar";
 import { CatalogToolbar } from "@/components/CatalogToolbar";
 import Link from "next/link";
 import { X, Compass } from "lucide-react";
+import { CURRENT_USER_ID } from "@/lib/current-user";
+import { CryTag } from "@/lib/cry-tags";
 
 type SearchParams = Promise<{
   q?: string; sort?: string; genre?: string; mood?: string; theme?: string;
@@ -58,6 +60,36 @@ export default async function DramasCatalogPage({ searchParams }: { searchParams
       moods: { include: { mood: true } },
     },
     orderBy,
+  });
+
+  // Достаем записи пользователя для этих дорам (для статусов в карточках)
+  const userEntries = await prisma.userDramaEntry.findMany({
+    where: { userId: CURRENT_USER_ID, dramaId: { in: dramas.map(d => d.id) } },
+    select: { id: true, dramaId: true, status: true, progress: true, rewatchCount: true }
+  });
+  const entryMap = new Map(userEntries.map(e => [e.dramaId, e]));
+
+  // Считаем доминирующий CryTag
+  const cryTagStatsRaw = await prisma.userDramaEntry.groupBy({
+    by: ['dramaId', 'cryTag'],
+    where: { dramaId: { in: dramas.map(d => d.id) }, cryTag: { not: null } },
+    _count: { cryTag: true }
+  });
+
+  const cryTagMap: Record<number, CryTag> = {};
+  cryTagStatsRaw.forEach(stat => {
+    const current = cryTagMap[stat.dramaId];
+    // Если для этой дорамы еще нет тега, или этот тег популярнее — записываем его
+    // (В идеале нужно сравнивать _count, но для простоты берем первый попавшийся, или можно отсортировать)
+  });
+  // Более правильный подсчет:
+  const bestCryTags = new Map<number, { tag: CryTag, count: number }>();
+  cryTagStatsRaw.forEach(stat => {
+    if (!stat.cryTag) return;
+    const existing = bestCryTags.get(stat.dramaId);
+    if (!existing || stat._count.cryTag > existing.count) {
+      bestCryTags.set(stat.dramaId, { tag: stat.cryTag as CryTag, count: stat._count.cryTag });
+    }
   });
 
   if (currentSort === "random") dramas = dramas.sort(() => Math.random() - 0.5);
@@ -203,6 +235,10 @@ export default async function DramasCatalogPage({ searchParams }: { searchParams
               ratingKinopoisk={d.ratingKinopoisk}
               ratingIMDB={d.ratingIMDB}
               genres={d.genres.map((g) => g.genre.name)}
+              episodes={d.episodes}
+              synopsis={d.synopsis}
+              dominantCryTag={bestCryTags.get(d.id)?.tag || null}
+              entry={entryMap.get(d.id) || null}
             />
           ))}
         </div>
