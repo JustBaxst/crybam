@@ -75,9 +75,8 @@ export function CatalogCard({
         </div>
 
         {/* Hover-оверлей */}
-        <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30 hidden md:flex flex-col justify-between p-4">
+        <div className="absolute inset-0 bg-black/85 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30 hidden md:flex flex-col justify-between p-4">
 
-          {/* Текст или Теги (flex-1 и overflow-hidden, чтобы не вылезало) */}
           <div className="w-full flex-1 overflow-hidden pt-4 relative">
             {!showTags ? (
               <p className="text-white/90 text-xs leading-relaxed line-clamp-14">
@@ -95,11 +94,15 @@ export function CatalogCard({
                 {genres.length > 0 && (
                   <div>
                     <span className="text-[10px] text-white/50 uppercase mb-1.5 block">Жанры</span>
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-x-3 gap-y-1.5">
                       {genres.map(g => (
-                        <span key={g.id} className="text-[10px] px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">
+                        <Link
+                          key={g.id}
+                          href={`/dramas?genre=${g.id}`}
+                          className="text-xs text-white/90 hover:text-accent hover:underline transition-colors cursor-pointer"
+                        >
                           {g.name}
-                        </span>
+                        </Link>
                       ))}
                     </div>
                   </div>
@@ -108,11 +111,15 @@ export function CatalogCard({
                 {moods.length > 0 && (
                   <div>
                     <span className="text-[10px] text-white/50 uppercase mb-1.5 block">Настроение</span>
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-x-3 gap-y-1.5">
                       {moods.map(m => (
-                        <span key={m} className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                        <Link
+                          key={m}
+                          href={`/dramas?mood=${encodeURIComponent(m)}`}
+                          className="text-xs text-white/90 hover:text-accent hover:underline transition-colors cursor-pointer"
+                        >
                           {m}
-                        </span>
+                        </Link>
                       ))}
                     </div>
                   </div>
@@ -121,11 +128,15 @@ export function CatalogCard({
                 {themes.length > 0 && (
                   <div>
                     <span className="text-[10px] text-white/50 uppercase mb-1.5 block">Темы</span>
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-x-3 gap-y-1.5">
                       {themes.map(t => (
-                        <span key={t} className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                        <Link
+                          key={t}
+                          href={`/dramas?theme=${encodeURIComponent(t)}`}
+                          className="text-xs text-white/90 hover:text-accent hover:underline transition-colors cursor-pointer"
+                        >
                           #{t}
-                        </span>
+                        </Link>
                       ))}
                     </div>
                   </div>
