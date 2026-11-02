@@ -58,6 +58,7 @@ export default async function DramasCatalogPage({ searchParams }: { searchParams
     include: {
       genres: { include: { genre: true } },
       moods: { include: { mood: true } },
+      themes: { include: { theme: true } },
     },
     orderBy,
   });
@@ -234,7 +235,9 @@ export default async function DramasCatalogPage({ searchParams }: { searchParams
               posterUrl={d.posterUrl}
               ratingKinopoisk={d.ratingKinopoisk}
               ratingIMDB={d.ratingIMDB}
-              genres={d.genres.map((g) => g.genre.name)}
+              genres={d.genres.map((g) => g.genre)}
+              themes={d.themes.map((t) => t.theme.name)}
+              moods={d.moods.map((m) => m.mood.name)}
               episodes={d.episodes}
               synopsis={d.synopsis}
               dominantCryTag={bestCryTags.get(d.id)?.tag || null}

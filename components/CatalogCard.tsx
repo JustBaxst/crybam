@@ -1,5 +1,8 @@
+"use client"; // <-- Добавили, так как у нас теперь есть интерактивное состояние
+
+import { useState } from "react";
 import Link from "next/link";
-import { Star, Eye } from "lucide-react";
+import { Star, Eye, ArrowLeft } from "lucide-react";
 import { PosterImage } from "@/components/PosterImage";
 import { CardStatusToolbar } from "@/components/drama/CardStatusToolbar";
 import { CRY_TAGS, type CryTag } from "@/lib/cry-tags";
@@ -12,7 +15,9 @@ type CatalogCardProps = {
   posterUrl: string | null;
   ratingKinopoisk: number | null;
   ratingIMDB: number | null;
-  genres: string[];
+  genres: { id: number; name: string }[];
+  themes: string[];
+  moods: string[];
   episodes: number | null;
   synopsis: string | null;
   dominantCryTag?: CryTag | null;
@@ -25,11 +30,16 @@ type CatalogCardProps = {
 
 export function CatalogCard({
   dramaId, title, year, country, posterUrl, ratingKinopoisk, ratingIMDB,
-  genres, episodes, synopsis, dominantCryTag, entry
+  genres, themes, moods, episodes, synopsis, dominantCryTag, entry
 }: CatalogCardProps) {
+  const [showTags, setShowTags] = useState(false); // <-- Состояние для переключения
+
   const rating = ratingKinopoisk ?? ratingIMDB ?? null;
   const metaString = [year, country, episodes ? `${episodes} сер.` : null].filter(Boolean).join(" · ");
   const cryTagConfig = dominantCryTag ? CRY_TAGS[dominantCryTag] : null;
+
+  const totalTags = genres.length + themes.length + moods.length;
+  const hiddenTagsCount = Math.max(0, totalTags - 3);
 
   return (
     <div className="group relative flex flex-col rounded-xl border border-border bg-surface transition-colors hover:border-accent/50">
@@ -43,8 +53,6 @@ export function CatalogCard({
 
         {/* Верхние пилюли (исчезают при наведении) */}
         <div className="absolute top-2 left-2 right-2 flex justify-between items-start z-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-0">
-
-          {/* Рейтинг */}
           <div className="inline-flex items-center gap-1.5 h-6 px-2 rounded-full border border-border bg-background/80 text-xs font-semibold">
             <Star className={`w-3.5 h-3.5 shrink-0 ${rating ? "fill-current text-yellow-400" : "text-muted"}`} />
             <span className={`${rating ? "text-foreground" : "text-muted"} translate-y-0`}>
@@ -52,7 +60,6 @@ export function CatalogCard({
             </span>
           </div>
 
-          {/* CryTag */}
           {cryTagConfig ? (
             <div className={`inline-flex items-center gap-1.5 h-6 px-2 rounded-full border ${cryTagConfig.border} ${cryTagConfig.bg}/15 text-xs font-semibold ${cryTagConfig.color}`}>
               <cryTagConfig.Icon className="w-3.5 h-3.5 shrink-0" />
@@ -68,14 +75,50 @@ export function CatalogCard({
 
         {/* Hover-оверлей */}
         <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30 hidden md:flex flex-col justify-between p-4">
-          {/* Синопсис теперь прижат к самому верху */}
-          <div className="w-full pt-1">
-            <p className="text-white/90 text-xs leading-relaxed line-clamp-4">
-              {synopsis || "Описание пока отсутствует..."}
-            </p>
+
+          {/* Текст или Теги (flex-1 и overflow-hidden, чтобы не вылезало) */}
+          <div className="w-full flex-1 overflow-hidden pt-4 relative">
+            {!showTags ? (
+              <p className="text-white/90 text-xs leading-relaxed line-clamp-[12]">
+                {synopsis || "Описание пока отсутствует..."}
+              </p>
+            ) : (
+              <div className="flex flex-col gap-3 text-white/90">
+                <button
+                  onClick={() => setShowTags(false)}
+                  className="text-[10px] text-accent hover:underline flex items-center gap-1 w-fit mb-1"
+                >
+                  <ArrowLeft className="w-3 h-3" /> Назад к описанию
+                </button>
+                {genres.length > 0 && (
+                  <div>
+                    <span className="text-[10px] text-white/50 uppercase mb-1 block">Жанры</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {genres.map(g => <span key={g.id} className="text-[10px] bg-white/10 px-2 py-0.5 rounded text-white">{g.name}</span>)}
+                    </div>
+                  </div>
+                )}
+                {moods.length > 0 && (
+                  <div>
+                    <span className="text-[10px] text-white/50 uppercase mb-1 block">Настроение</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {moods.map(m => <span key={m} className="text-[10px] text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/30">{m}</span>)}
+                    </div>
+                  </div>
+                )}
+                {themes.length > 0 && (
+                  <div>
+                    <span className="text-[10px] text-white/50 uppercase mb-1 block">Темы</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {themes.map(t => <span key={t} className="text-[10px] text-blue-300 hover:underline">#{t}</span>)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
-          <div className="w-full">
+          <div className="w-full shrink-0">
             <CardStatusToolbar dramaId={dramaId} currentStatus={entry?.status} />
           </div>
         </div>
@@ -91,12 +134,23 @@ export function CatalogCard({
 
         <p className="text-xs text-muted mt-1">{metaString}</p>
 
-        <div className="mt-auto pt-2 flex flex-wrap gap-1">
+        {/* Жанры и Матрешка */}
+        <div className="mt-auto pt-2 flex flex-wrap gap-1 items-center">
           {genres.slice(0, 3).map((g) => (
-            <span key={g} className="text-[10px] px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">
-              {g}
+            <span key={g.id} className="text-[10px] px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">
+              {g.name}
             </span>
           ))}
+
+          {/* Вместо Popover используем кнопку, которая меняет стейт карточки */}
+          {hiddenTagsCount > 0 && (
+            <button
+              onClick={() => setShowTags(true)}
+              className="text-[10px] px-2 py-0.5 rounded-full border border-border text-muted hover:bg-surface transition-colors cursor-pointer"
+            >
+              +{hiddenTagsCount}
+            </button>
+          )}
         </div>
       </div>
     </div>
