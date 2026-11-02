@@ -9,6 +9,7 @@ import { AlternativeTitles } from "@/app/dramas/[id]/AlternativeTitles";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { FavoriteActorButton } from "@/components/people/FavoriteActorButton";
 import { SocialLinks } from "@/components/people/SocialLinks";
+import { CURRENT_USER_ID } from "@/lib/current-user";
 
 type Params = Promise<{ id: string }>;
 
@@ -34,6 +35,11 @@ export default async function PersonPage({ params }: { params: Params }) {
   });
 
   if (!person) notFound();
+
+  const favorite = await prisma.userFavoriteActor.findUnique({
+    where: { userId_personId: { userId: CURRENT_USER_ID, personId: id } }
+  });
+  const isFavorite = !!favorite;
 
   const filmography = [...person.credits].sort((a, b) => {
     const ya = a.drama.year ?? 0;
@@ -91,8 +97,8 @@ export default async function PersonPage({ params }: { params: Params }) {
             )}
           </div>
 
-          {/* НОВАЯ КНОПКА-ЗАГЛУШКА */}
-          <FavoriteActorButton />
+          {/* НОВАЯ КНОПКА ИЗБРАННОЕ */}
+          <FavoriteActorButton personId={person.id} initialIsFavorite={isFavorite} />
 
         </div>
 
