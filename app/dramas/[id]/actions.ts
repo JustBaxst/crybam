@@ -301,15 +301,23 @@ export async function addCredit(formData: FormData) {
   const note = String(formData.get("note") ?? "").trim() || null;
 
   /// Ищем или создаём Person
-  let person = await prisma.person.findFirst({
+  let persons = await prisma.person.findMany({
     where: { nameLower: personName.toLowerCase(), deletedAt: null },
   });
-  if (!person) {
+
+  let person;
+
+  if (persons.length > 1) {
+    // Если актеров несколько, возвращаем ошибку и просим уточнить
+    return {
+      error: `Найдено несколько актеров с именем «${personName}». Пожалуйста, добавьте роль через карточку нужного актера в админке, чтобы избежать путаницы.`
+    };
+  } else if (persons.length === 1) {
+    person = persons[0];
+  } else {
+    // Если не нашли — создаем нового
     person = await prisma.person.create({
-      data: {
-        name: personName,
-        nameLower: personName.toLowerCase()
-      }
+      data: { name: personName, nameLower: personName.toLowerCase() }
     });
   }
 

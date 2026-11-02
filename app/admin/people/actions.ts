@@ -17,11 +17,27 @@ const parseSocialLinks = (raw: string) => {
   }).filter(Boolean) as { platform: string; url: string }[];
 };
 
-export async function createPerson(formData: FormData) {
+export async function createPerson(formData: FormData): Promise<{ error?: string; existingId?: number } | never> {
   await requireModerator();
 
   const name = String(formData.get("name") ?? "").trim();
   if (!name) return { error: "Имя обязательно" };
+
+  const nameLower = name.toLowerCase();
+
+  // --- ПРОВЕРКА НА ДУБЛИКАТ ---
+  const existingPerson = await prisma.person.findFirst({
+    where: { nameLower, deletedAt: null },
+    select: { id: true, name: true }
+  });
+
+  if (existingPerson) {
+    return {
+      error: `Внимание! Актер с именем «${existingPerson.name}» уже есть в базе. Проверьте, не дубль ли это.`,
+      existingId: existingPerson.id,
+    };
+  }
+  // ----------------------------
 
   const str = (n: string) => String(formData.get(n) ?? "").trim() || null;
   const date = (n: string) => {
@@ -41,7 +57,7 @@ export async function createPerson(formData: FormData) {
   const person = await prisma.person.create({
     data: {
       name,
-      nameLower: name.toLowerCase(),
+      nameLower: nameLower, // Используем переменную, объявленную выше
       photoUrl: str("photoUrl"),
       agency: str("agency"),
       bio: str("bio"),

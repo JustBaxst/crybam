@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Save, User, FileText, Image, Link2 } from "lucide-react";
+import Link from "next/link"; // <-- Добавили для ссылки на дубликат
 import { createPerson, updatePerson } from "./actions";
 import { FormSection } from "@/components/FormSection";
 import { COUNTRIES } from "@/lib/constants";
@@ -27,17 +28,24 @@ type PersonData = {
 export function PersonForm({ person, fromDrama }: { person?: PersonData; fromDrama?: string }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [existingId, setExistingId] = useState<number | null>(null); // <-- Новое состояние
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
+    setExistingId(null); // Сбрасываем прошлую ошибку
     const formData = new FormData(e.currentTarget);
     if (fromDrama) formData.set("fromDrama", fromDrama);
 
     startTransition(async () => {
       const action = person ? updatePerson : createPerson;
       const result = await action(formData);
+
       if (result?.error) {
         setError(result.error);
+        if ('existingId' in result && result.existingId) {
+          setExistingId(result.existingId);
+        }
       }
     });
   };
@@ -101,7 +109,7 @@ export function PersonForm({ person, fromDrama }: { person?: PersonData; fromDra
           </div>
         </div>
 
-        {/* Пол, рост, место рождения (3 колонки) */}
+        {/* Пол, рост, место рождения (4 колонки) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 
           <div>
@@ -237,7 +245,6 @@ export function PersonForm({ person, fromDrama }: { person?: PersonData; fromDra
           </label>
           <textarea
             name="socialLinks"
-
             defaultValue={person?.socialLinks?.map((l) => `${l.platform}|${l.url}`).join("\n") ?? ""}
             rows={3}
             placeholder="instagram|https://...&#10;youtube|https://...&#10;wikipedia|https://..."
@@ -262,10 +269,19 @@ export function PersonForm({ person, fromDrama }: { person?: PersonData; fromDra
         </div>
       </FormSection>
 
+      {/* Вывод ошибки с кнопкой перехода */}
       {error && (
-        <p className="text-sm text-red-400 border border-red-500/30 bg-red-500/10 rounded-lg px-3 py-2">
-          {error}
-        </p>
+        <div className="text-sm text-red-400 border border-red-500/30 bg-red-500/10 rounded-lg px-3 py-2 flex items-start justify-between gap-3">
+          <span className="flex-1">{error}</span>
+          {existingId && (
+            <Link
+              href={`/admin/people/${existingId}`}
+              className="shrink-0 px-3 py-1 bg-red-500/20 hover:bg-red-500/30 rounded-md transition-colors text-red-200 whitespace-nowrap"
+            >
+              Открыть её →
+            </Link>
+          )}
+        </div>
       )}
 
       <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
