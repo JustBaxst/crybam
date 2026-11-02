@@ -25,19 +25,30 @@ export async function createPerson(formData: FormData): Promise<{ error?: string
 
   const nameLower = name.toLowerCase();
 
-  // --- ПРОВЕРКА НА ДУБЛИКАТ ---
+  // --- ПРОВЕРКА НА ДУБЛИКАТ (Основное имя ИЛИ Альтернативное) ---
   const existingPerson = await prisma.person.findFirst({
-    where: { nameLower, deletedAt: null },
-    select: { id: true, name: true }
+    where: {
+      deletedAt: null,
+      OR: [
+        { nameLower: nameLower },
+        { aliases: { some: { nameLower: nameLower } } }
+      ]
+    },
+    include: {
+      aliases: { select: { name: true, nameLower: true } }
+    }
   });
 
   if (existingPerson) {
+    const matchedAlias = existingPerson.aliases.find(a => a.nameLower === nameLower);
+    const matchedName = matchedAlias ? `альтернативное имя «${matchedAlias.name}»` : `имя «${existingPerson.name}»`;
+
     return {
-      error: `Внимание! Актер с именем «${existingPerson.name}» уже есть в базе. Проверьте, не дубль ли это.`,
+      error: `Внимание! Найдено совпадение с актером: ${matchedName}. Проверьте, не дубль ли это.`,
       existingId: existingPerson.id,
     };
   }
-  // ----------------------------
+  // -------------------------------------------------------------
 
   const str = (n: string) => String(formData.get(n) ?? "").trim() || null;
   const date = (n: string) => {
@@ -57,7 +68,7 @@ export async function createPerson(formData: FormData): Promise<{ error?: string
   const person = await prisma.person.create({
     data: {
       name,
-      nameLower: nameLower, // Используем переменную, объявленную выше
+      nameLower: nameLower,
       photoUrl: str("photoUrl"),
       agency: str("agency"),
       bio: str("bio"),
@@ -88,7 +99,7 @@ export async function createPerson(formData: FormData): Promise<{ error?: string
     }
   });
 
-  // Проверка: если сразу создали зелёного (маловероятно, но возможно, если заполнили всё)
+  // Проверка: если сразу создали зелёного
   const status = await getPersonStatus(person.id);
   if (status === "green") {
     await prisma.adminLog.create({
@@ -118,6 +129,34 @@ export async function updatePerson(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   if (!name) return { error: "Имя обязательно" };
 
+  const nameLower = name.toLowerCase();
+
+  // --- ПРОВЕРКА НА ДУБЛИКАТ ПРИ ОБНОВЛЕНИИ ---
+  const existingPerson = await prisma.person.findFirst({
+    where: {
+      deletedAt: null,
+      id: { not: personId }, // Исключаем самого себя
+      OR: [
+        { nameLower: nameLower },
+        { aliases: { some: { nameLower: nameLower } } }
+      ]
+    },
+    include: {
+      aliases: { select: { name: true, nameLower: true } }
+    }
+  });
+
+  if (existingPerson) {
+    const matchedAlias = existingPerson.aliases.find(a => a.nameLower === nameLower);
+    const matchedName = matchedAlias ? `альтернативное имя «${matchedAlias.name}»` : `имя «${existingPerson.name}»`;
+
+    return {
+      error: `Внимание! Найдено совпадение с актером: ${matchedName}. Проверьте, не дубль ли это.`,
+      existingId: existingPerson.id,
+    };
+  }
+  // -------------------------------------------
+
   const str = (n: string) => String(formData.get(n) ?? "").trim() || null;
   const date = (n: string) => {
     const raw = String(formData.get(n) ?? "").trim();
@@ -141,7 +180,7 @@ export async function updatePerson(formData: FormData) {
       where: { id: personId },
       data: {
         name,
-        nameLower: name.toLowerCase(),
+        nameLower: nameLower,
         photoUrl: str("photoUrl"),
         agency: str("agency"),
         bio: str("bio"),
@@ -274,7 +313,7 @@ export async function updatePersonAliases(formData: FormData) {
     }
   });
 
-  // Проверка на "позеленение" (так как алиасы — критический фактор)
+  // Проверка на "позеленение"
   const newStatus = await getPersonStatus(personId);
   if (oldStatus !== "green" && newStatus === "green") {
     const person = await prisma.person.findUnique({ where: { id: personId }, select: { name: true } });
