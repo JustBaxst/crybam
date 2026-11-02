@@ -16,10 +16,8 @@ export function TagsPopover({ genres, themes, moods, hiddenCount }: TagsPopoverP
 
     return (
         <Popover>
-            <PopoverTrigger asChild>
-                <button className="bg-transparent border border-border text-muted hover:bg-surface rounded-full px-2 py-0.5 text-[10px] font-medium transition-colors cursor-pointer">
-                    +{hiddenCount} тегов
-                </button>
+            <PopoverTrigger className="bg-transparent border border-border text-muted hover:bg-surface rounded-full px-2 py-0.5 text-[10px] font-medium transition-colors cursor-pointer flex items-center justify-center">
+                +{hiddenCount} тегов
             </PopoverTrigger>
             <PopoverContent className="w-72 max-h-80 overflow-y-auto bg-surface border border-border rounded-xl p-4">
 
