@@ -42,7 +42,8 @@ export function CatalogCard({
   const hiddenTagsCount = Math.max(0, totalTags - 3);
 
   return (
-    <div className="group relative flex flex-col rounded-xl border border-border bg-surface transition-colors hover:border-accent/50">
+    <div className="group relative flex flex-col rounded-xl border border-border bg-surface transition-colors hover:border-accent/50"
+      onMouseLeave={() => setShowTags(false)}>
 
       {/* ─── ПОСТЕР И HOVER-ОВЕРЛЕЙ ─── */}
       <div className="relative aspect-2/3 bg-accent-soft overflow-hidden rounded-t-xl">
@@ -86,31 +87,46 @@ export function CatalogCard({
               <div className="flex flex-col gap-3 text-white/90">
                 <button
                   onClick={() => setShowTags(false)}
-                  className="text-[10px] text-accent hover:underline flex items-center gap-1 w-fit mb-1"
+                  className="text-[10px] text-accent hover:underline flex items-center gap-1 w-fit mb-1 cursor-pointer"
                 >
                   <ArrowLeft className="w-3 h-3" /> Назад к описанию
                 </button>
+
                 {genres.length > 0 && (
                   <div>
-                    <span className="text-[10px] text-white/50 uppercase mb-1 block">Жанры</span>
+                    <span className="text-[10px] text-white/50 uppercase mb-1.5 block">Жанры</span>
                     <div className="flex flex-wrap gap-1.5">
-                      {genres.map(g => <span key={g.id} className="text-[10px] bg-white/10 px-2 py-0.5 rounded text-white">{g.name}</span>)}
+                      {genres.map(g => (
+                        <span key={g.id} className="text-[10px] px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">
+                          {g.name}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 )}
+
                 {moods.length > 0 && (
                   <div>
-                    <span className="text-[10px] text-white/50 uppercase mb-1 block">Настроение</span>
+                    <span className="text-[10px] text-white/50 uppercase mb-1.5 block">Настроение</span>
                     <div className="flex flex-wrap gap-1.5">
-                      {moods.map(m => <span key={m} className="text-[10px] text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/30">{m}</span>)}
+                      {moods.map(m => (
+                        <span key={m} className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                          {m}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 )}
+
                 {themes.length > 0 && (
                   <div>
-                    <span className="text-[10px] text-white/50 uppercase mb-1 block">Темы</span>
+                    <span className="text-[10px] text-white/50 uppercase mb-1.5 block">Темы</span>
                     <div className="flex flex-wrap gap-1.5">
-                      {themes.map(t => <span key={t} className="text-[10px] text-blue-300 hover:underline">#{t}</span>)}
+                      {themes.map(t => (
+                        <span key={t} className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                          #{t}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 )}
