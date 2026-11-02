@@ -91,7 +91,7 @@ export function CatalogCard({
 
         <div className="mt-auto pt-2 flex flex-wrap gap-1">
           {genres.slice(0, 3).map((g) => (
-            <span key={g} className="text-[10px] px-1.5 py-0.5 rounded bg-accent/10 text-accent border border-accent/20">
+            <span key={g} className="text-[10px] px-1.5 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">
               {g}
             </span>
           ))}
