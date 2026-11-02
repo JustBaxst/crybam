@@ -38,18 +38,29 @@ export async function createDrama(
   const country = str("country");
   const normalizedTitle = normalizeTitle(title);
 
+  // Ищем дубликат по основному названию ИЛИ по любому альтернативному названию
   const exactDuplicate = await prisma.drama.findFirst({
     where: {
-      titleLower: normalizedTitle,
-      deletedAt: null, // ← Проверяем только среди неудаленных
+      deletedAt: null,
       ...(year ? { year } : {}),
       ...(country ? { country } : {}),
+      OR: [
+        { titleLower: normalizedTitle },
+        { titles: { some: { titleLower: normalizedTitle } } }
+      ]
     },
+    include: {
+      titles: { select: { title: true, titleLower: true } }
+    }
   });
 
   if (exactDuplicate) {
+    // Выясняем, какое именно название совпало (основное или альтернативное)
+    const matchedAltTitle = exactDuplicate.titles.find(t => t.titleLower === normalizedTitle);
+    const matchedName = matchedAltTitle ? `альтернативное название «${matchedAltTitle.title}»` : `название «${exactDuplicate.title}»`;
+
     return {
-      error: `Точный дубль: «${exactDuplicate.title}» (${[exactDuplicate.year, exactDuplicate.country].filter(Boolean).join(", ") || "год/страна не указаны"}) уже есть в базе.`,
+      error: `Внимание! Найдена дорама с таким же названием: ${matchedName} (${[exactDuplicate.year, exactDuplicate.country].filter(Boolean).join(", ") || "год/страна не указаны"}). Возможно, вы пытаетесь добавить дубль.`,
       existingId: Number(exactDuplicate.id),
     };
   }
