@@ -23,7 +23,11 @@ export function FavoriteActorButton({
         startTransition(async () => {
             const res = await toggleFavoriteActor(personId);
             if (res.success) {
-                toast.success(res.isFavorite ? "Актер добавлен в избранное" : "Актер удален из избранного");
+                if (res.isFavorite) {
+                    toast.success("Актер добавлен в избранное");
+                } else {
+                    toast.info("Актер удален из избранного");
+                }
             } else {
                 setIsFavorite(isFavorite); // Откатываем при ошибке
                 toast.error("Не удалось обновить избранное");
@@ -37,8 +41,8 @@ export function FavoriteActorButton({
             onClick={handleToggle}
             disabled={isPending}
             className={`w-full h-10 gap-2 transition-all cursor-pointer ${isFavorite
-                    ? "bg-yellow-400/10 text-yellow-400 border-yellow-400/40 hover:bg-yellow-400/20 hover:text-yellow-400"
-                    : "text-muted hover:text-foreground hover:border-accent/40"
+                ? "bg-yellow-400/10 text-yellow-400 border-yellow-400/40 hover:bg-yellow-400/20 hover:text-yellow-400"
+                : "text-muted hover:text-foreground hover:border-accent/40"
                 }`}
         >
             {isFavorite ? (
