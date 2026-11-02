@@ -52,8 +52,8 @@ export function CardStatusToolbar({
                         <button
                             onClick={() => handleSetStatus(action.value)}
                             className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all cursor-pointer ${isActive
-                                    ? "bg-accent text-white shadow-sm scale-105"
-                                    : "text-white/70 hover:bg-white/20 hover:text-white"
+                                ? "bg-accent text-white shadow-sm scale-105"
+                                : "text-white/70 hover:bg-white/20 hover:text-white"
                                 }`}
                         >
                             <action.Icon className="w-4 h-4" />
@@ -64,7 +64,7 @@ export function CardStatusToolbar({
                             <span className="bg-zinc-800/95 text-white text-[10px] font-medium px-2.5 py-1 rounded-md border border-white/10 shadow-xl whitespace-nowrap">
                                 {action.label}
                             </span>
-                            <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[4px] border-l-transparent border-r-transparent border-t-zinc-800/95" />
+                            <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-zinc-800/95" />
                         </div>
                     </div>
                 );
@@ -86,7 +86,7 @@ export function CardStatusToolbar({
                     <span className="bg-red-950/95 text-red-200 text-[10px] font-medium px-2.5 py-1 rounded-md border border-red-500/20 shadow-xl whitespace-nowrap">
                         Удалить
                     </span>
-                    <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[4px] border-l-transparent border-r-transparent border-t-red-950/95" />
+                    <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-red-950/95" />
                 </div>
             </div>
 

@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { Star, Eye } from "lucide-react";
 import { PosterImage } from "@/components/PosterImage";
-import { StatusDropdown } from "@/app/dramas/[id]/StatusDropdown";
-import { CRY_TAGS, type CryTag } from "@/lib/cry-tags";
 import { CardStatusToolbar } from "@/components/drama/CardStatusToolbar";
+import { CRY_TAGS, type CryTag } from "@/lib/cry-tags";
 
 type CatalogCardProps = {
   dramaId: number;
@@ -36,17 +35,17 @@ export function CatalogCard({
     <div className="group relative flex flex-col rounded-xl border border-border bg-surface transition-colors hover:border-accent/50">
 
       {/* ─── ПОСТЕР И HOVER-ОВЕРЛЕЙ ─── */}
-      <div className="relative aspect-2/3 bg-accent-soft overflow-hidden rounded-t-xl">
+      <div className="relative aspect-[2/3] bg-accent-soft overflow-hidden rounded-t-xl">
 
         <Link href={`/dramas/${dramaId}`} className="absolute inset-0 z-10">
           <PosterImage posterUrl={posterUrl} title={title} year={year} className="absolute inset-0" />
         </Link>
 
-        {/* Верхние пилюли (Рейтинг и CryTag) */}
-        <div className="absolute top-2 left-2 right-2 flex justify-between items-start z-20 pointer-events-none">
+        {/* Верхние пилюли (исчезают при наведении) */}
+        <div className="absolute top-2 left-2 right-2 flex justify-between items-start z-20 pointer-events-none transition-opacity duration-300 group-hover:opacity-0">
 
           {/* Рейтинг */}
-          <div className="inline-flex items-center gap-1.5 h-6 px-2 rounded-full border border-border bg-background/80 backdrop-blur-sm text-xs font-semibold">
+          <div className="inline-flex items-center gap-1.5 h-6 px-2 rounded-full border border-border bg-background/80 text-xs font-semibold">
             <Star className={`w-3.5 h-3.5 shrink-0 ${rating ? "fill-current text-yellow-400" : "text-muted"}`} />
             <span className={`${rating ? "text-foreground" : "text-muted"} translate-y-0`}>
               {rating != null ? rating.toFixed(1) : "—"}
@@ -55,27 +54,27 @@ export function CatalogCard({
 
           {/* CryTag */}
           {cryTagConfig ? (
-            <div className={`inline-flex items-center gap-1.5 h-6 px-2 rounded-full border ${cryTagConfig.border} ${cryTagConfig.bg}/15 backdrop-blur-sm text-xs font-semibold ${cryTagConfig.color}`}>
+            <div className={`inline-flex items-center gap-1.5 h-6 px-2 rounded-full border ${cryTagConfig.border} ${cryTagConfig.bg}/15 text-xs font-semibold ${cryTagConfig.color}`}>
               <cryTagConfig.Icon className="w-3.5 h-3.5 shrink-0" />
               <span className="-translate-y-px">{cryTagConfig.label}</span>
             </div>
           ) : (
-            <div className="inline-flex items-center gap-1.5 h-6 px-2 rounded-full border border-border bg-background/80 backdrop-blur-sm text-xs font-semibold text-muted">
+            <div className="inline-flex items-center gap-1.5 h-6 px-2 rounded-full border border-border bg-background/80 text-xs font-semibold text-muted">
               <Eye className="w-3.5 h-3.5 shrink-0" />
               <span className="-translate-y-px">Сбор данных</span>
             </div>
           )}
         </div>
 
-        {/* Hover-оверлей (только для md и выше) */}
-        <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30 hidden md:flex flex-col justify-between p-3 pb-4">
-          <div className="mt-6">
+        {/* Hover-оверлей */}
+        <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30 hidden md:flex flex-col justify-between p-4">
+          {/* Синопсис теперь прижат к самому верху */}
+          <div className="w-full pt-1">
             <p className="text-white/90 text-xs leading-relaxed line-clamp-4">
               {synopsis || "Описание пока отсутствует..."}
             </p>
           </div>
 
-          {/* Наша новая панель, прижатая к низу */}
           <div className="w-full">
             <CardStatusToolbar dramaId={dramaId} currentStatus={entry?.status} />
           </div>
@@ -94,7 +93,7 @@ export function CatalogCard({
 
         <div className="mt-auto pt-2 flex flex-wrap gap-1">
           {genres.slice(0, 3).map((g) => (
-            <span key={g} className="text-[10px] px-1.5 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">
+            <span key={g} className="text-[10px] px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">
               {g}
             </span>
           ))}
