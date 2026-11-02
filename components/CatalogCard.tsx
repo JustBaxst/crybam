@@ -3,6 +3,7 @@ import { Star, Eye } from "lucide-react";
 import { PosterImage } from "@/components/PosterImage";
 import { StatusDropdown } from "@/app/dramas/[id]/StatusDropdown";
 import { CRY_TAGS, type CryTag } from "@/lib/cry-tags";
+import { CardStatusToolbar } from "@/components/drama/CardStatusToolbar";
 
 type CatalogCardProps = {
   dramaId: number;
@@ -66,15 +67,17 @@ export function CatalogCard({
           )}
         </div>
 
-        {/* Hover-оверлей */}
-        <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30 hidden md:flex flex-col justify-between p-4">
-          <div className="mt-8">
+        {/* Hover-оверлей (только для md и выше) */}
+        <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30 hidden md:flex flex-col justify-between p-3 pb-4">
+          <div className="mt-6">
             <p className="text-white/90 text-xs leading-relaxed line-clamp-4">
               {synopsis || "Описание пока отсутствует..."}
             </p>
           </div>
+
+          {/* Наша новая панель, прижатая к низу */}
           <div className="w-full">
-            <StatusDropdown dramaId={dramaId} entry={entry || null} episodes={episodes} />
+            <CardStatusToolbar dramaId={dramaId} currentStatus={entry?.status} />
           </div>
         </div>
       </div>
