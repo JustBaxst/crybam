@@ -19,6 +19,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import { AlternativeTitles } from "@/app/dramas/[id]/AlternativeTitles";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { FavoriteActorButton } from "@/components/people/FavoriteActorButton";
 
 // Словарь для быстрого сопоставления платформы и иконки
 const SOCIAL_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -114,6 +115,10 @@ export default async function PersonPage({ params }: { params: Params }) {
               <UserIcon className="w-16 h-16 text-muted" />
             )}
           </div>
+
+          {/* НОВАЯ КНОПКА-ЗАГЛУШКА */}
+          <FavoriteActorButton />
+
         </div>
 
         {/* Колонка 2: О персоне (занимает 2 части из 4) */}
