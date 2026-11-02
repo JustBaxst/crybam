@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  ArrowLeft, Calendar, Briefcase, Film, User as UserIcon, MapPin,
-  Ruler, Link as LinkIcon, Droplet, Brain, Sparkles, Flag
+  ChevronRight, Calendar, Briefcase, Film, User as UserIcon, MapPin,
+  Ruler, Link as LinkIcon, Droplet, Brain, Sparkles, Flag, Info, BookOpen, Image as ImageIcon
 } from "lucide-react";
 import {
   FaInstagram, FaYoutube, FaTwitter, FaTiktok, FaWikipediaW,
@@ -18,48 +18,20 @@ import {
 } from "react-icons/si";
 import { prisma } from "@/lib/prisma";
 import { AlternativeTitles } from "@/app/dramas/[id]/AlternativeTitles";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 // Словарь для быстрого сопоставления платформы и иконки
 const SOCIAL_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  instagram: FaInstagram,
-  youtube: FaYoutube,
-  twitter: FaTwitter,
-  x: FaTwitter,
-  tiktok: FaTiktok,
-  weibo: FaWeibo,
-  wikipedia: FaWikipediaW,
-  website: FaGlobe,
-  facebook: FaFacebook,
-  linkedin: FaLinkedin,
-  telegram: FaTelegram,
-  discord: FaDiscord,
-  reddit: FaRedditAlien,
-  pinterest: FaPinterest,
-  snapchat: FaSnapchat,
-  twitch: FaTwitch,
-  vk: FaVk,
-  spotify: FaSpotify,
-  soundcloud: FaSoundcloud,
-  imdb: FaImdb,
-  github: FaGithub,
-  medium: FaMedium,
-  threads: SiThreads,
-  bluesky: SiBluesky,
-  line: SiLine,
-  wechat: SiWechat,
-  bilibili: SiBilibili,
-  naver: SiNaver,
-  kakao: SiKakaotalk,
-  applemusic: SiApplemusic,
-  yandexmusic: FaYandex,
-  douyin: FaTiktok,
-  tumblr: SiTumblr,
-  vimeo: SiVimeo,
-  dailymotion: SiDailymotion,
-  patreon: SiPatreon,
-  mastodon: SiMastodon,
-  substack: SiSubstack,
-  flickr: SiFlickr,
+  instagram: FaInstagram, youtube: FaYoutube, twitter: FaTwitter, x: FaTwitter,
+  tiktok: FaTiktok, weibo: FaWeibo, wikipedia: FaWikipediaW, website: FaGlobe,
+  facebook: FaFacebook, linkedin: FaLinkedin, telegram: FaTelegram, discord: FaDiscord,
+  reddit: FaRedditAlien, pinterest: FaPinterest, snapchat: FaSnapchat, twitch: FaTwitch,
+  vk: FaVk, spotify: FaSpotify, soundcloud: FaSoundcloud, imdb: FaImdb,
+  github: FaGithub, medium: FaMedium, threads: SiThreads, bluesky: SiBluesky,
+  line: SiLine, wechat: SiWechat, bilibili: SiBilibili, naver: SiNaver,
+  kakao: SiKakaotalk, applemusic: SiApplemusic, yandexmusic: FaYandex, douyin: FaTiktok,
+  tumblr: SiTumblr, vimeo: SiVimeo, dailymotion: SiDailymotion, patreon: SiPatreon,
+  mastodon: SiMastodon, substack: SiSubstack, flickr: SiFlickr,
 };
 
 type Params = Promise<{ id: string }>;
@@ -74,9 +46,9 @@ export default async function PersonPage({ params }: { params: Params }) {
     where: { id, deletedAt: null },
     include: {
       aliases: true,
-      socialLinks: true, // ← Подтягиваем соцсети
+      socialLinks: true,
       credits: {
-        where: { drama: { deletedAt: null } }, // ← скрываем кредиты удалённых дорам
+        where: { drama: { deletedAt: null } }, // скрываем кредиты удалённых дорам
         include: {
           drama: true,
           character: true,
@@ -101,243 +73,276 @@ export default async function PersonPage({ params }: { params: Params }) {
     : null;
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-10">
-      <Link
-        href="/people"
-        className="inline-flex items-center gap-2 text-sm text-muted hover:text-foreground transition-colors mb-6"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Все актёры
-      </Link>
+    <div className="max-w-6xl mx-auto px-6 py-10">
 
-      {/* Шапка */}
-      <div className="flex flex-col md:flex-row gap-6 items-start">
-        {/* ФОТО ТЕПЕРЬ ПРЯМОУГОЛЬНОЕ (2:3) */}
-        <div className="w-32 h-48 md:w-40 md:h-60 rounded-2xl bg-accent-soft flex items-center justify-center text-6xl shrink-0 overflow-hidden shadow-lg">
-          {person.photoUrl ? (
-            <img
-              src={person.photoUrl}
-              alt={person.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <UserIcon className="w-16 h-16 text-muted" />
+      {/* ─── ХЛЕБНЫЕ КРОШКИ ─── */}
+      <div className="flex items-center gap-2 text-sm text-muted mb-6">
+        <Link href="/people" className="hover:text-foreground transition-colors">
+          Все актёры
+        </Link>
+        <ChevronRight className="w-4 h-4 opacity-50" />
+        <span className="text-foreground truncate">{person.name}</span>
+      </div>
+
+      {/* ─── ЗАГОЛОВОК И АЛЬТ. ИМЕНА (НА ВСЮ ШИРИНУ) ─── */}
+      <div className="mb-8">
+        <h1 className="text-[clamp(1.75rem,3vw,2.5rem)] text-balance font-bold leading-tight mb-2">
+          {person.name}
+        </h1>
+        <AlternativeTitles
+          label="Другие имена:"
+          titles={[
+            ...(person.nameNative ? [{ id: -1, title: person.nameNative, language: "ko" }] : []),
+            ...person.aliases.map((a) => ({
+              id: a.id,
+              title: a.name,
+              language: a.language
+            }))
+          ].filter((v, i, a) => a.findIndex(t => t.title === v.title) === i)}
+        />
+      </div>
+
+      {/* ─── HERO-ЗОНА (СЕТКА ИЗ 3 КОЛОНОК) ─── */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-10">
+
+        {/* Колонка 1: Фото */}
+        <div className="lg:col-span-1 flex flex-col gap-4">
+          <div className="aspect-2/3 rounded-2xl overflow-hidden border border-border bg-accent-soft flex items-center justify-center text-6xl shadow-lg">
+            {person.photoUrl ? (
+              <img src={person.photoUrl} alt={person.name} className="w-full h-full object-cover" />
+            ) : (
+              <UserIcon className="w-16 h-16 text-muted" />
+            )}
+          </div>
+        </div>
+
+        {/* Колонка 2: О персоне (занимает 2 части из 4) */}
+        <div className="lg:col-span-2 bg-surface/20 p-6 rounded-2xl border border-border/50">
+          <h2 className="text-lg font-semibold mb-4 pb-4 border-b border-border/50 flex items-center gap-2">
+            <Info className="w-5 h-5 text-accent" /> О персоне
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+
+            {/* Левая колонка фактов */}
+            <div className="space-y-3">
+              {person.gender && (
+                <div className="flex items-start gap-2">
+                  <UserIcon className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-muted/70 text-[11px]">Пол:</span>
+                    <span className="text-foreground font-medium">{person.gender === 'male' ? 'Мужской' : person.gender === 'female' ? 'Женский' : 'Другой'}</span>
+                  </div>
+                </div>
+              )}
+              {person.birthDate && (
+                <div className="flex items-start gap-2">
+                  <Calendar className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-muted/70 text-[11px]">Дата рождения:</span>
+                    <span className="text-foreground font-medium">
+                      {new Date(person.birthDate).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" })}
+                      {age !== null && <span className="text-muted/70 font-normal"> ({age} лет)</span>}
+                    </span>
+                  </div>
+                </div>
+              )}
+              {person.birthPlace && (
+                <div className="flex items-start gap-2">
+                  <MapPin className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-muted/70 text-[11px]">Место рождения:</span>
+                    <span className="text-foreground font-medium">{person.birthPlace}</span>
+                  </div>
+                </div>
+              )}
+              {person.nationality && (
+                <div className="flex items-start gap-2">
+                  <Flag className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-muted/70 text-[11px]">Национальность:</span>
+                    <span className="text-foreground font-medium">{person.nationality}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Правая колонка фактов */}
+            <div className="space-y-3">
+              {person.height && (
+                <div className="flex items-start gap-2">
+                  <Ruler className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-muted/70 text-[11px]">Рост:</span>
+                    <span className="text-foreground font-medium">{person.height} см</span>
+                  </div>
+                </div>
+              )}
+              {person.agency && (
+                <div className="flex items-start gap-2">
+                  <Briefcase className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-muted/70 text-[11px]">Агентство:</span>
+                    <span className="text-foreground font-medium">{person.agency}</span>
+                  </div>
+                </div>
+              )}
+              {person.bloodType && (
+                <div className="flex items-start gap-2">
+                  <Droplet className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-muted/70 text-[11px]">Группа крови:</span>
+                    <span className="text-foreground font-medium">{person.bloodType}</span>
+                  </div>
+                </div>
+              )}
+              {person.mbti && (
+                <div className="flex items-start gap-2">
+                  <Brain className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-muted/70 text-[11px]">MBTI:</span>
+                    <span className="text-foreground font-medium">{person.mbti}</span>
+                  </div>
+                </div>
+              )}
+              {(person.zodiacWestern || person.zodiacChinese) && (
+                <div className="flex items-start gap-2">
+                  <Sparkles className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-muted/70 text-[11px]">Зодиак:</span>
+                    <span className="text-foreground font-medium">
+                      {person.zodiacWestern} {person.zodiacChinese && ` / ${person.zodiacChinese}`}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Соцсети */}
+          {person.socialLinks.length > 0 && (
+            <div className="mt-6 pt-4 border-t border-border/50">
+              <span className="text-[11px] text-muted/70 mb-2 block">Социальные сети:</span>
+              <div className="flex flex-wrap gap-2">
+                {person.socialLinks.map((link) => {
+                  const p = link.platform.toLowerCase();
+                  const Icon = SOCIAL_ICONS[p] || LinkIcon;
+                  return (
+                    <a
+                      key={link.id}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border bg-surface text-muted hover:text-accent hover:border-accent/40 transition-all text-xs"
+                      title={link.platform}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      <span className="capitalize">{link.platform}</span>
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
           )}
         </div>
 
-        <div className="flex-1 min-w-0">
-          <h1 className="text-3xl font-bold leading-tight">{person.name}</h1>
-
-          {/* Блок пилюль */}
-          <AlternativeTitles
-            label="Другие имена:"
-            titles={[
-              ...(person.nameNative ? [{ id: -1, title: person.nameNative, language: "ko" }] : []),
-              ...person.aliases.map((a) => ({
-                id: a.id,
-                title: a.name,
-                language: a.language
-              }))
-            ].filter((v, i, a) =>
-              a.findIndex(t => t.title === v.title) === i
-            )}
-          />
-
-          {/* Новые поля: Пол, Рост, Место рождения и др. */}
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4 text-sm text-muted">
-            {person.gender && (
-              <span className="flex items-center gap-1.5">
-                <UserIcon className="w-4 h-4 text-accent" />
-                <span className="text-muted/70">Пол:</span>
-                {person.gender === 'male' ? 'Мужской' : person.gender === 'female' ? 'Женский' : 'Другой'}
-              </span>
-            )}
-            {person.height && (
-              <span className="flex items-center gap-1.5">
-                <Ruler className="w-4 h-4 text-accent" />
-                <span className="text-muted/70">Рост:</span>
-                {person.height} см
-              </span>
-            )}
-            {person.birthPlace && (
-              <span className="flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 text-accent" />
-                <span className="text-muted/70">Место рождения:</span>
-                {person.birthPlace}
-              </span>
-            )}
-            {person.birthDate && (
-              <span className="flex items-center gap-1.5">
-                <Calendar className="w-4 h-4 text-accent" />
-                <span className="text-muted/70">Дата рождения:</span>
-                {new Date(person.birthDate).toLocaleDateString("ru-RU", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
-                {age !== null && (
-                  <span className="text-muted/70">({age})</span>
-                )}
-              </span>
-            )}
-
-            {person.nationality && (
-              <span className="flex items-center gap-1.5">
-                <Flag className="w-4 h-4 text-accent" />
-                <span className="text-muted/70">Национальность:</span>
-                {person.nationality}
-              </span>
-            )}
-
-            {person.agency && (
-              <span className="flex items-center gap-1.5">
-                <Briefcase className="w-4 h-4 text-accent" />
-                <span className="text-muted/70">Агентство:</span>
-                {person.agency}
-              </span>
-            )}
-            {person.bloodType && (
-              <span className="flex items-center gap-1.5">
-                <Droplet className="w-4 h-4 text-accent" />
-                <span className="text-muted/70">Группа крови:</span>
-                {person.bloodType}
-              </span>
-            )}
-            {person.mbti && (
-              <span className="flex items-center gap-1.5">
-                <Brain className="w-4 h-4 text-accent" />
-                <span className="text-muted/70">MBTI:</span>
-                {person.mbti}
-              </span>
-            )}
-            {person.zodiacWestern && (
-              <span className="flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-accent" />
-                <span className="text-muted/70">Зодиак:</span>
-                {person.zodiacWestern}
-              </span>
-            )}
-            {person.zodiacChinese && (
-              <span className="flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-accent" />
-                <span className="text-muted/70">Кит. зодиак:</span>
-                {person.zodiacChinese}
-              </span>
-            )}
-          </div>
-
-          {/* Соцсети и ссылки */}
-          {person.socialLinks.length > 0 && (
-            <div className="flex items-center gap-3 mt-4 flex-wrap">
-              <span className="text-xs text-muted">Ссылки:</span>
-              {person.socialLinks.map((link) => {
-                const p = link.platform.toLowerCase();
-                // Берем иконку из словаря, если нет — показываем цепочку
-                const Icon = SOCIAL_ICONS[p] || LinkIcon;
-
-                return (
-                  <a
-                    key={link.id}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border bg-surface text-muted hover:text-accent hover:border-accent/40 transition-all text-xs"
-                    title={link.platform}
-                  >
-                    <Icon className="w-3.5 h-3.5" />
-                    <span className="capitalize">{link.platform}</span>
-                  </a>
-                );
-              })}
-            </div>
-          )}
-
-          {person.bio && (
-            <p className="text-sm text-muted mt-5 leading-relaxed whitespace-pre-wrap">
-              {person.bio}
-            </p>
-          )}
+        {/* Колонка 3: Пустой блок (на будущее) */}
+        <div className="lg:col-span-1 bg-surface/20 p-5 rounded-2xl border border-border/50 flex flex-col gap-4 shrink-0">
+          <h3 className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-2">Действия</h3>
+          <div className="text-sm text-muted italic">Скоро здесь появятся функции...</div>
         </div>
       </div>
 
-      {/* Фильмография (без изменений) */}
-      <section className="mt-12">
-        <h2 className="text-lg font-semibold flex items-center gap-2 mb-6">
-          <Film className="w-5 h-5 text-accent" />
-          Фильмография
-          <span className="text-sm text-muted font-normal">
-            ({filmography.length})
-          </span>
-        </h2>
-
-        {filmography.length === 0 ? (
-          <p className="text-sm text-muted italic">
-            Актёр пока не привязан ни к одной дораме
+      {/* ─── БИОГРАФИЯ ─── */}
+      {person.bio && (
+        <div className="w-full mb-10 bg-surface/20 p-6 rounded-2xl border border-border/50">
+          <h2 className="text-lg font-semibold mb-4 pb-3 border-b border-border/50 flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-accent" /> Биография
+          </h2>
+          <p className="w-full text-muted leading-relaxed text-base whitespace-pre-wrap">
+            {person.bio}
           </p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {filmography.map((c) => (
-              <Link
-                key={c.id}
-                href={`/dramas/${c.drama.id}`}
-                className="flex items-start gap-3 rounded-xl border border-border bg-surface p-3 hover:border-accent/50 transition-colors"
-              >
-                <div className="w-14 h-20 rounded-lg overflow-hidden bg-accent-soft/40 flex items-center justify-center text-2xl shrink-0">
-                  {c.drama.posterUrl ? (
-                    <img
-                      src={c.drama.posterUrl}
-                      alt={c.drama.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-muted">🎬</span>
-                  )}
-                </div>
+        </div>
+      )}
 
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold truncate">
-                    {c.drama.title}
-                  </p>
-                  {c.drama.year && (
-                    <p className="text-xs text-muted mt-0.5">
-                      {c.drama.year}
-                    </p>
-                  )}
+      {/* ─── ТАБЫ ─── */}
+      <Tabs defaultValue="filmography" className="w-full">
+        <TabsList>
+          <TabsTrigger value="filmography">Фильмография</TabsTrigger>
+          <TabsTrigger value="gallery">Галерея</TabsTrigger>
+        </TabsList>
 
-                  {c.character?.name && (
-                    <p className="text-xs text-accent mt-1 truncate">
-                      → {c.character.name}
-                    </p>
-                  )}
-                  {c.character?.description && (
-                    <p className="text-xs text-muted mt-0.5 line-clamp-2">
-                      {c.character.description}
-                    </p>
-                  )}
-
-                  <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                    {c.importance === "lead" && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-full border border-yellow-400/40 bg-yellow-400/10 text-yellow-400">
-                        Главная
-                      </span>
-                    )}
-                    {c.importance === "guest" && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-full border border-border text-muted">
-                        Эпизод
-                      </span>
-                    )}
-                    {c.roleType !== "actor" && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-full border border-border text-muted">
-                        {roleLabel(c.roleType)}
-                      </span>
+        {/* 1. ФИЛЬМОГРАФИЯ */}
+        <TabsContent value="filmography">
+          {filmography.length === 0 ? (
+            <div className="text-center py-10 border border-dashed border-border rounded-2xl">
+              <p className="text-muted italic">Актёр пока не привязан ни к одной дораме.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filmography.map((c) => (
+                <Link
+                  key={c.id}
+                  href={`/dramas/${c.drama.id}`}
+                  className="group flex items-start gap-4 rounded-xl border border-border bg-surface p-4 hover:border-accent/50 transition-colors"
+                >
+                  <div className="w-16 h-24 rounded-lg overflow-hidden bg-accent-soft/40 flex items-center justify-center text-2xl shrink-0">
+                    {c.drama.posterUrl ? (
+                      <img src={c.drama.posterUrl} alt={c.drama.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    ) : (
+                      <span className="text-muted">🎬</span>
                     )}
                   </div>
-                </div>
-              </Link>
-            ))}
+
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold truncate group-hover:text-accent transition-colors">
+                      {c.drama.title}
+                    </p>
+                    {c.drama.year && <p className="text-xs text-muted mt-0.5">{c.drama.year}</p>}
+
+                    {c.character?.name && (
+                      <p className="text-xs text-accent mt-1.5 truncate font-medium">
+                        → {c.character.name}
+                      </p>
+                    )}
+                    {c.character?.description && (
+                      <p className="text-xs text-muted mt-1 line-clamp-2 leading-relaxed">
+                        {c.character.description}
+                      </p>
+                    )}
+
+                    <div className="flex items-center gap-1.5 mt-3 flex-wrap">
+                      {c.importance === "lead" && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full border border-yellow-400/40 bg-yellow-400/10 text-yellow-400">
+                          Главная
+                        </span>
+                      )}
+                      {c.importance === "guest" && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full border border-border text-muted">
+                          Эпизод
+                        </span>
+                      )}
+                      {c.roleType !== "actor" && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full border border-border text-muted">
+                          {roleLabel(c.roleType)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* 2. ГАЛЕРЕЯ (Заглушка) */}
+        <TabsContent value="gallery">
+          <div className="text-center py-10 text-muted italic border border-dashed border-border rounded-2xl flex flex-col items-center justify-center">
+            <ImageIcon className="w-10 h-10 text-muted/50 mb-3" />
+            Галерея фотографий пока пуста.
           </div>
-        )}
-      </section>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
