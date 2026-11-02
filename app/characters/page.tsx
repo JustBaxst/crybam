@@ -1,21 +1,44 @@
 import Link from "next/link";
-import { Search, UserCircle, Film } from "lucide-react";
+import { UserCircle, Film, X, Compass } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getCharacterSearchWhere } from "@/lib/search-queries";
-import { AdminSearchBar } from "@/components/AdminSearchBar"; // Используем наш красивый поиск
+import { AdminSearchBar } from "@/components/AdminSearchBar";
+import { CharactersToolbar } from "@/components/CharactersToolbar";
 
-type SearchParams = Promise<{ q?: string }>;
+type SearchParams = Promise<{
+  q?: string; sort?: string; dramaId?: string; roleType?: string; personId?: string; gender?: string;
+}>;
 
 export default async function CharactersCatalogPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const { q } = await searchParams;
+  const { q, sort, dramaId, roleType, personId, gender } = await searchParams;
   const query = (q ?? "").trim();
+  const currentSort = sort || "name_asc";
+
+  const dramaIds = dramaId ? dramaId.split(",").map(Number) : [];
+  const roleTypes = roleType ? roleType.split(",") : [];
+  const personIds = personId ? personId.split(",").map(Number) : [];
+  const genders = gender ? gender.split(",") : [];
+
+  const whereCondition: any = {
+    ...getCharacterSearchWhere(query),
+  };
+
+  if (dramaIds.length) whereCondition.dramaId = { in: dramaIds };
+  if (genders.length) whereCondition.gender = { in: genders };
+
+  const creditConditions: any = {};
+  if (roleTypes.length) creditConditions.importance = { in: roleTypes };
+  if (personIds.length) creditConditions.personId = { in: personIds };
+  if (Object.keys(creditConditions).length > 0) {
+    whereCondition.credits = { some: creditConditions };
+  }
 
   const characters = await prisma.character.findMany({
-    where: getCharacterSearchWhere(query),
+    where: whereCondition,
     include: {
       drama: { select: { id: true, title: true, year: true } },
       credits: {
@@ -23,30 +46,106 @@ export default async function CharactersCatalogPage({
         include: { person: { select: { id: true, name: true, photoUrl: true } } },
         take: 1, // Берем только первого актера
       },
+      aliases: { select: { name: true } }
     },
-    orderBy: { name: "asc" },
   });
+
+  // Сортировка в памяти
+  if (currentSort === "name_asc") characters.sort((a, b) => a.name.localeCompare(b.name));
+  if (currentSort === "name_desc") characters.sort((a, b) => b.name.localeCompare(a.name));
+  if (currentSort === "importance_desc" || currentSort === "importance_asc") {
+    const importanceOrder: Record<string, number> = { lead: 0, support: 1, guest: 2 };
+    const isDesc = currentSort === "importance_desc";
+    characters.sort((a, b) => {
+      const aImp = a.credits[0]?.importance || "support";
+      const bImp = b.credits[0]?.importance || "support";
+      const diff = (importanceOrder[aImp] ?? 1) - (importanceOrder[bImp] ?? 1);
+      return isDesc ? diff : -diff;
+    });
+  }
+
+  // Данные для фильтров
+  const allDramas = await prisma.drama.findMany({ where: { deletedAt: null }, select: { id: true, title: true }, orderBy: { title: "asc" } });
+  const allPersons = await prisma.person.findMany({ where: { deletedAt: null }, select: { id: true, name: true }, orderBy: { name: "asc" } });
+
+  // Плашки
+  const activeFilters: { label: string, key: string, value: string }[] = [];
+  dramaIds.forEach(id => {
+    const d = allDramas.find(x => x.id === id);
+    if (d) activeFilters.push({ label: `Дорама: ${d.title}`, key: "dramaId", value: String(id) });
+  });
+  roleTypes.forEach(r => activeFilters.push({ label: `Роль: ${r === "lead" ? "Главная" : r === "support" ? "Второстепенная" : "Эпизод"}`, key: "roleType", value: r }));
+  personIds.forEach(id => {
+    const p = allPersons.find(x => x.id === id);
+    if (p) activeFilters.push({ label: `Актер: ${p.name}`, key: "personId", value: String(id) });
+  });
+  genders.forEach(g => activeFilters.push({ label: `Пол: ${g === "male" ? "Мужской" : g === "female" ? "Женский" : "Другой"}`, key: "gender", value: g }));
+
+  const buildClearUrl = (filterToRemove?: { key: string, value?: string }) => {
+    const params = new URLSearchParams();
+    if (q) params.set("q", q);
+    if (sort && sort !== "name_asc") params.set("sort", sort);
+
+    const addValues = (key: string, vals: string[], removedVal?: string) => {
+      const remaining = removedVal ? vals.filter(v => v !== removedVal) : vals;
+      if (remaining.length > 0) params.set(key, remaining.join(","));
+    };
+
+    addValues("dramaId", dramaIds.map(String), filterToRemove?.key === "dramaId" ? filterToRemove.value : undefined);
+    addValues("roleType", roleTypes, filterToRemove?.key === "roleType" ? filterToRemove.value : undefined);
+    addValues("personId", personIds.map(String), filterToRemove?.key === "personId" ? filterToRemove.value : undefined);
+    addValues("gender", genders, filterToRemove?.key === "gender" ? filterToRemove.value : undefined);
+
+    return `/characters?${params.toString()}`;
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
-      <div className="flex flex-col gap-6 mb-8">
-        <div>
-          <h1 className="text-2xl font-bold">Персонажи</h1>
-          <p className="text-sm text-muted mt-1">
-            Всего в базе: <span className="text-accent">{characters.length}</span>
-          </p>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold">Персонажи</h1>
+        <p className="text-sm text-muted mt-1">
+          Всего в базе: <span className="text-accent">{characters.length}</span>
+        </p>
+      </div>
+
+      {/* ─── ЕДИНЫЙ БЛОК «НАВИГАЦИЯ» ─── */}
+      <div className="bg-surface/20 border border-border/50 rounded-2xl p-6 mb-8 space-y-5 shadow-sm">
+        <div className="flex items-center gap-2 pb-3 border-b border-border/50">
+          <Compass className="w-5 h-5 text-accent" />
+          <h2 className="text-lg font-semibold">Навигация</h2>
         </div>
 
-        <div className="w-full max-w-2xl">
+        <div className="max-w-2xl">
           <AdminSearchBar placeholder="Поиск по имени персонажа..." />
         </div>
+
+        <div className="pt-2">
+          <CharactersToolbar allDramas={allDramas} allPersons={allPersons} />
+        </div>
+
+        {activeFilters.length > 0 && (
+          <div className="pt-4 border-t border-border/50 flex flex-wrap items-center gap-2">
+            <span className="text-sm text-muted mr-1">Выбрано:</span>
+            {activeFilters.map((f, i) => (
+              <Link key={i} href={buildClearUrl(f)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 text-accent border border-accent/20 text-xs font-medium hover:bg-accent/20 transition-colors">
+                {f.label} <X className="w-3 h-3" />
+              </Link>
+            ))}
+            <Link href="/characters" className="text-xs text-muted hover:text-foreground underline ml-2">Сбросить всё</Link>
+          </div>
+        )}
       </div>
 
       {characters.length === 0 ? (
         <div className="rounded-2xl border-2 border-dashed border-border bg-surface/50 p-10 text-center">
           <p className="text-muted">
-            {query ? `По запросу «${query}» ничего не найдено` : "В базе пока нет персонажей"}
+            {query || activeFilters.length > 0 ? `Ничего не найдено` : "В базе пока нет персонажей"}
           </p>
+          {(query || activeFilters.length > 0) && (
+            <Link href="/characters" className="inline-block mt-3 text-sm text-accent hover:underline">
+              ← Сбросить поиск и фильтры
+            </Link>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
