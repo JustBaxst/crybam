@@ -24,23 +24,11 @@ type CatalogCardProps = {
 };
 
 export function CatalogCard({
-  dramaId,
-  title,
-  year,
-  country,
-  posterUrl,
-  ratingKinopoisk,
-  ratingIMDB,
-  genres,
-  episodes,
-  synopsis,
-  dominantCryTag,
-  entry
+  dramaId, title, year, country, posterUrl, ratingKinopoisk, ratingIMDB,
+  genres, episodes, synopsis, dominantCryTag, entry
 }: CatalogCardProps) {
   const rating = ratingKinopoisk ?? ratingIMDB ?? null;
   const metaString = [year, country, episodes ? `${episodes} сер.` : null].filter(Boolean).join(" · ");
-
-  // Достаем конфиг для CryTag, чтобы не дублировать код
   const cryTagConfig = dominantCryTag ? CRY_TAGS[dominantCryTag] : null;
 
   return (
@@ -49,7 +37,6 @@ export function CatalogCard({
       {/* ─── ПОСТЕР И HOVER-ОВЕРЛЕЙ ─── */}
       <div className="relative aspect-2/3 bg-accent-soft overflow-hidden rounded-t-xl">
 
-        {/* Ссылка на дораму (кликабельна только она, чтобы не перехватывать клики по кнопкам) */}
         <Link href={`/dramas/${dramaId}`} className="absolute inset-0 z-10">
           <PosterImage posterUrl={posterUrl} title={title} year={year} className="absolute inset-0" />
         </Link>
@@ -58,28 +45,28 @@ export function CatalogCard({
         <div className="absolute top-2 left-2 right-2 flex justify-between items-start z-20 pointer-events-none">
 
           {/* Рейтинг */}
-          <div className="inline-flex items-center gap-1.5 h-6 px-2 rounded-full border border-border bg-background/80 backdrop-blur-sm text-[11px] font-medium">
+          <div className="inline-flex items-center gap-1.5 h-6 px-2 rounded-full border border-border bg-background/80 backdrop-blur-sm text-xs font-semibold">
             <Star className={`w-3.5 h-3.5 shrink-0 ${rating ? "fill-current text-yellow-400" : "text-muted"}`} />
-            <span className={`leading-none ${rating ? "text-foreground" : "text-muted"}`}>
+            <span className={`${rating ? "text-foreground" : "text-muted"} translate-y-0`}>
               {rating != null ? rating.toFixed(1) : "—"}
             </span>
           </div>
 
-          {/* CryTag (с заглушкой) */}
+          {/* CryTag */}
           {cryTagConfig ? (
-            <div className={`inline-flex items-center gap-1.5 h-6 px-2 rounded-full border ${cryTagConfig.border} ${cryTagConfig.bg}/15 backdrop-blur-sm text-[11px] font-medium ${cryTagConfig.color}`}>
+            <div className={`inline-flex items-center gap-1.5 h-6 px-2 rounded-full border ${cryTagConfig.border} ${cryTagConfig.bg}/15 backdrop-blur-sm text-xs font-semibold ${cryTagConfig.color}`}>
               <cryTagConfig.Icon className="w-3.5 h-3.5 shrink-0" />
-              <span className="leading-none">{cryTagConfig.label}</span>
+              <span className="-translate-y-px">{cryTagConfig.label}</span>
             </div>
           ) : (
-            <div className="inline-flex items-center gap-1.5 h-6 px-2 rounded-full border border-border bg-background/80 backdrop-blur-sm text-[11px] font-medium text-muted">
+            <div className="inline-flex items-center gap-1.5 h-6 px-2 rounded-full border border-border bg-background/80 backdrop-blur-sm text-xs font-semibold text-muted">
               <Eye className="w-3.5 h-3.5 shrink-0" />
-              <span className="leading-none">Нет оценок</span>
+              <span className="-translate-y-px">Сбор данных</span>
             </div>
           )}
         </div>
 
-        {/* Hover-оверлей (только для md и выше) */}
+        {/* Hover-оверлей */}
         <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30 hidden md:flex flex-col justify-between p-4">
           <div className="mt-8">
             <p className="text-white/90 text-xs leading-relaxed line-clamp-4">
@@ -87,13 +74,12 @@ export function CatalogCard({
             </p>
           </div>
           <div className="w-full">
-            {/* Встраиваем наш существующий Dropdown статусов */}
             <StatusDropdown dramaId={dramaId} entry={entry || null} episodes={episodes} />
           </div>
         </div>
       </div>
 
-      {/* ─── ИНФОРМАЦИЯ (СОСТОЯНИЕ ПОКОЯ) ─── */}
+      {/* ─── ИНФОРМАЦИЯ ─── */}
       <div className="p-3 flex flex-col flex-1 rounded-b-xl">
         <Link href={`/dramas/${dramaId}`} className="hover:text-accent transition-colors">
           <h3 className="font-semibold text-sm leading-tight line-clamp-2 min-h-[2.4em]">
