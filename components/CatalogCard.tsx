@@ -45,7 +45,7 @@ export function CatalogCard({
     <div className="group relative flex flex-col rounded-xl border border-border bg-surface transition-colors hover:border-accent/50">
 
       {/* ─── ПОСТЕР И HOVER-ОВЕРЛЕЙ ─── */}
-      <div className="relative aspect-[2/3] bg-accent-soft overflow-hidden rounded-t-xl">
+      <div className="relative aspect-2/3 bg-accent-soft overflow-hidden rounded-t-xl">
 
         <Link href={`/dramas/${dramaId}`} className="absolute inset-0 z-10">
           <PosterImage posterUrl={posterUrl} title={title} year={year} className="absolute inset-0" />
@@ -79,7 +79,7 @@ export function CatalogCard({
           {/* Текст или Теги (flex-1 и overflow-hidden, чтобы не вылезало) */}
           <div className="w-full flex-1 overflow-hidden pt-4 relative">
             {!showTags ? (
-              <p className="text-white/90 text-xs leading-relaxed line-clamp-[12]">
+              <p className="text-white/90 text-xs leading-relaxed line-clamp-14">
                 {synopsis || "Описание пока отсутствует..."}
               </p>
             ) : (
