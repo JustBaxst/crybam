@@ -42,7 +42,8 @@ export function CardStatusToolbar({
     };
 
     return (
-        <div className={`flex items-center justify-between bg-surface/90 backdrop-blur-md border border-border/60 rounded-xl p-1 w-full shadow-lg transition-opacity ${isPending ? "opacity-50 pointer-events-none" : ""}`}>
+        // Убрали backdrop-blur, поставили bg-black/50 для прозрачности без тормозов
+        <div className={`flex items-center justify-between bg-black/50 border border-white/10 rounded-xl p-1 w-full shadow-lg transition-opacity ${isPending ? "opacity-50 pointer-events-none" : ""}`}>
 
             {STATUS_ACTIONS.map((action) => {
                 const isActive = currentStatus === action.value;
@@ -51,42 +52,41 @@ export function CardStatusToolbar({
                         <button
                             onClick={() => handleSetStatus(action.value)}
                             className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all cursor-pointer ${isActive
-                                ? "bg-accent text-white shadow-sm scale-105"
-                                : "text-muted hover:bg-accent/15 hover:text-accent"
+                                    ? "bg-accent text-white shadow-sm scale-105"
+                                    : "text-white/70 hover:bg-white/20 hover:text-white"
                                 }`}
                         >
                             <action.Icon className="w-4 h-4" />
                         </button>
 
-                        {/* Современный тултип */}
+                        {/* Тултип статуса без размытия */}
                         <div className="absolute bottom-full mb-2 opacity-0 group-hover/btn:opacity-100 transition-all duration-200 translate-y-1 group-hover/btn:translate-y-0 pointer-events-none z-50 flex flex-col items-center">
-                            <span className="bg-zinc-800 text-zinc-100 text-[10px] font-medium px-2 py-1 rounded-md border border-white/10 shadow-xl whitespace-nowrap">
+                            <span className="bg-zinc-800/95 text-white text-[10px] font-medium px-2.5 py-1 rounded-md border border-white/10 shadow-xl whitespace-nowrap">
                                 {action.label}
                             </span>
-                            {/* Стрелочка вниз */}
-                            <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-zinc-800" />
+                            <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[4px] border-l-transparent border-r-transparent border-t-zinc-800/95" />
                         </div>
                     </div>
                 );
             })}
 
             {/* Разделитель */}
-            <div className="w-px h-5 bg-border/80 mx-0.5" />
+            <div className="w-px h-5 bg-white/20 mx-0.5" />
 
             <div className="relative group/btn flex justify-center">
                 <button
                     onClick={handleRemove}
-                    className="flex items-center justify-center w-8 h-8 rounded-lg text-muted hover:bg-red-500/15 hover:text-red-400 transition-all cursor-pointer"
+                    className="flex items-center justify-center w-8 h-8 rounded-lg text-white/70 hover:bg-red-500/30 hover:text-red-100 transition-all cursor-pointer"
                 >
                     <Trash2 className="w-4 h-4" />
                 </button>
 
-                {/* Тултип для удаления */}
+                {/* Тултип удаления без размытия */}
                 <div className="absolute bottom-full mb-2 opacity-0 group-hover/btn:opacity-100 transition-all duration-200 translate-y-1 group-hover/btn:translate-y-0 pointer-events-none z-50 flex flex-col items-center">
-                    <span className="bg-red-500/90 text-white text-[10px] font-medium px-2 py-1 rounded-md border border-red-400/20 shadow-xl whitespace-nowrap">
+                    <span className="bg-red-950/95 text-red-200 text-[10px] font-medium px-2.5 py-1 rounded-md border border-red-500/20 shadow-xl whitespace-nowrap">
                         Удалить
                     </span>
-                    <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-red-500/90" />
+                    <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[4px] border-l-transparent border-r-transparent border-t-red-950/95" />
                 </div>
             </div>
 
