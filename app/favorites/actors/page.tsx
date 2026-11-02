@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Crown, Star, Users, Briefcase, ChevronRight, Heart, Film } from "lucide-react";
+import {
+    Crown, Star, Users, Briefcase, ChevronRight, Heart, Film,
+    Flame, Trophy, Brain, Sparkles, Calendar
+} from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { CURRENT_USER_ID } from "@/lib/current-user";
 
 export default async function FavoriteActorsPage() {
-    // 1. Получаем избранных актеров пользователя с их статистикой
     const favorites = await prisma.userFavoriteActor.findMany({
         where: { userId: CURRENT_USER_ID },
         include: {
@@ -20,13 +22,15 @@ export default async function FavoriteActorsPage() {
     if (!favorites) notFound();
 
     const actors = favorites.map(f => f.person);
-
-    // --- Вычисляем статистику для Hero-зоны ---
     const totalActors = actors.length;
 
+    // --- Вычисления для статистики ---
     let totalAge = 0;
     let ageCount = 0;
+    let totalRoles = 0;
+
     actors.forEach(a => {
+        totalRoles += a._count.credits;
         if (a.birthDate) {
             const age = Math.floor((Date.now() - new Date(a.birthDate).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
             totalAge += age;
@@ -35,18 +39,24 @@ export default async function FavoriteActorsPage() {
     });
     const averageAge = ageCount > 0 ? Math.round(totalAge / ageCount) : 0;
 
-    // Самое частое агентство
-    const agencies = actors.map(a => a.agency).filter(Boolean) as string[];
-    const topAgency = agencies.length > 0
-        ? Object.entries(agencies.reduce((acc, curr) => { acc[curr] = (acc[curr] || 0) + 1; return acc; }, {} as Record<string, number>)).sort((a, b) => b[1] - a[1])[0][0]
-        : "—";
+    const getTopValue = (arr: (string | null | undefined)[]) => {
+        const valid = arr.filter(Boolean) as string[];
+        if (valid.length === 0) return "—";
+        return Object.entries(valid.reduce((acc, curr) => {
+            acc[curr] = (acc[curr] || 0) + 1;
+            return acc;
+        }, {} as Record<string, number>)).sort((a, b) => b[1] - a[1])[0][0];
+    };
 
-    // --- Топ по ролям (из избранных) ---
+    const topAgency = getTopValue(actors.map(a => a.agency));
+    const topMbti = getTopValue(actors.map(a => a.mbti));
+    const topZodiac = getTopValue(actors.map(a => a.zodiacWestern));
+
+    // --- Топы ---
     const topByRoles = [...actors].sort((a, b) => b._count.credits - a._count.credits).slice(0, 5);
 
-    // --- Топ среди фанатов (глобальный) ---
     const globalTopActors = await prisma.person.findMany({
-        where: { deletedAt: null, favoriteBy: { some: {} } }, // только те, кого хоть кто-то добавил
+        where: { deletedAt: null, favoriteBy: { some: {} } },
         include: { _count: { select: { favoriteBy: true } } },
         orderBy: { favoriteBy: { _count: "desc" } },
         take: 5,
@@ -70,99 +80,42 @@ export default async function FavoriteActorsPage() {
                 <p className="text-sm text-muted mt-2">Твои кумиры и фавориты</p>
             </div>
 
-            {/* --- HERO СТАТИСТИКА --- */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-                <div className="bg-surface/20 p-6 rounded-2xl border border-border/50 flex flex-col items-center justify-center text-center">
-                    <Users className="w-8 h-8 text-accent mb-2" />
-                    <span className="text-3xl font-bold">{totalActors}</span>
-                    <span className="text-sm text-muted mt-1">Всего в избранном</span>
+            {/* --- HERO СТАТИСТИКА (6 плашек) --- */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-10">
+                <div className="bg-surface/20 p-4 rounded-2xl border border-border/50 flex flex-col items-center justify-center text-center">
+                    <Users className="w-6 h-6 text-accent mb-2" />
+                    <span className="text-2xl font-bold">{totalActors}</span>
+                    <span className="text-[11px] text-muted mt-0.5">В избранном</span>
                 </div>
-                <div className="bg-surface/20 p-6 rounded-2xl border border-border/50 flex flex-col items-center justify-center text-center">
-                    <Star className="w-8 h-8 text-accent mb-2" />
-                    <span className="text-3xl font-bold">{averageAge}</span>
-                    <span className="text-sm text-muted mt-1">Средний возраст</span>
+                <div className="bg-surface/20 p-4 rounded-2xl border border-border/50 flex flex-col items-center justify-center text-center">
+                    <Calendar className="w-6 h-6 text-accent mb-2" />
+                    <span className="text-2xl font-bold">{averageAge}</span>
+                    <span className="text-[11px] text-muted mt-0.5">Средний возраст</span>
                 </div>
-                <div className="bg-surface/20 p-6 rounded-2xl border border-border/50 flex flex-col items-center justify-center text-center">
-                    <Briefcase className="w-8 h-8 text-accent mb-2" />
-                    <span className="text-xl font-bold truncate max-w-full px-4">{topAgency}</span>
-                    <span className="text-sm text-muted mt-1">Любимое агентство</span>
+                <div className="bg-surface/20 p-4 rounded-2xl border border-border/50 flex flex-col items-center justify-center text-center">
+                    <Film className="w-6 h-6 text-accent mb-2" />
+                    <span className="text-2xl font-bold">{totalRoles}</span>
+                    <span className="text-[11px] text-muted mt-0.5">Всего ролей</span>
+                </div>
+                <div className="bg-surface/20 p-4 rounded-2xl border border-border/50 flex flex-col items-center justify-center text-center">
+                    <Briefcase className="w-6 h-6 text-accent mb-2" />
+                    <span className="text-sm font-bold truncate max-w-full px-1">{topAgency}</span>
+                    <span className="text-[11px] text-muted mt-1">Топ агентство</span>
+                </div>
+                <div className="bg-surface/20 p-4 rounded-2xl border border-border/50 flex flex-col items-center justify-center text-center">
+                    <Brain className="w-6 h-6 text-accent mb-2" />
+                    <span className="text-xl font-bold">{topMbti}</span>
+                    <span className="text-[11px] text-muted mt-0.5">Топ MBTI</span>
+                </div>
+                <div className="bg-surface/20 p-4 rounded-2xl border border-border/50 flex flex-col items-center justify-center text-center">
+                    <Sparkles className="w-6 h-6 text-accent mb-2" />
+                    <span className="text-sm font-bold truncate max-w-full px-1">{topZodiac}</span>
+                    <span className="text-[11px] text-muted mt-1">Топ Зодиак</span>
                 </div>
             </div>
 
-            {/* --- ТОП СРЕДИ ФАНАТОВ --- */}
-            {globalTopActors.length > 0 && (
-                <section className="mb-10">
-                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                        🔥 Топ среди фанатов
-                        <span className="text-xs font-normal text-muted bg-surface/50 px-2 py-1 rounded-full border border-border/50">Глобальный</span>
-                    </h2>
-                    <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
-                        {globalTopActors.map((actor, idx) => (
-                            <Link
-                                key={actor.id}
-                                href={`/people/${actor.id}`}
-                                className="group relative w-40 shrink-0 rounded-xl border border-border bg-surface overflow-hidden hover:border-accent/50 transition-colors"
-                            >
-                                <div className="aspect-2/3 bg-accent-soft relative overflow-hidden">
-                                    {actor.photoUrl ? (
-                                        <img src={actor.photoUrl} alt={actor.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-4xl text-muted">👤</div>
-                                    )}
-                                    <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-xs font-bold text-white border border-white/20">
-                                        {idx + 1}
-                                    </div>
-                                </div>
-                                <div className="p-2 text-center">
-                                    <p className="text-sm font-semibold truncate">{actor.name}</p>
-                                    <p className="text-[10px] text-muted flex items-center justify-center gap-1 mt-0.5">
-                                        <Heart className="w-3 h-3 text-red-400 fill-current" /> {actor._count.favoriteBy} в избранном
-                                    </p>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
-                </section>
-            )}
-
-            {/* --- ТОП ПО РОЛЯМ (ИЗ ИЗБРАННЫХ) --- */}
-            {topByRoles.length > 0 && (
-                <section className="mb-10">
-                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                        🏆 Топ по ролям
-                        <span className="text-xs font-normal text-muted bg-surface/50 px-2 py-1 rounded-full border border-border/50">Среди твоих</span>
-                    </h2>
-                    <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
-                        {topByRoles.map((actor, idx) => (
-                            <Link
-                                key={actor.id}
-                                href={`/people/${actor.id}`}
-                                className="group relative w-40 shrink-0 rounded-xl border border-border bg-surface overflow-hidden hover:border-accent/50 transition-colors"
-                            >
-                                <div className="aspect-2/3 bg-accent-soft relative overflow-hidden">
-                                    {actor.photoUrl ? (
-                                        <img src={actor.photoUrl} alt={actor.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-4xl text-muted">👤</div>
-                                    )}
-                                    <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-xs font-bold text-white border border-white/20">
-                                        {idx + 1}
-                                    </div>
-                                </div>
-                                <div className="p-2 text-center">
-                                    <p className="text-sm font-semibold truncate">{actor.name}</p>
-                                    <p className="text-[10px] text-muted flex items-center justify-center gap-1 mt-0.5">
-                                        <Film className="w-3 h-3 text-accent" /> {actor._count.credits} ролей
-                                    </p>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
-                </section>
-            )}
-
-            {/* --- ВСЕ ИЗБРАННЫЕ --- */}
-            <section>
+            {/* --- ВСЕ ИЗБРАННЫЕ (ПЕРЕНЕСЕНО НАВЕРХ) --- */}
+            <section className="mb-12">
                 <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                     Твои избранные
                 </h2>
@@ -207,6 +160,79 @@ export default async function FavoriteActorsPage() {
                     </div>
                 )}
             </section>
+
+            {/* --- ТОП СРЕДИ ФАНАТОВ --- */}
+            {globalTopActors.length > 0 && (
+                <section className="mb-12">
+                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                        <Flame className="w-5 h-5 text-orange-500" /> Топ среди фанатов
+                        <span className="text-[10px] uppercase tracking-wider font-semibold text-muted bg-surface/50 px-2 py-1 rounded-md border border-border/50">Глобальный</span>
+                    </h2>
+                    <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
+                        {globalTopActors.map((actor, idx) => (
+                            <Link
+                                key={actor.id}
+                                href={`/people/${actor.id}`}
+                                className="group relative w-40 shrink-0 rounded-xl border border-border bg-surface overflow-hidden hover:border-accent/50 transition-colors"
+                            >
+                                <div className="aspect-2/3 bg-accent-soft relative overflow-hidden">
+                                    {actor.photoUrl ? (
+                                        <img src={actor.photoUrl} alt={actor.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-4xl text-muted">👤</div>
+                                    )}
+                                    <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-xs font-bold text-white border border-white/20">
+                                        {idx + 1}
+                                    </div>
+                                </div>
+                                <div className="p-2 text-center">
+                                    <p className="text-sm font-semibold truncate">{actor.name}</p>
+                                    <p className="text-[10px] text-muted flex items-center justify-center gap-1 mt-0.5">
+                                        <Heart className="w-3 h-3 text-red-400 fill-current" /> {actor._count.favoriteBy} в избранном
+                                    </p>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </section>
+            )}
+
+            {/* --- ТОП ПО РОЛЯМ --- */}
+            {topByRoles.length > 0 && (
+                <section className="mb-12">
+                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                        <Trophy className="w-5 h-5 text-yellow-400" /> Топ по ролям
+                        <span className="text-[10px] uppercase tracking-wider font-semibold text-muted bg-surface/50 px-2 py-1 rounded-md border border-border/50">Среди твоих</span>
+                    </h2>
+                    <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
+                        {topByRoles.map((actor, idx) => (
+                            <Link
+                                key={actor.id}
+                                href={`/people/${actor.id}`}
+                                className="group relative w-40 shrink-0 rounded-xl border border-border bg-surface overflow-hidden hover:border-accent/50 transition-colors"
+                            >
+                                <div className="aspect-2/3 bg-accent-soft relative overflow-hidden">
+                                    {actor.photoUrl ? (
+                                        <img src={actor.photoUrl} alt={actor.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-4xl text-muted">👤</div>
+                                    )}
+                                    <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-xs font-bold text-white border border-white/20">
+                                        {idx + 1}
+                                    </div>
+                                </div>
+                                <div className="p-2 text-center">
+                                    <p className="text-sm font-semibold truncate">{actor.name}</p>
+                                    <p className="text-[10px] text-muted flex items-center justify-center gap-1 mt-0.5">
+                                        <Film className="w-3 h-3 text-accent" /> {actor._count.credits} ролей
+                                    </p>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </section>
+            )}
+
         </div>
     );
 }
