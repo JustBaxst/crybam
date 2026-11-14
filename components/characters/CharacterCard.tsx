@@ -14,7 +14,7 @@ type CharacterWithData = {
     }[];
 };
 
-export function CharacterCard({ character }: { character: CharacterWithData }) {
+export function CharacterCard({ character, hideHover = false }: { character: CharacterWithData; hideHover?: boolean }) {
     const actor = character.credits[0]?.person;
     const importance = character.credits[0]?.importance;
 
@@ -37,26 +37,28 @@ export function CharacterCard({ character }: { character: CharacterWithData }) {
                     )}
                 </div>
 
-                {/* Hover-оверлей */}
-                <div className="absolute inset-0 bg-black/85 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30 hidden md:flex flex-col justify-between p-4">
-                    <div className="w-full pt-1">
-                        <p className="text-white/90 text-xs leading-relaxed line-clamp-10">
-                            {character.description || "Описание пока отсутствует..."}
-                        </p>
-                    </div>
-                    <div className="w-full shrink-0 flex flex-col gap-2">
-                        <Link href={`/dramas/${character.drama.id}`} className="flex items-center gap-2 w-full h-9 px-3 rounded-lg bg-surface/20 border border-white/10 hover:bg-surface/40 hover:border-accent/40 text-white text-xs font-medium transition-colors">
-                            <Film className="w-4 h-4 text-accent" />
-                            <span>К дораме</span>
-                        </Link>
-                        {actor && (
-                            <Link href={`/people/${actor.id}`} className="flex items-center gap-2 w-full h-9 px-3 rounded-lg bg-surface/20 border border-white/10 hover:bg-surface/40 hover:border-accent/40 text-white text-xs font-medium transition-colors">
-                                <UserCircle className="w-4 h-4 text-accent" />
-                                <span>К актеру</span>
+                {/* Hover-оверлей (скрывается, если hideHover = true) */}
+                {!hideHover && (
+                    <div className="absolute inset-0 bg-black/85 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30 hidden md:flex flex-col justify-between p-4">
+                        <div className="w-full pt-1">
+                            <p className="text-white/90 text-xs leading-relaxed line-clamp-10">
+                                {character.description || "Описание пока отсутствует..."}
+                            </p>
+                        </div>
+                        <div className="w-full shrink-0 flex flex-col gap-2">
+                            <Link href={`/dramas/${character.drama.id}`} className="flex items-center gap-2 w-full h-9 px-3 rounded-lg bg-surface/20 border border-white/10 hover:bg-surface/40 hover:border-accent/40 text-white text-xs font-medium transition-colors">
+                                <Film className="w-4 h-4 text-accent" />
+                                <span>К дораме</span>
                             </Link>
-                        )}
+                            {actor && (
+                                <Link href={`/people/${actor.id}`} className="flex items-center gap-2 w-full h-9 px-3 rounded-lg bg-surface/20 border border-white/10 hover:bg-surface/40 hover:border-accent/40 text-white text-xs font-medium transition-colors">
+                                    <UserCircle className="w-4 h-4 text-accent" />
+                                    <span>К актеру</span>
+                                </Link>
+                            )}
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
 
             {/* ─── ИНФОРМАЦИЯ ─── */}

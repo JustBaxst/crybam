@@ -117,7 +117,7 @@ export default async function FavoriteCharactersPage() {
                 ) : (
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {characters.map((char) => (
-                            <CharacterCard key={char.id} character={char as any} />
+                            <CharacterCard key={char.id} character={char as any} hideHover={true} />
                         ))}
                     </div>
                 )}
@@ -133,7 +133,7 @@ export default async function FavoriteCharactersPage() {
                     <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
                         {globalTopCharacters.map((char) => (
                             <div key={char.id} className="w-40 shrink-0">
-                                <CharacterCard character={char as any} />
+                                <CharacterCard character={char as any} hideHover={true} />
                             </div>
                         ))}
                     </div>
