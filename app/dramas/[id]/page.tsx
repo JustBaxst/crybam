@@ -127,7 +127,7 @@ export default async function DramaPage({
     { name: "Кинопоиск", value: drama.ratingKinopoisk },
     { name: "MyDramaList", value: drama.ratingMDL },
     { name: "IMDb", value: drama.ratingIMDB },
-  ].filter((r) => r.value != null);
+  ];
 
   // Данные для тегов
   const dramaThemes = await prisma.dramaThemeLink.findMany({
