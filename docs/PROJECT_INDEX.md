@@ -43,6 +43,11 @@ client: yes
 export SplitButton: (props: { children, onMainClick?, menuContent, className? }) => JSX.Element
 client: yes
 
+### accordion.tsx
+Обертка над Radix Accordion (сворачиваемые секции).
+export Accordion, AccordionItem, AccordionTrigger, AccordionContent
+client: yes
+
 ## components/admin/
 ### ActionDropdown.tsx
 Единое выпадающее меню действий для списков админки (Редактировать, Удалить). Использует UI-кит.
@@ -219,6 +224,11 @@ export cryTagLabel: (tag: string | null | undefined) => string
 Статусы дневника (Смотрю, В планах и т.д.).
 export DRAMA_STATUSES: Record<DramaStatus, { label: string; Icon: LucideIcon }>
 export getStatusLabel: (status: string | null | undefined) => string
+
+### credit-roles.ts
+Словарь ролей съемочной группы и актеров.
+export CREDIT_ROLES: Array<{ value, label, icon, color }>
+export getCreditRoleLabel: (value: string) => string
 
 ### status-utils.ts
 Уровни заполненности карточки (green/yellow/red).
