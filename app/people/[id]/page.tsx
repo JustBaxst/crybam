@@ -252,29 +252,42 @@ export default async function PersonPage({ params }: { params: Params }) {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filmography.map((c) => (
-                <Link
+                <div
                   key={c.id}
-                  href={`/dramas/${c.drama.id}`}
-                  className="group flex items-start gap-4 rounded-xl border border-border bg-surface p-4 hover:border-accent/50 transition-colors"
+                  className="group relative flex items-start gap-4 rounded-xl border border-border bg-surface p-4 hover:border-accent/50 transition-colors"
                 >
-                  <div className="w-16 h-24 rounded-lg overflow-hidden bg-accent-soft/40 flex items-center justify-center text-2xl shrink-0">
-                    {c.drama.posterUrl ? (
-                      <img src={c.drama.posterUrl} alt={c.drama.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    ) : (
-                      <span className="text-muted">🎬</span>
-                    )}
-                  </div>
+                  {/* Плашки важности (абсолютно спозиционированы) */}
+                  {c.importance === "lead" && (
+                    <span className="absolute top-3 right-3 text-[10px] px-2 py-0.5 rounded-full border border-yellow-400/40 bg-yellow-400/10 text-yellow-400 z-10 pointer-events-none">
+                      Главная
+                    </span>
+                  )}
+                  {c.importance === "guest" && (
+                    <span className="absolute top-3 right-3 text-[10px] px-2 py-0.5 rounded-full border border-border text-muted z-10 pointer-events-none">
+                      Эпизод
+                    </span>
+                  )}
 
+                  {/* Постер */}
+                  <Link href={`/dramas/${c.drama.id}`} className="w-16 h-24 rounded-lg overflow-hidden bg-accent-soft/40 flex items-center justify-center shrink-0 relative z-10">
+                    {c.drama.posterUrl ? (
+                      <img src={c.drama.posterUrl} alt={c.drama.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <Film className="w-6 h-6 text-muted" />
+                    )}
+                  </Link>
+
+                  {/* Инфо */}
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold truncate group-hover:text-accent transition-colors">
+                    <Link href={`/dramas/${c.drama.id}`} className="text-sm font-semibold truncate hover:text-accent transition-colors block relative z-10 pr-16">
                       {c.drama.title}
-                    </p>
+                    </Link>
                     {c.drama.year && <p className="text-xs text-muted mt-0.5">{c.drama.year}</p>}
 
                     {c.character?.name && (
-                      <p className="text-xs text-accent mt-1.5 truncate font-medium">
+                      <Link href={`/characters/${c.character.id}`} className="text-xs text-accent mt-1.5 truncate font-medium hover:underline block relative z-10">
                         → {c.character.name}
-                      </p>
+                      </Link>
                     )}
                     {c.character?.description && (
                       <p className="text-xs text-muted mt-1 line-clamp-2 leading-relaxed">
@@ -282,25 +295,16 @@ export default async function PersonPage({ params }: { params: Params }) {
                       </p>
                     )}
 
-                    <div className="flex items-center gap-1.5 mt-3 flex-wrap">
-                      {c.importance === "lead" && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full border border-yellow-400/40 bg-yellow-400/10 text-yellow-400">
-                          Главная
-                        </span>
-                      )}
-                      {c.importance === "guest" && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full border border-border text-muted">
-                          Эпизод
-                        </span>
-                      )}
-                      {c.roleType !== "actor" && (
+                    {/* Если актер еще и режиссер/сценарист */}
+                    {c.roleType !== "actor" && (
+                      <div className="flex items-center gap-1.5 mt-3 flex-wrap">
                         <span className="text-[10px] px-2 py-0.5 rounded-full border border-border text-muted">
                           {roleLabel(c.roleType)}
                         </span>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           )}
