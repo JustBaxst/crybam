@@ -455,18 +455,27 @@ export default async function DramaPage({
         {/* 2. В РОЛЯХ И СОЗДАТЕЛИ */}
         <TabsContent value="cast">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Актеры */}
             {actors.map((a) => (
-              <div key={a.id} className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4">
+              <div key={a.id} className={`flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 ${a.importance === "lead" ? "border-l-yellow-400/70" : a.importance === "guest" ? "border-l-border" : "border-l-accent/50"}`}>
                 <Link href={`/people/${a.person.id}`} className="shrink-0">
-                  <div className="w-12 h-12 rounded-full bg-accent-soft/50 flex items-center justify-center overflow-hidden">
+                  <div className="w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden">
                     {a.person.photoUrl ? <img src={a.person.photoUrl} className="w-full h-full object-cover" /> : "👤"}
                   </div>
                 </Link>
-                <div>
-                  <Link href={`/people/${a.person.id}`} className="font-semibold text-foreground hover:text-accent">{a.person.name}</Link>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Link href={`/people/${a.person.id}`} className="font-semibold text-foreground hover:text-accent transition-colors">{a.person.name}</Link>
+                    {a.importance === "lead" && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full border border-yellow-400/40 bg-yellow-400/10 text-yellow-400">Главная</span>
+                    )}
+                    {a.importance === "guest" && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full border border-border text-muted">Эпизод</span>
+                    )}
+                  </div>
                   {a.character?.name && (
                     <Link href={`/characters/${a.character.id}`} className="block text-sm text-accent mt-0.5 hover:underline">
-                      {a.character.name}
+                      → {a.character.name}
                     </Link>
                   )}
                   {a.character?.description && <p className="text-xs text-muted mt-1 line-clamp-2">{a.character.description}</p>}
@@ -474,14 +483,17 @@ export default async function DramaPage({
               </div>
             ))}
 
+            {/* Съемочная группа */}
             {crew.map((c) => (
-              <div key={c.id} className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4">
-                <div className="w-12 h-12 rounded-full bg-accent-soft/50 flex items-center justify-center overflow-hidden">
+              <div key={c.id} className={`flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 ${c.roleType === "director" ? "border-l-blue-400/70" : "border-l-purple-400/70"}`}>
+                <div className="w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden shrink-0">
                   {c.person.photoUrl ? <img src={c.person.photoUrl} className="w-full h-full object-cover" /> : "🎬"}
                 </div>
-                <div>
-                  <Link href={`/people/${c.person.id}`} className="font-semibold text-foreground hover:text-accent">{c.person.name}</Link>
-                  <p className="text-sm text-muted mt-0.5">{c.roleType === "director" ? "Режиссер" : "Сценарист"}</p>
+                <div className="min-w-0 flex-1">
+                  <Link href={`/people/${c.person.id}`} className="font-semibold text-foreground hover:text-accent transition-colors">{c.person.name}</Link>
+                  <p className={`text-sm mt-0.5 font-medium ${c.roleType === "director" ? "text-blue-400" : "text-purple-400"}`}>
+                    {c.roleType === "director" ? "Режиссер" : "Сценарист"}
+                  </p>
                   {c.note && <p className="text-xs text-muted mt-1">{c.note}</p>}
                 </div>
               </div>
