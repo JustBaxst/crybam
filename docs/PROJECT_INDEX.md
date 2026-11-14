@@ -117,6 +117,12 @@ client: yes
 export TagsPopover: (props: { genres, themes, moods, hiddenCount }) => JSX.Element
 client: yes
 
+## components/characters/
+### FavoriteCharacterButton.tsx
+Кнопка "В избранное" для персонажа (с оптимистичным обновлением).
+export FavoriteCharacterButton: (props: { characterId: number; initialIsFavorite: boolean; isOverlay?: boolean }) => JSX.Element
+client: yes
+
 ## components/people/
 ### FavoriteActorButton.tsx
 Кнопка "В избранное" (с оптимистичным обновлением и тостами).
@@ -289,6 +295,10 @@ CRUD персонажей.
 ### app/people/[id]/actions.ts
 Избранные актеры.
 Экшены: toggleFavoriteActor.
+
+### app/characters/[id]/actions.ts
+Избранные персонажи.
+Экшены: toggleFavoriteCharacter.
 
 ## Pages (App Router)
 - `/` (Главная) -> `app/page.tsx`

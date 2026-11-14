@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { CURRENT_USER_ID } from "@/lib/current-user";
+import { FavoriteCharacterButton } from "@/components/characters/FavoriteCharacterButton";
 import {
   ArrowLeft,
   User as UserIcon,
@@ -10,10 +13,16 @@ import {
   Users,
   Swords,
   Briefcase,
+  Info,
+  BookOpen,
   Film,
+  User,
+  Calendar,
+  ChevronRight
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { AlternativeTitles } from "@/app/dramas/[id]/AlternativeTitles";
+import { PublicCharacterRelations } from "@/components/characters/PublicCharacterRelations";
 
 type Params = Promise<{ id: string }>;
 
@@ -46,6 +55,11 @@ export default async function CharacterPage({ params }: { params: Params }) {
 
   if (!character) notFound();
 
+  const favorite = await prisma.userFavoriteCharacter.findUnique({
+    where: { userId_characterId: { userId: CURRENT_USER_ID, characterId: id } }
+  });
+  const isFavorite = !!favorite;
+
   const actor = character.credits.find((c) => c.roleType === "actor")?.person;
 
   const getRelationIcon = (type: string) => {
@@ -59,157 +73,161 @@ export default async function CharacterPage({ params }: { params: Params }) {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-10">
-      <Link
-        href={`/dramas/${character.drama.id}`}
-        className="inline-flex items-center gap-2 text-sm text-muted hover:text-foreground transition-colors mb-6"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        К дораме «{character.drama.title}»
-      </Link>
+    <div className="max-w-6xl mx-auto px-6 py-10">
+      {/* Хлебные крошки */}
+      <div className="flex items-center gap-2 text-sm text-muted mb-6">
+        <Link href={`/dramas/${character.drama.id}`} className="hover:text-foreground transition-colors">
+          К дораме «{character.drama.title}»
+        </Link>
+        <ChevronRight className="w-4 h-4 opacity-50" />
+        <span className="text-foreground truncate">{character.name}</span>
+      </div>
 
-      <div className="flex flex-col md:flex-row gap-6 items-start">
-        {/* ФОТО */}
-        <div className="w-32 h-48 md:w-40 md:h-60 rounded-2xl bg-accent-soft flex items-center justify-center text-6xl shrink-0 overflow-hidden shadow-lg">
-          {character.imageUrl ? (
-            <img
-              src={character.imageUrl}
-              alt={character.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <UserIcon className="w-16 h-16 text-muted" />
-          )}
+      {/* ЗАГОЛОВОК */}
+      <div className="mb-8">
+        <h1 className="text-[clamp(1.75rem,3vw,2.5rem)] text-balance font-bold leading-tight mb-2">
+          {character.name}
+        </h1>
+        <AlternativeTitles
+          label="Другие имена:"
+          titles={character.aliases.map(a => ({ id: a.id, title: a.name, language: a.language }))}
+        />
+      </div>
+
+      {/* HERO-ЗОНА */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-10">
+
+        {/* Колонка 1: Фото и Избранное */}
+        <div className="lg:col-span-1 flex flex-col gap-4">
+          <div className="aspect-2/3 rounded-2xl overflow-hidden border border-border bg-accent-soft flex items-center justify-center text-6xl shadow-lg">
+            {character.imageUrl ? (
+              <img src={character.imageUrl} alt={character.name} className="w-full h-full object-cover" />
+            ) : (
+              <UserIcon className="w-16 h-16 text-muted" />
+            )}
+          </div>
+          <FavoriteCharacterButton characterId={character.id} initialIsFavorite={isFavorite} />
         </div>
 
-        <div className="flex-1 min-w-0">
-          <h1 className="text-3xl font-bold leading-tight">{character.name}</h1>
+        {/* Колонка 2: О персонаже (факты + актер + дорама) */}
+        <div className="lg:col-span-2 bg-surface/20 p-6 rounded-2xl border border-border/50 flex flex-col justify-start">
+          <h2 className="text-lg font-semibold mb-4 pb-4 border-b border-border/50 flex items-center gap-2">
+            <Info className="w-5 h-5 text-accent" /> О персонаже
+          </h2>
 
-          {/* Альтернативные имена */}
-          <AlternativeTitles
-            label="Другие имена:"
-            titles={character.aliases.map((a) => ({
-              id: a.id,
-              title: a.name,
-              language: a.language
-            }))}
-          />
-
-          {/* Характеристики */}
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4 text-sm text-muted">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm mb-6">
             {character.gender && (
-              <span className="flex items-center gap-1.5">
-                <UserIcon className="w-4 h-4 text-accent" />
-                <span className="text-muted/70">Пол:</span>
-                {character.gender === 'male' ? 'Мужской' : character.gender === 'female' ? 'Женский' : 'Другой'}
-              </span>
+              <div className="flex items-start gap-2">
+                <UserIcon className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-muted/70 text-[11px]">Пол:</span>
+                  <span className="text-foreground font-medium">{character.gender === 'male' ? 'Мужской' : character.gender === 'female' ? 'Женский' : 'Другой'}</span>
+                </div>
+              </div>
             )}
             {character.age && (
-              <span className="flex items-center gap-1.5">
-                <Cake className="w-4 h-4 text-accent" />
-                <span className="text-muted/70">Возраст:</span>
-                {character.age}
-              </span>
+              <div className="flex items-start gap-2">
+                <Calendar className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-muted/70 text-[11px]">Возраст:</span>
+                  <span className="text-foreground font-medium">{character.age}</span>
+                </div>
+              </div>
             )}
             {character.height && (
-              <span className="flex items-center gap-1.5">
-                <Ruler className="w-4 h-4 text-accent" />
-                <span className="text-muted/70">Рост:</span>
-                {character.height}
-              </span>
+              <div className="flex items-start gap-2">
+                <Ruler className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-muted/70 text-[11px]">Рост:</span>
+                  <span className="text-foreground font-medium">{character.height}</span>
+                </div>
+              </div>
             )}
             {character.birthDate && (
-              <span className="flex items-center gap-1.5">
-                <Cake className="w-4 h-4 text-accent" />
-                <span className="text-muted/70">День рождения:</span>
-                {character.birthDate}
-              </span>
+              <div className="flex items-start gap-2">
+                <Cake className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-muted/70 text-[11px]">День рождения:</span>
+                  <span className="text-foreground font-medium">{character.birthDate}</span>
+                </div>
+              </div>
             )}
             {character.occupation && (
-              <span className="flex items-center gap-1.5">
-                <Briefcase className="w-4 h-4 text-accent" />
-                <span className="text-muted/70">Профессия:</span>
-                {character.occupation}
-              </span>
+              <div className="flex items-start gap-2 md:col-span-2">
+                <Briefcase className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-muted/70 text-[11px]">Профессия:</span>
+                  <span className="text-foreground font-medium">{character.occupation}</span>
+                </div>
+              </div>
             )}
           </div>
 
-          {/* Кто играет */}
-          {actor && (
-            <div className="mt-6 flex items-center gap-3 p-3 rounded-xl border border-border bg-surface">
-              <div className="w-12 h-16 rounded-md bg-accent-soft/40 flex items-center justify-center overflow-hidden shrink-0">
-                {actor.photoUrl ? (
-                  <img src={actor.photoUrl} alt={actor.name} className="w-full h-full object-cover" />
-                ) : (
-                  <UserIcon className="w-6 h-6 text-muted" />
-                )}
-              </div>
-              <div>
-                <p className="text-xs text-muted uppercase tracking-wide">Играет актёр</p>
-                <Link href={`/people/${actor.id}`} className="text-lg font-semibold text-accent hover:underline">
-                  {actor.name}
-                </Link>
-              </div>
-            </div>
-          )}
+          {/* АКТЕР И ДОРАМА РЯДОМ */}
+          <div className="mt-auto pt-4 border-t border-border/50 grid grid-cols-2 gap-3">
+            {actor && (
+              <Link href={`/people/${actor.id}`} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background hover:border-accent/50 transition-colors group">
+                <div className="w-10 h-10 rounded-full overflow-hidden bg-accent-soft/50 flex items-center justify-center shrink-0">
+                  {actor.photoUrl ? <img src={actor.photoUrl} className="w-full h-full object-cover" /> : <UserIcon className="w-5 h-5 text-muted" />}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] text-muted uppercase tracking-wider">Играет актер</p>
+                  <p className="text-sm font-semibold truncate group-hover:text-accent transition-colors">{actor.name}</p>
+                </div>
+              </Link>
+            )}
 
-          {character.description && (
-            <p className="text-sm text-muted mt-6 leading-relaxed whitespace-pre-wrap">
-              {character.description}
-            </p>
-          )}
+            <Link href={`/dramas/${character.drama.id}`} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background hover:border-accent/50 transition-colors group">
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-accent-soft/50 flex items-center justify-center shrink-0">
+                <Film className="w-5 h-5 text-muted" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] text-muted uppercase tracking-wider">Из дорамы</p>
+                <p className="text-sm font-semibold truncate group-hover:text-accent transition-colors">{character.drama.title}</p>
+              </div>
+            </Link>
+          </div>
+        </div>
+
+        {/* Колонка 3: Пустая (на будущее) */}
+        <div className="lg:col-span-1 bg-surface/20 p-5 rounded-2xl border border-border/50 flex flex-col gap-4">
+          <h3 className="text-[10px] font-semibold text-muted uppercase tracking-wider mb-2">Действия</h3>
+          <div className="text-sm text-muted italic">Скоро здесь появятся функции...</div>
         </div>
       </div>
 
-      {/* Связи */}
-      {(character.relationsA.length > 0 || character.relationsB.length > 0) && (
-        <section className="mt-12">
-          <h2 className="text-lg font-semibold flex items-center gap-2 mb-6">
-            <Users className="w-5 h-5 text-accent" />
-            Связи
+      {/* ОПИСАНИЕ */}
+      {character.description && (
+        <div className="mb-10 bg-surface/20 p-6 rounded-2xl border border-border/50">
+          <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-accent" /> Описание
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {/* Связи, где персонаж - источник (Он - отец для ...) */}
-            {character.relationsA.map((r) => (
-              <div key={`a-${r.id}`} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-surface">
-                {getRelationIcon(r.relationType)}
-                <div>
-                  <p className="text-xs text-muted">Для <Link href={`/characters/${r.to.id}`} className="text-foreground hover:underline font-medium">{r.to.name}</Link> он(а):</p>
-                  <p className="text-sm font-semibold text-accent">{r.relation}</p>
-                </div>
-              </div>
-            ))}
-
-            {/* Связи, где персонаж - цель (... - отец для него) */}
-            {character.relationsB.map((r) => (
-              <div key={`b-${r.id}`} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-surface">
-                {getRelationIcon(r.relationType)}
-                <div>
-                  <p className="text-xs text-muted">
-                    <Link href={`/characters/${r.from.id}`} className="text-foreground hover:underline font-medium">{r.from.name}</Link> ему/ей:
-                  </p>
-                  <p className="text-sm font-semibold text-accent">{r.relation}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+          <p className="text-muted leading-relaxed text-base max-w-5xl">{character.description}</p>
+        </div>
       )}
 
-      {/* Ссылка на дораму */}
-      <section className="mt-12 p-6 rounded-2xl border border-border bg-surface flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <p className="text-xs text-muted uppercase tracking-wide mb-1">Персонаж из дорамы</p>
-          <h3 className="text-lg font-bold">{character.drama.title}</h3>
-        </div>
-        <Link
-          href={`/dramas/${character.drama.id}`}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent/10 text-accent text-sm font-medium hover:bg-accent/20 transition-colors"
-        >
-          <Film className="w-4 h-4" />
-          Перейти к дораме
-        </Link>
-      </section>
+      {/* ТАБЫ */}
+      <Tabs defaultValue="relations" className="w-full">
+        <TabsList>
+          <TabsTrigger value="relations">Связи</TabsTrigger>
+          <TabsTrigger value="gallery">Галерея</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="relations">
+          <PublicCharacterRelations
+            relations={[
+              ...character.relationsA.map(r => ({ id: r.id, relationType: r.relationType, relation: r.relation, target: r.to })),
+              ...character.relationsB.map(r => ({ id: r.id, relationType: r.relationType, relation: r.relation, target: r.from }))
+            ]}
+          />
+        </TabsContent>
+
+        <TabsContent value="gallery">
+          <div className="text-center py-10 text-muted italic border border-dashed border-border rounded-2xl">
+            Галерея пока пуста.
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
