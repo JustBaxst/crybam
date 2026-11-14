@@ -123,10 +123,10 @@ export default async function DramaPage({
   const airedText = formatAired(drama.airedFrom, drama.airedTo);
 
   const externalRatings = [
+    { name: "Crybam", value: drama.ratingCrybam, isAccent: true },
     { name: "Кинопоиск", value: drama.ratingKinopoisk },
     { name: "MyDramaList", value: drama.ratingMDL },
     { name: "IMDb", value: drama.ratingIMDB },
-    { name: "Douban", value: drama.ratingDouban },
   ].filter((r) => r.value != null);
 
   // Данные для тегов
@@ -338,9 +338,17 @@ export default async function DramaPage({
             {externalRatings.map((r) => {
               const shortName = r.name === "Кинопоиск" ? "KP" : r.name === "MyDramaList" ? "MDL" : r.name;
               return (
-                <div key={r.name} className="flex items-center justify-center gap-1.5 bg-surface border border-border rounded-md px-2 py-2 text-xs">
-                  <span className="text-muted">{shortName}</span>
-                  <span className="font-semibold tabular-nums text-foreground">{r.value?.toFixed(1)}</span>
+                <div
+                  key={r.name}
+                  className={`flex items-center justify-center gap-1.5 border rounded-md px-2 py-1.5 text-[11px] ${r.isAccent
+                    ? "bg-accent/10 border-accent/30 text-accent font-bold"
+                    : "bg-surface border-border text-foreground"
+                    }`}
+                >
+                  <span className={r.isAccent ? "text-accent/70" : "text-muted"}>{shortName}</span>
+                  <span className={`tabular-nums ${r.isAccent ? "text-accent" : "font-semibold"}`}>
+                    {r.value?.toFixed(1) || "—"}
+                  </span>
                 </div>
               );
             })}

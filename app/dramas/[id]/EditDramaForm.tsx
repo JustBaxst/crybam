@@ -31,11 +31,10 @@ type DramaData = {
   ratingKinopoisk: number | null;
   ratingMDL: number | null;
   ratingIMDB: number | null;
-  ratingDouban: number | null;
   dubbingStudios: string | null;
   platforms: string[];
   studios: string[];
-  themes: string[]; // <-- Добавили темы
+  themes: string[];
   airStatus: string;
   curatorCryTag: string | null;
 };
@@ -312,17 +311,6 @@ export function EditDramaForm({
                   name="ratingIMDB"
                   defaultValue={drama.ratingIMDB ?? ""}
                   placeholder="8.8"
-                  className={inputCls}
-                />
-              </div>
-              <div>
-                <label className={labelCls}>Douban</label>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  name="ratingDouban"
-                  defaultValue={drama.ratingDouban ?? ""}
-                  placeholder="8.1"
                   className={inputCls}
                 />
               </div>

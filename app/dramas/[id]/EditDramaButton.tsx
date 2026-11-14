@@ -18,11 +18,10 @@ type DramaData = {
   ratingKinopoisk: number | null;
   ratingMDL: number | null;
   ratingIMDB: number | null;
-  ratingDouban: number | null;
   dubbingStudios: string | null;
   platforms: string[];
   studios: string[];
-  themes: string[]; // <-- ДОБАВИЛИ СЮДА
+  themes: string[];
   airStatus: string;
   curatorCryTag: string | null;
 };

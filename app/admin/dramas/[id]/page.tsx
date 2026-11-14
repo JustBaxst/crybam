@@ -95,10 +95,10 @@ export default async function AdminDramaEditPage({
   const productionStudios = drama.studios.map((s) => s.studio.name);
 
   const externalRatings = [
+    { name: "Crybam", value: drama.ratingCrybam },
     { name: "Кинопоиск", value: drama.ratingKinopoisk },
     { name: "MyDramaList", value: drama.ratingMDL },
     { name: "IMDb", value: drama.ratingIMDB },
-    { name: "Douban", value: drama.ratingDouban },
   ].filter((r) => r.value != null);
 
   return (
@@ -139,7 +139,6 @@ export default async function AdminDramaEditPage({
               ratingKinopoisk: drama.ratingKinopoisk,
               ratingMDL: drama.ratingMDL,
               ratingIMDB: drama.ratingIMDB,
-              ratingDouban: drama.ratingDouban,
               dubbingStudios: drama.dubbingStudios,
               platforms: platforms,
               studios: productionStudios,

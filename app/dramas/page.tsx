@@ -235,6 +235,7 @@ export default async function DramasCatalogPage({ searchParams }: { searchParams
               posterUrl={d.posterUrl}
               ratingKinopoisk={d.ratingKinopoisk}
               ratingIMDB={d.ratingIMDB}
+              ratingCrybam={d.ratingCrybam}
               genres={d.genres.map((g) => g.genre)}
               themes={d.themes.map((t) => t.theme.name)}
               moods={d.moods.map((m) => m.mood.name)}

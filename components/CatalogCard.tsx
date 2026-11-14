@@ -13,6 +13,7 @@ type CatalogCardProps = {
   year: number | null;
   country: string | null;
   posterUrl: string | null;
+  ratingCrybam: number | null;
   ratingKinopoisk: number | null;
   ratingIMDB: number | null;
   genres: { id: number; name: string }[];
@@ -29,12 +30,13 @@ type CatalogCardProps = {
 };
 
 export function CatalogCard({
-  dramaId, title, year, country, posterUrl, ratingKinopoisk, ratingIMDB,
+  dramaId, title, year, country, posterUrl, ratingKinopoisk, ratingIMDB, ratingCrybam,
   genres, themes, moods, episodes, synopsis, dominantCryTag, entry
 }: CatalogCardProps) {
   const [showTags, setShowTags] = useState(false);
 
-  const rating = ratingKinopoisk ?? ratingIMDB ?? null;
+  // Если есть Crybam — показываем его. Если нет — внешний.
+  const rating = ratingCrybam ?? ratingKinopoisk ?? ratingIMDB ?? null;
   const metaString = [year, country, episodes ? `${episodes} сер.` : null].filter(Boolean).join(" · ");
   const cryTagConfig = dominantCryTag ? CRY_TAGS[dominantCryTag] : null;
 

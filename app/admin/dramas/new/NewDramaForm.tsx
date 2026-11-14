@@ -248,10 +248,6 @@ export function NewDramaForm() {
               <label className={labelCls}>IMDb</label>
               <input type="text" inputMode="decimal" name="ratingIMDB" placeholder="8.8" className={inputCls} />
             </div>
-            <div>
-              <label className={labelCls}>Douban</label>
-              <input type="text" inputMode="decimal" name="ratingDouban" placeholder="8.1" className={inputCls} />
-            </div>
           </div>
         </FormSection>
 

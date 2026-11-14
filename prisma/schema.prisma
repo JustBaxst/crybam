@@ -70,7 +70,8 @@ model Drama {
   ratingKinopoisk Float?
   ratingMDL       Float?
   ratingIMDB      Float?
-  ratingDouban    Float?
+  ratingCrybam    Float?
+  crybamVotes     Int    @default(0)
 
   // ── Студии озвучки (через запятую или с новой строки) ──
   dubbingStudios String?
