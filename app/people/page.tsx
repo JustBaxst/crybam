@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { CURRENT_USER_ID } from "@/lib/current-user";
 import { User as UserIcon, Film, X, Compass } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getPersonSearchWhere } from "@/lib/search-queries";
 import { AdminSearchBar } from "@/components/AdminSearchBar";
 import { PeopleToolbar } from "@/components/PeopleToolbar";
+import { PeopleCard } from "@/components/people/PeopleCard";
 
 type SearchParams = Promise<{
   q?: string; sort?: string; agency?: string; age?: string; gender?: string;
@@ -55,10 +57,23 @@ export default async function PeoplePage({
   const people = await prisma.person.findMany({
     where: whereCondition,
     include: {
-      _count: { select: { credits: true } },
+      _count: { select: { credits: true, favoriteBy: true } },
+      aliases: { select: { name: true, language: true } },
+      credits: {
+        take: 3,
+        orderBy: { drama: { year: "desc" } },
+        include: { drama: { select: { id: true, title: true, year: true } } }
+      },
     },
     orderBy,
   });
+
+  // Получаем избранных пользователя
+  const favorites = await prisma.userFavoriteActor.findMany({
+    where: { userId: CURRENT_USER_ID, personId: { in: people.map(p => p.id) } },
+    select: { personId: true }
+  });
+  const favoriteIds = new Set(favorites.map(f => f.personId));
 
   // Данные для фильтров
   const allAgenciesRaw = await prisma.person.findMany({ where: { deletedAt: null, agency: { not: null } }, select: { agency: true }, distinct: ["agency"], orderBy: { agency: "asc" } });
@@ -164,38 +179,11 @@ export default async function PeoplePage({
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
           {people.map((p) => (
-            <Link
+            <PeopleCard
               key={p.id}
-              href={`/people/${p.id}`}
-              className="rounded-xl border border-border bg-surface overflow-hidden hover:border-accent/50 transition-colors group"
-            >
-              <div className="aspect-2/3 bg-accent-soft/30 flex items-center justify-center text-5xl overflow-hidden">
-                {p.photoUrl ? (
-                  <img
-                    src={p.photoUrl}
-                    alt={p.name}
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-[1.03]"
-                  />
-                ) : (
-                  <UserIcon className="w-12 h-12 text-muted" />
-                )}
-              </div>
-              <div className="p-3">
-                <p className="text-sm font-semibold truncate group-hover:text-accent transition-colors">
-                  {p.name}
-                </p>
-                {p.nameNative && (
-                  <p className="text-xs text-muted truncate mt-0.5">
-                    {p.nameNative}
-                  </p>
-                )}
-                <p className="text-xs text-muted mt-1.5 flex items-center gap-1">
-                  <Film className="w-3 h-3" />
-                  {p._count.credits}{" "}
-                  {plural(p._count.credits, "роль", "роли", "ролей")}
-                </p>
-              </div>
-            </Link>
+              person={p as any}
+              isFavorite={favoriteIds.has(p.id)}
+            />
           ))}
         </div>
       )}

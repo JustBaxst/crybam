@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getCharacterSearchWhere } from "@/lib/search-queries";
 import { AdminSearchBar } from "@/components/AdminSearchBar";
 import { CharactersToolbar } from "@/components/CharactersToolbar";
+import { CharacterCard } from "@/components/characters/CharacterCard";
 
 type SearchParams = Promise<{
   q?: string; sort?: string; dramaId?: string; roleType?: string; personId?: string; gender?: string;
@@ -149,49 +150,12 @@ export default async function CharactersCatalogPage({
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-          {characters.map((char) => {
-            const actor = char.credits[0]?.person;
-
-            return (
-              <Link
-                key={char.id}
-                href={`/characters/${char.id}`}
-                className="group flex flex-col rounded-2xl border border-border bg-surface overflow-hidden hover:border-accent/50 transition-colors"
-              >
-                {/* Фото персонажа (или заглушка) */}
-                <div className="aspect-2/3 bg-accent-soft/30 flex items-center justify-center overflow-hidden relative">
-                  {char.imageUrl ? (
-                    <img
-                      src={char.imageUrl}
-                      alt={char.name}
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-[1.03]"
-                    />
-                  ) : (
-                    <UserCircle className="w-16 h-16 text-muted/50" />
-                  )}
-                  {/* Плашка с дорамой поверх фото */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent p-3 pt-8">
-                    <p className="text-xs text-white/90 line-clamp-1 flex items-center gap-1.5">
-                      <Film className="w-3 h-3 shrink-0" />
-                      {char.drama.title}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Инфо */}
-                <div className="p-3">
-                  <h3 className="font-semibold text-sm truncate">{char.name}</h3>
-                  {actor ? (
-                    <p className="text-xs text-muted mt-1 truncate">
-                      Играет: <span className="text-accent">{actor.name}</span>
-                    </p>
-                  ) : (
-                    <p className="text-xs text-muted mt-1 italic">Актер не указан</p>
-                  )}
-                </div>
-              </Link>
-            );
-          })}
+          {characters.map((char) => (
+            <CharacterCard
+              key={char.id}
+              character={char as any}
+            />
+          ))}
         </div>
       )}
     </div>
