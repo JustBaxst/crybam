@@ -35,6 +35,14 @@
 - Статистика: `components/drama/CryTagStats.tsx` (прогресс-бары с процентами).
 - ⚠️ Не хардкодить иконки/цвета в компонентах — только из `CRY_TAGS`.
 
+## 🗂️ Паттерн: Табы с Bento-контентом
+- Обёртка: `<Tabs>` из `components/ui/tabs.tsx`.
+- Список: `TabsList` с `border-b border-border`.
+- Триггер: `TabsTrigger` с `data-[state=active]:border-accent data-[state=active]:text-foreground text-muted`.
+- Контент таба: Bento-обёртка `bg-surface/20 p-6 rounded-2xl border border-border/50`.
+- Заголовок внутри таба: иконка `w-5 h-5 text-accent` + `text-lg font-semibold`.
+- Пустое состояние: `text-center py-10 text-muted italic border border-dashed border-border rounded-2xl`.
+
 ## 🪟 Паттерн: Модалка (Form)
 - Оверлей: `fixed inset-0 bg-background/80 backdrop-blur-sm`.
 - Контейнер: `max-w-3xl max-h-[90vh] rounded-2xl border border-border bg-surface`.
