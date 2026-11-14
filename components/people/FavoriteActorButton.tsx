@@ -8,10 +8,12 @@ import { toast } from "sonner";
 
 export function FavoriteActorButton({
     personId,
-    initialIsFavorite
+    initialIsFavorite,
+    isOverlay = false
 }: {
     personId: number;
     initialIsFavorite: boolean;
+    isOverlay?: boolean;
 }) {
     const [isPending, startTransition] = useTransition();
     const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
@@ -41,8 +43,10 @@ export function FavoriteActorButton({
             onClick={handleToggle}
             disabled={isPending}
             className={`w-full h-10 gap-2 transition-all cursor-pointer ${isFavorite
-                ? "bg-yellow-400/10 text-yellow-400 border-yellow-400/40 hover:bg-yellow-400/20 hover:text-yellow-400"
-                : "text-muted hover:text-foreground hover:border-accent/40"
+                    ? "bg-yellow-400/10 text-yellow-400 border-yellow-400/40 hover:bg-yellow-400/20 hover:text-yellow-400"
+                    : isOverlay
+                        ? "bg-surface/20 border-white/10 text-white hover:bg-surface/40 hover:border-accent/40"
+                        : "text-muted hover:text-foreground hover:border-accent/40"
                 }`}
         >
             {isFavorite ? (

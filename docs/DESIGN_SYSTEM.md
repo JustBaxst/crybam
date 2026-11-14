@@ -50,6 +50,13 @@
 - Верхние пилюли (рейтинг/CryTag) при наведении исчезают: `group-hover:opacity-0`.
 - Матрешка тегов: кнопка `+N` переключает контент оверлея на теги (жанры, темы, настроения). Только на `md+` (на мобильных оверлей скрыт).
 
+### Кнопки в Hover-оверлее
+Все интерактивные элементы поверх затемненного постера должны использовать стиль «стекло»:
+- Классы: `bg-surface/20 border border-white/10 text-white text-xs font-medium`.
+- Hover: `hover:bg-surface/40 hover:border-accent/40`.
+- Активное состояние (например, выбранный статус или «В избранном»): `bg-accent border-accent text-white shadow-md` (или желтый акцент для избранного).
+- Иконки внутри кнопок: `text-accent` (или белые в неактивном состоянии).
+
 ## 📝 Паттерн: Формы (Input/Select/Textarea)
 - Базовые классы инпутов: `w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors text-sm`.
 - Лейблы: `block text-xs font-medium text-muted mb-1.5`.

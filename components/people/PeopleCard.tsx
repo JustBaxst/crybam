@@ -60,7 +60,7 @@ export function PeopleCard({ person, isFavorite }: { person: PersonWithData; isF
                         )}
                     </div>
                     <div className="w-full shrink-0">
-                        <FavoriteActorButton personId={person.id} initialIsFavorite={isFavorite} />
+                        <FavoriteActorButton personId={person.id} initialIsFavorite={isFavorite} isOverlay={true} />
                     </div>
                 </div>
             </div>

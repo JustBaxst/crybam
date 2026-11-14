@@ -42,18 +42,17 @@ export function CardStatusToolbar({
     };
 
     return (
-        // Убрали backdrop-blur, поставили bg-black/50 для прозрачности без тормозов
-        <div className={`flex items-center justify-between bg-black/50 border border-white/10 rounded-xl p-1 w-full shadow-lg transition-opacity ${isPending ? "opacity-50 pointer-events-none" : ""}`}>
 
+        <div className={`flex items-center justify-between bg-surface/20 backdrop-blur-md border border-white/10 rounded-xl p-1 w-full shadow-lg transition-opacity ${isPending ? "opacity-50 pointer-events-none" : ""}`}>
             {STATUS_ACTIONS.map((action) => {
                 const isActive = currentStatus === action.value;
                 return (
                     <div key={action.value} className="relative group/btn flex justify-center">
                         <button
                             onClick={() => handleSetStatus(action.value)}
-                            className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all cursor-pointer ${isActive
-                                ? "bg-accent text-white shadow-sm scale-105"
-                                : "text-white/70 hover:bg-white/20 hover:text-white"
+                            className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all cursor-pointer border ${isActive
+                                ? "bg-accent border-accent text-white shadow-md scale-105"
+                                : "bg-surface/20 border-white/10 text-white/70 hover:bg-surface/40 hover:border-accent/40 hover:text-white"
                                 }`}
                         >
                             <action.Icon className="w-4 h-4" />
@@ -81,7 +80,7 @@ export function CardStatusToolbar({
                     <Trash2 className="w-4 h-4" />
                 </button>
 
-                {/* Тултип удаления без размытия */}
+                {/* Тултип удаления */}
                 <div className="absolute bottom-full mb-2 opacity-0 group-hover/btn:opacity-100 transition-all duration-200 translate-y-1 group-hover/btn:translate-y-0 pointer-events-none z-50 flex flex-col items-center">
                     <span className="bg-red-950/95 text-red-200 text-[10px] font-medium px-2.5 py-1 rounded-md border border-red-500/20 shadow-xl whitespace-nowrap">
                         Удалить
