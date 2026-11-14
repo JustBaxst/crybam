@@ -23,7 +23,16 @@
 - Жанры: `bg-accent/10 text-accent border border-accent/20 rounded-full px-2 py-0.5 text-[10px]`.
 - Темы: `text-blue-400`, `#хештег`.
 - Настроения: `text-purple-400`.
-- Рейтинг: `bg-black/60 backdrop-blur-md rounded-full h-6 px-2 text-xs font-semibold`.
+- Рейтинг (карточка): `bg-black/60 backdrop-blur-md rounded-full h-6 px-2 text-xs font-semibold`.
+- Рейтинг Crybam (блок оценок): акцентная пилюля `bg-accent/10 border-accent/30 text-accent font-bold`, выводится **первой**, при отсутствии оценок — прочерк `—`.
+- Внешние рейтинги (KP, MDL, IMDb): `bg-surface border border-border rounded-md px-2 py-1.5 text-[11px]`. Douban удалён из интерфейса.
+
+## 😢 Паттерн: CryTag
+- Источник правды: `lib/cry-tags.ts` (`CRY_TAGS`, `isCryTag`).
+- Отображение: `components/CryBadge.tsx` или `components/ui/cry-tag-display.tsx`.
+- Селектор: `components/drama/CryTagSelector.tsx`.
+- Статистика: `components/drama/CryTagStats.tsx` (прогресс-бары с процентами).
+- ⚠️ Не хардкодить иконки/цвета в компонентах — только из `CRY_TAGS`.
 
 ## 🪟 Паттерн: Модалка (Form)
 - Оверлей: `fixed inset-0 bg-background/80 backdrop-blur-sm`.
@@ -31,16 +40,22 @@
 - Шапка: `px-6 py-4 border-b border-border` + крестик.
 - Тело: `p-6 overflow-y-auto`.
 - Футер: `px-6 py-4 border-t border-border` + кнопки.
+- Блокировка скролла: обязательно `useLockBodyScroll` **на верхнем уровне компонента** (не внутри обработчиков).
+- Ошибка дубля: красный блок с `error` и кнопкой «Открыть её →» (`existingId`).
 
 ## 🖱️ Паттерн: Hover-оверлей (Карточки)
 - Фон: `bg-black/85`.
 - Появление: `opacity-0 group-hover:opacity-100 transition-opacity`.
-- Внутри: синопсис (`line-clamp-[14]`) и панель статусов (`CardStatusToolbar`).
+- Внутри: синопсис (`line-clamp-[14]`), панель статусов (`CardStatusToolbar`).
+- Верхние пилюли (рейтинг/CryTag) при наведении исчезают: `group-hover:opacity-0`.
+- Матрешка тегов: кнопка `+N` переключает контент оверлея на теги (жанры, темы, настроения). Только на `md+` (на мобильных оверлей скрыт).
 
 ## 📝 Паттерн: Формы (Input/Select/Textarea)
-- Классы для инпутов: `w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors text-sm`.
+- Базовые классы инпутов: `w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors text-sm`.
 - Лейблы: `block text-xs font-medium text-muted mb-1.5`.
-- ⚠️ Эти классы дублируются в `NewDramaForm`, `PersonForm`, `EditEntryForm` и т.д. **Рекомендуется вынести в `components/ui/form-elements.tsx`**.
+- 🎯 Цель: вынести в `components/ui/form-elements.tsx` (`FormLabel`, `FormInput`, `FormSelect`, `FormTextarea`) и перестать дублировать классы.
+- Импорт из TVmaze: `TvmazeImportModal` → предпросмотр → выбор полей → заполнение формы. Название и синопсис **не импортируются** (на английском).
+- Заглушки: `[ОБНОВИТЬ ИНДЕКС]` после создания `form-elements.tsx`.
 
 ## 🔤 Паттерн: Обрезка длинных списков
 - Функция `processList(arr, limit)` возвращает `{ visible, hidden }`.

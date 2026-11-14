@@ -5,6 +5,7 @@
 Базовый компонент кнопки. Варианты: default, outline, ghost, destructive. Размеры: default, sm, lg, icon.
 export Button: (props: ButtonProps) => JSX.Element
 client: no
+Добавлен `cursor-pointer` и исправлен ховер для outline.
 
 ### dropdown-menu.tsx
 Обертка над Radix UI. Не импортировать Radix напрямую!
@@ -13,12 +14,12 @@ client: yes
 Не дублировать: отдельные меню для Drama/Person/Character.
 
 ### searchable-select.tsx
-Выпадающий список с поиском (для фильтров).
-export SearchableSelect: (props: {...}) => JSX.Element
+Выпадающий список с поиском (для фильтров). Использует Popover и Button.
+export SearchableSelect: (props: { options, selectedValues, onToggle, placeholder, buttonLabel, singleSelect?, onSingleSelect? }) => JSX.Element
 client: yes
 
 ### cry-tag-display.tsx
-Отображение эмоции (CryTag) с иконкой и цветом.
+Отображение эмоции (CryTag) с иконкой и цветом из конфига.
 export CryTagDisplay: (props: { tag: CryTag; showIcon?: boolean; size?: "sm" | "md" | "lg"; variant?: "badge" | "text" }) => JSX.Element
 client: no
 
@@ -39,106 +40,51 @@ client: yes
 
 ### split-button.tsx
 Гибридная кнопка (основное действие + dropdown).
-export SplitButton: (props: {...}) => JSX.Element
+export SplitButton: (props: { children, onMainClick?, menuContent, className? }) => JSX.Element
 client: yes
 
 ## components/admin/
 ### ActionDropdown.tsx
-Единое выпадающее меню действий для списков админки (Редактировать, Удалить).
+Единое выпадающее меню действий для списков админки (Редактировать, Удалить). Использует UI-кит.
 export ActionDropdown: (props: { editHref: string; onDeleteClick: () => void; editLabel?: string; deleteLabel?: string }) => JSX.Element
 client: yes
 Не дублировать: отдельные меню для Drama/Person/Character.
 
-### AdminHeatmap.tsx [DEPRECATED]
-⚠️ Устарел. Используй `YearHeatmap` из components/YearHeatmap.tsx.
-Не использовать в новых фичах.
+### TvmazeImportModal.tsx
+Модалка для импорта данных из TVmaze (визуал с фейковыми данными, ждет API).
+export TvmazeImportModal: (props: { onClose: () => void; onSelect: (data: any) => void }) => JSX.Element
+client: yes
 
-### AliasBadge.tsx
-Плашка с количеством альтернативных имен.
-export AliasBadge: (props: { count: number }) => JSX.Element
+### AttentionBlock.tsx
+Блок внимания на дашборде (красный/желтый/зеленый) на основе статистики заполненности.
+export AttentionBlock: (props: { stats: ... }) => JSX.Element
+client: no
+
+### DatabaseHealth.tsx
+«Здоровье базы данных» с табами (Все/Дорамы/Актеры/Персонажи), прогресс-баром и ссылками.
+export DatabaseHealth: (props: { dramas, persons, characters }) => JSX.Element
+client: yes
+
+### MetricsIcons.tsx
+Иконки метрик (постер, жанры, актеры, синопсис) с тултипами.
+export MetricsIcons: (props: ...) => JSX.Element
+client: no
+
+### QuickStart.tsx
+Блок «Быстрый старт» со ссылками на создание сущностей.
+export QuickStart: () => JSX.Element
 client: no
 
 ### StatusDot.tsx
 Точка статуса (green/yellow/red) для списков.
-export StatusDot: (props: { status: "green" | "yellow" | "red" }) => JSX.Element
+export StatusDot: (props: { items: StatusItem[] }) => JSX.Element
 client: no
 
-### MetricsIcons.tsx
-Иконки метрик (постер, жанры, актеры, синопсис).
-export MetricsIcons: (props: {...}) => JSX.Element
-client: no
+### AdminHeatmap.tsx [DEPRECATED]
+⚠️ Устарел. Используй `YearHeatmap` из components/YearHeatmap.tsx.
 
-### RecentActivity.tsx
-Лента последних действий (Хроника).
-export RecentActivity: (props: { logs: any[] }) => JSX.Element
-client: no
-
-### QuickStart.tsx, FixRandomButton.tsx, LastVictory.tsx, ApiStatus.tsx, DatabaseHealth.tsx, AttentionBlock.tsx
+### AliasBadge.tsx, ApiStatus.tsx, FixRandomButton.tsx, LastVictory.tsx, RecentActivity.tsx
 Вспомогательные компоненты админки.
-client: no
-
-## components/
-### CatalogCard.tsx
-Карточка дорамы в каталоге. Bento, hover-оверлей, пилюли. Поддерживает матрешку тегов и быстрые статусы.
-export CatalogCard: (props: CatalogCardProps) => JSX.Element
-client: yes
-Паттерн: "Карточка каталога"
-Использовать для: карточки дорам в каталоге.
-
-### CatalogToolbar.tsx
-Панель фильтров и сортировки для каталога. Использует SearchableSelect.
-export CatalogToolbar: (props: { allGenres, allMoods, allThemes, allCountries }) => JSX.Element
-client: yes
-
-### PeopleToolbar.tsx
-Панель фильтров для каталога актеров. Использует SearchableSelect.
-export PeopleToolbar: (props: {...}) => JSX.Element
-client: yes
-
-### CharactersToolbar.tsx
-Панель фильтров для каталога персонажей.
-export CharactersToolbar: (props: {...}) => JSX.Element
-client: yes
-
-### YearHeatmap.tsx
-Тепловая карта активности (по дням). Используется на главной и в админке.
-export YearHeatmap: (props: { activities: any[] }) => JSX.Element
-client: no
-Не дублировать: новые компоненты для heatmap.
-
-### DramaCard.tsx
-Старая карточка дорамы (используется в библиотеке). Bento, hover-оверлей.
-export DramaCard: (props: {...}) => JSX.Element
-client: no
-
-### DramaListItem.tsx
-Карточка дорамы в виде списка (используется в библиотеке).
-export DramaListItem: (props: {...}) => JSX.Element
-client: no
-
-### PosterImage.tsx
-Компонент постера с заглушкой (если картинка не загрузилась).
-export PosterImage: (props: { posterUrl: string | null; title: string; year?: number; className?: string }) => JSX.Element
-client: yes
-
-### FormSection.tsx
-Обертка для секций формы (иконка + заголовок + контент).
-export FormSection: (props: { Icon, title, description, children }) => JSX.Element
-client: no
-
-### Tooltip.tsx
-Кастомный тултип.
-export Tooltip: (props: { content: string; children: React.ReactNode }) => JSX.Element
-client: yes
-
-### CryBadge.tsx
-Плашка эмоции (safe, bittersweet, sad). Использует `CRY_TAGS` из lib.
-export CryBadge: (props: { tag: string | null; size?: "sm" | "md"; withLabel?: boolean }) => JSX.Element
-client: no
-
-### AdminBreadcrumbs.tsx, AdminSearchBar.tsx, AppearanceMenu.tsx, CharacterActions.tsx, ChronicleFeed.tsx, ComingSoon.tsx, CommandPalette.tsx, DramaGrid.tsx, Footer.tsx, Header.tsx, HorizontalScroll.tsx, LibraryBar.tsx, MainMenu.tsx, MenuLink.tsx, MobileSearchButton.tsx, SearchBar.tsx, SmartLink.tsx, ThemeProvider.tsx, UserMenu.tsx, WipLink.tsx
-Вспомогательные компоненты.
-client: varies
 
 ## components/drama/
 ### CardStatusToolbar.tsx
@@ -173,14 +119,78 @@ client: yes
 
 ## components/people/
 ### FavoriteActorButton.tsx
-Кнопка "В избранное" (с оптимистичным обновлением).
+Кнопка "В избранное" (с оптимистичным обновлением и тостами).
 export FavoriteActorButton: (props: { personId: number; initialIsFavorite: boolean }) => JSX.Element
 client: yes
 
 ### SocialLinks.tsx
-Соцсети актера (иконки + тултипы + поповер для скрытых).
+Соцсети актера (иконки + тултипы + поповер для скрытых, если больше 5).
 export SocialLinks: (props: { links: SocialLink[] }) => JSX.Element
 client: yes
+
+## components/ (корень)
+### CatalogCard.tsx
+Карточка дорамы в каталоге. Bento, hover-оверлей, пилюли (включая рейтинг Crybam). Поддерживает матрешку тегов и быстрые статусы.
+export CatalogCard: (props: CatalogCardProps) => JSX.Element
+client: yes
+Паттерн: "Карточка каталога"
+
+### CatalogToolbar.tsx
+Панель фильтров и сортировки для каталога дорам. Использует SearchableSelect.
+export CatalogToolbar: (props: { allGenres, allMoods, allThemes, allCountries }) => JSX.Element
+client: yes
+
+### PeopleToolbar.tsx
+Панель фильтров для каталога актеров. Использует SearchableSelect.
+export PeopleToolbar: (props: { allAgencies, allNationalities, allZodiacs, allDramas }) => JSX.Element
+client: yes
+
+### CharactersToolbar.tsx
+Панель фильтров для каталога персонажей.
+export CharactersToolbar: (props: { allDramas, allPersons }) => JSX.Element
+client: yes
+
+### YearHeatmap.tsx
+Тепловая карта активности (по дням). Используется на главной и в админке.
+export YearHeatmap: (props: { activities: any[] }) => JSX.Element
+client: no
+Не дублировать: новые компоненты для heatmap.
+
+### DramaCard.tsx
+Старая карточка дорамы (используется в библиотеке). Bento, hover-оверлей.
+export DramaCard: (props: {...}) => JSX.Element
+client: no
+
+### DramaListItem.tsx
+Карточка дорамы в виде списка (используется в библиотеке).
+export DramaListItem: (props: {...}) => JSX.Element
+client: no
+
+### PosterImage.tsx
+Компонент постера с заглушкой (если картинка не загрузилась). Исправлена верстка заглушки.
+export PosterImage: (props: { posterUrl: string | null; title: string; year?: number; className?: string }) => JSX.Element
+client: yes
+
+### FormSection.tsx
+Обертка для секций формы (иконка + заголовок + контент).
+export FormSection: (props: { Icon, title, description, children }) => JSX.Element
+client: no
+
+### Tooltip.tsx
+Кастомный тултип.
+export Tooltip: (props: { content: string | React.ReactNode; children: React.ReactNode }) => JSX.Element
+client: yes
+
+### CryBadge.tsx
+Плашка эмоции (safe, bittersweet, sad). Использует `CRY_TAGS` из lib.
+export CryBadge: (props: { tag: string | null; size?: "sm" | "md"; withLabel?: boolean }) => JSX.Element
+client: no
+
+### Header.tsx, Footer.tsx, MainMenu.tsx, UserMenu.tsx, ThemeProvider.tsx, AppearanceMenu.tsx, SearchBar.tsx, MobileSearchButton.tsx
+Глобальные компоненты навигации и лейаута.
+
+### AdminBreadcrumbs.tsx, AdminSearchBar.tsx, ChronicleFeed.tsx, CommandPalette.tsx, HorizontalScroll.tsx, LibraryBar.tsx, MenuLink.tsx, SmartLink.tsx, WipLink.tsx, DramaGrid.tsx, ComingSoon.tsx, CryBadge.tsx
+Вспомогательные компоненты.
 
 ## lib/
 ### pluralize.ts
@@ -248,10 +258,18 @@ export getActionLabel: (action: string) => string
 Блокировка скролла при открытых модалках.
 export useLockBodyScroll: (active?: boolean) => void
 
+### constants.ts
+Список стран.
+export COUNTRIES: string[]
+
+### types.ts
+Общие типы (EntryData).
+export EntryData: type
+
 ## Server Actions
-### app/dramas/[id]/actions.ts (~600 строк)
+### app/dramas/[id]/actions.ts (~650 строк)
 Управление дневником и данными дорамы.
-Экшены: updateEntry, updateDrama, updateGenres, addCredit, removeCredit, updateCredit, quickSetStatus, updateTitles, addSoundtrack, removeSoundtrack, incrementProgress, removeEntry, rateDrama, saveCryTag, updateMoods, updateThemes.
+Экшены: updateEntry, updateDrama, updateGenres, addCredit, removeCredit, updateCredit, quickSetStatus, updateTitles, addSoundtrack, removeSoundtrack, incrementProgress, removeEntry, rateDrama (с пересчетом ratingCrybam), saveCryTag, updateMoods, updateThemes.
 Особенности: логирование в AdminLog, проверка oldStatus -> newStatus (зеленение), revalidatePath.
 
 ### app/admin/actions.ts
@@ -271,3 +289,21 @@ CRUD персонажей.
 ### app/people/[id]/actions.ts
 Избранные актеры.
 Экшены: toggleFavoriteActor.
+
+## Pages (App Router)
+- `/` (Главная) -> `app/page.tsx`
+- `/dramas` (Каталог) -> `app/dramas/page.tsx`
+- `/dramas/[id]` (Страница дорамы) -> `app/dramas/[id]/page.tsx`
+- `/people` (Каталог актеров) -> `app/people/page.tsx`
+- `/people/[id]` (Страница актера) -> `app/people/[id]/page.tsx`
+- `/characters` (Каталог персонажей) -> `app/characters/page.tsx`
+- `/characters/[id]` (Страница персонажа) -> `app/characters/[id]/page.tsx`
+- `/library` (Библиотека) -> `app/library/page.tsx`
+- `/favorites/actors` (Любимые актеры) -> `app/favorites/actors/page.tsx`
+- `/admin/*` (Админ-панель) -> `app/admin/*`
+
+## Планы на будущее (в разработке)
+- Создание `components/ui/form-elements.tsx` для унификации полей форм.
+- Интеграция реального API TVmaze.
+- «Взрослые логи» (Audit Log с diff).
+- Система модерации (предложения правок).
