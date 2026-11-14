@@ -23,7 +23,7 @@ const userSections = [
   { href: "/heart", Icon: Heart, label: "Особое место", hint: "Дорамы с цитатами", isWip: false },
   { href: "/nominations", Icon: Trophy, label: "Номинации", hint: "Личные награды", isWip: true },
   { href: "/favorites/actors", Icon: Users, label: "Любимые актёры", hint: "Твой топ", isWip: false },
-  { href: "/me/characters", Icon: UsersRound, label: "Любимые персонажи", hint: "Твой топ", isWip: true },
+  { href: "/favorites/characters", Icon: UsersRound, label: "Любимые персонажи", hint: "Твой топ", isWip: false },
   { href: "/stats", Icon: BarChart3, label: "Статистика", hint: "Часы, жанры, эмоции", isWip: true },
   { href: "/graph", Icon: Network, label: "Граф связей", hint: "Визуализация", isWip: true },
   { href: "/settings", Icon: Settings, label: "Настройки", hint: "Профиль и приватность", isWip: true },

@@ -19,7 +19,7 @@ const mobileNavItems = [
   { href: "/heart", label: "Особое место" },
   { href: "/nominations", label: "Номинации" },
   { href: "/me/actors", label: "Любимые актёры" },
-  { href: "/me/characters", label: "Любимые персонажи" },
+  { href: "/favorites/characters", label: "Любимые персонажи" },
   { href: "/stats", label: "Статистика" },
   { href: "/graph", label: "Граф связей" },
   { href: "/settings", label: "Настройки" },

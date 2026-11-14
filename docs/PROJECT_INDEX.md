@@ -326,6 +326,7 @@ CRUD персонажей.
 - `/library` (Библиотека) -> `app/library/page.tsx`
 - `/favorites/actors` (Любимые актеры) -> `app/favorites/actors/page.tsx`
 - `/admin/*` (Админ-панель) -> `app/admin/*`
+- `/favorites/characters` (Любимые персонажи) -> `app/favorites/characters/page.tsx`
 
 ## Планы на будущее (в разработке)
 - Создание `components/ui/form-elements.tsx` для унификации полей форм.
