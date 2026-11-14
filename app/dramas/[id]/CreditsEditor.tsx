@@ -3,8 +3,8 @@
 import { useState, useTransition } from "react";
 import { X, UserPlus, Trash2, Pencil, Save } from "lucide-react";
 import { addCredit, removeCredit, updateCredit } from "./actions";
+import { CREDIT_ROLES, getCreditRoleLabel } from "@/lib/credit-roles";
 
-type RoleType = "actor" | "director" | "writer";
 type Importance = "lead" | "support" | "guest";
 
 const IMPORTANCE_OPTIONS: { value: Importance; label: string }[] = [
@@ -33,7 +33,7 @@ export function CreditsEditor({
 }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [roleType, setRoleType] = useState<RoleType>("actor");
+  const [roleType, setRoleType] = useState<string>("actor");
   const [importance, setImportance] = useState<Importance>("lead");
   const [editingId, setEditingId] = useState<number | null>(null);
 
@@ -188,28 +188,17 @@ export function CreditsEditor({
 
         <form onSubmit={handleAdd} className="p-6 space-y-4">
           <div>
-            <label className={labelCls}>Тип</label>
-            <div className="flex gap-2">
-              {(
-                [
-                  { value: "actor", label: "Актёр" },
-                  { value: "director", label: "Режиссёр" },
-                  { value: "writer", label: "Сценарист" },
-                ] as const
-              ).map((o) => (
-                <button
-                  key={o.value}
-                  type="button"
-                  onClick={() => setRoleType(o.value)}
-                  className={`px-3 py-1.5 rounded-lg border text-sm transition-colors ${roleType === o.value
-                      ? "border-accent bg-accent/15 text-accent"
-                      : "border-border text-muted hover:border-accent/40"
-                    }`}
-                >
-                  {o.label}
-                </button>
+            <label className={labelCls}>Тип роли</label>
+            <select
+              name="roleType"
+              value={roleType}
+              onChange={(e) => setRoleType(e.target.value)}
+              className={inputCls}
+            >
+              {CREDIT_ROLES.map((r) => (
+                <option key={r.value} value={r.value}>{r.label}</option>
               ))}
-            </div>
+            </select>
           </div>
 
           {roleType === "actor" && (
@@ -222,8 +211,8 @@ export function CreditsEditor({
                     type="button"
                     onClick={() => setImportance(o.value)}
                     className={`px-3 py-1.5 rounded-lg border text-sm transition-colors ${importance === o.value
-                        ? "border-accent bg-accent/15 text-accent"
-                        : "border-border text-muted hover:border-accent/40"
+                      ? "border-accent bg-accent/15 text-accent"
+                      : "border-border text-muted hover:border-accent/40"
                       }`}
                   >
                     {o.label}
@@ -341,8 +330,8 @@ function InlineEdit({
               type="button"
               onClick={() => setImportance(o.value)}
               className={`px-3 py-1 rounded-lg border text-xs transition-colors ${importance === o.value
-                  ? "border-accent bg-accent/15 text-accent"
-                  : "border-border text-muted hover:border-accent/40"
+                ? "border-accent bg-accent/15 text-accent"
+                : "border-border text-muted hover:border-accent/40"
                 }`}
             >
               {o.label}

@@ -20,6 +20,8 @@ import { TagsPopover } from "@/components/drama/TagsPopover";
 import { CryTagSelector } from "@/components/drama/CryTagSelector";
 import { CryTagStats } from "@/components/drama/CryTagStats";
 import { MoreItemsPopover } from "@/components/drama/MoreItemsPopover";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import { getCreditRoleLabel } from "@/lib/credit-roles";
 
 type Params = Promise<{ id: string }>;
 type SearchParams = Promise<{ from?: string }>;
@@ -75,6 +77,18 @@ export default async function DramaPage({
       return (a.order ?? 999) - (b.order ?? 999);
     });
   const crew = drama.credits.filter((c) => c.roleType !== "actor");
+
+  // Группировка актеров
+  const leadActors = actors.filter((a) => a.importance === "lead");
+  const supportActors = actors.filter((a) => a.importance === "support" || !a.importance);
+  const guestActors = actors.filter((a) => a.importance === "guest");
+
+  // Группировка съемочной группы по ролям
+  const crewByRole: Record<string, typeof crew> = {};
+  crew.forEach((c) => {
+    if (!crewByRole[c.roleType]) crewByRole[c.roleType] = [];
+    crewByRole[c.roleType].push(c);
+  });
 
   // ─── ЛОГИКА ОБРЕЗКИ (ПУНКТ 1) ───
   const processList = (arr: string[], limit = 2) => {
@@ -454,51 +468,120 @@ export default async function DramaPage({
 
         {/* 2. В РОЛЯХ И СОЗДАТЕЛИ */}
         <TabsContent value="cast">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Актеры */}
-            {actors.map((a) => (
-              <div key={a.id} className={`flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 ${a.importance === "lead" ? "border-l-yellow-400/70" : a.importance === "guest" ? "border-l-border" : "border-l-accent/50"}`}>
-                <Link href={`/people/${a.person.id}`} className="shrink-0">
-                  <div className="w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden">
-                    {a.person.photoUrl ? <img src={a.person.photoUrl} className="w-full h-full object-cover" /> : "👤"}
-                  </div>
-                </Link>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Link href={`/people/${a.person.id}`} className="font-semibold text-foreground hover:text-accent transition-colors">{a.person.name}</Link>
-                    {a.importance === "lead" && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-full border border-yellow-400/40 bg-yellow-400/10 text-yellow-400">Главная</span>
-                    )}
-                    {a.importance === "guest" && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-full border border-border text-muted">Эпизод</span>
-                    )}
-                  </div>
-                  {a.character?.name && (
-                    <Link href={`/characters/${a.character.id}`} className="block text-sm text-accent mt-0.5 hover:underline">
-                      → {a.character.name}
-                    </Link>
-                  )}
-                  {a.character?.description && <p className="text-xs text-muted mt-1 line-clamp-2">{a.character.description}</p>}
-                </div>
-              </div>
-            ))}
+          <Accordion type="multiple" defaultValue={["lead", "support", "guest", "crew"]} className="w-full">
 
-            {/* Съемочная группа */}
-            {crew.map((c) => (
-              <div key={c.id} className={`flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 ${c.roleType === "director" ? "border-l-blue-400/70" : "border-l-purple-400/70"}`}>
-                <div className="w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden shrink-0">
-                  {c.person.photoUrl ? <img src={c.person.photoUrl} className="w-full h-full object-cover" /> : "🎬"}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <Link href={`/people/${c.person.id}`} className="font-semibold text-foreground hover:text-accent transition-colors">{c.person.name}</Link>
-                  <p className={`text-sm mt-0.5 font-medium ${c.roleType === "director" ? "text-blue-400" : "text-purple-400"}`}>
-                    {c.roleType === "director" ? "Режиссер" : "Сценарист"}
-                  </p>
-                  {c.note && <p className="text-xs text-muted mt-1">{c.note}</p>}
-                </div>
-              </div>
-            ))}
-          </div>
+            {/* АКТЁРЫ: ГЛАВНАЯ */}
+            {leadActors.length > 0 && (
+              <AccordionItem value="lead">
+                <AccordionTrigger className="text-lg font-semibold">🎭 Главные роли</AccordionTrigger>
+                <AccordionContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {leadActors.map((a) => (
+                      <div key={a.id} className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 border-l-yellow-400/70">
+                        <Link href={`/people/${a.person.id}`} className="shrink-0">
+                          <div className="w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden">
+                            {a.person.photoUrl ? <img src={a.person.photoUrl} className="w-full h-full object-cover" /> : "👤"}
+                          </div>
+                        </Link>
+                        <div className="min-w-0 flex-1">
+                          <Link href={`/people/${a.person.id}`} className="font-semibold text-foreground hover:text-accent transition-colors">{a.person.name}</Link>
+                          {a.character?.name && (
+                            <Link href={`/characters/${a.character.id}`} className="block text-sm text-accent mt-0.5 hover:underline">→ {a.character.name}</Link>
+                          )}
+                          {a.character?.description && <p className="text-xs text-muted mt-1 line-clamp-2">{a.character.description}</p>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}
+
+            {/* АКТЁРЫ: ВТОРОСТЕПЕННЫЕ */}
+            {supportActors.length > 0 && (
+              <AccordionItem value="support">
+                <AccordionTrigger className="text-lg font-semibold">🎭 Второстепенные роли</AccordionTrigger>
+                <AccordionContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {supportActors.map((a) => (
+                      <div key={a.id} className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 border-l-accent/50">
+                        <Link href={`/people/${a.person.id}`} className="shrink-0">
+                          <div className="w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden">
+                            {a.person.photoUrl ? <img src={a.person.photoUrl} className="w-full h-full object-cover" /> : "👤"}
+                          </div>
+                        </Link>
+                        <div className="min-w-0 flex-1">
+                          <Link href={`/people/${a.person.id}`} className="font-semibold text-foreground hover:text-accent transition-colors">{a.person.name}</Link>
+                          {a.character?.name && (
+                            <Link href={`/characters/${a.character.id}`} className="block text-sm text-accent mt-0.5 hover:underline">→ {a.character.name}</Link>
+                          )}
+                          {a.character?.description && <p className="text-xs text-muted mt-1 line-clamp-2">{a.character.description}</p>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}
+
+            {/* АКТЁРЫ: ЭПИЗОДЫ */}
+            {guestActors.length > 0 && (
+              <AccordionItem value="guest">
+                <AccordionTrigger className="text-lg font-semibold">🎭 Эпизодические роли</AccordionTrigger>
+                <AccordionContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {guestActors.map((a) => (
+                      <div key={a.id} className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 border-l-border">
+                        <Link href={`/people/${a.person.id}`} className="shrink-0">
+                          <div className="w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden">
+                            {a.person.photoUrl ? <img src={a.person.photoUrl} className="w-full h-full object-cover" /> : "👤"}
+                          </div>
+                        </Link>
+                        <div className="min-w-0 flex-1">
+                          <Link href={`/people/${a.person.id}`} className="font-semibold text-foreground hover:text-accent transition-colors">{a.person.name}</Link>
+                          {a.character?.name && (
+                            <Link href={`/characters/${a.character.id}`} className="block text-sm text-accent mt-0.5 hover:underline">→ {a.character.name}</Link>
+                          )}
+                          {a.character?.description && <p className="text-xs text-muted mt-1 line-clamp-2">{a.character.description}</p>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}
+
+            {/* СЪЕМОЧНАЯ ГРУППА */}
+            {Object.keys(crewByRole).length > 0 && (
+              <AccordionItem value="crew">
+                <AccordionTrigger className="text-lg font-semibold">🎬 Съёмочная группа</AccordionTrigger>
+                <AccordionContent>
+                  <div className="flex flex-col gap-6">
+                    {Object.entries(crewByRole).map(([role, people]) => (
+                      <div key={role}>
+                        <h4 className="text-sm font-bold text-muted uppercase tracking-wider mb-3">{getCreditRoleLabel(role)}</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {people.map((c) => (
+                            <div key={c.id} className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 border-l-blue-400/50">
+                              <div className="w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden shrink-0">
+                                {c.person.photoUrl ? <img src={c.person.photoUrl} className="w-full h-full object-cover" /> : "🎬"}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <Link href={`/people/${c.person.id}`} className="font-semibold text-foreground hover:text-accent transition-colors">{c.person.name}</Link>
+                                <p className="text-sm mt-0.5 text-blue-400 font-medium">{getCreditRoleLabel(role)}</p>
+                                {c.note && <p className="text-xs text-muted mt-1">{c.note}</p>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}
+
+          </Accordion>
         </TabsContent>
 
         {/* 3. ГАЛЕРЕЯ */}
