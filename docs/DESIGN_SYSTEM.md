@@ -1,0 +1,37 @@
+# DESIGN_SYSTEM.md: Визуальные паттерны Crybam
+
+## 🎨 Семантические токены
+- Фон: `bg-background`, `bg-surface`, `bg-surface/20` (для Bento-блоков).
+- Текст: `text-foreground`, `text-muted`, `text-muted/70` (лейблы).
+- Границы: `border-border`, `border-border/50` (мягкие).
+- Акцент: `text-accent`, `bg-accent`, `bg-accent/10`.
+- Эмоции: `text-cry-safe`, `text-cry-happy`, `text-cry-sad`.
+
+## 🧱 Паттерн: Bento-блок
+Используется для карточек на страницах.
+- Классы: `bg-surface/20 p-6 rounded-2xl border border-border/50`.
+- Внутри: заголовок с иконкой (`text-lg font-semibold flex items-center gap-2`), затем контент.
+- Разделители: `<div className="border-t border-border/50 my-4" />`.
+
+## 🖼️ Паттерн: Постер (PosterImage)
+- Aspect: `aspect-[2/3]`.
+- Скругления: `rounded-xl` или `rounded-2xl`.
+- Заглушка: если картинки нет, показываем иконку 🎬 и название.
+
+## 🏷️ Паттерн: Пилюли (Badges/Tags)
+- Жанры: `bg-accent/10 text-accent border border-accent/20 rounded-full px-2 py-0.5 text-[10px]`.
+- Темы: `text-blue-400`, `#хештег`.
+- Настроения: `text-purple-400`.
+- Рейтинг: `bg-black/60 backdrop-blur-md rounded-full h-6 px-2 text-xs font-semibold`.
+
+## 🪟 Паттерн: Модалка (Form)
+- Оверлей: `fixed inset-0 bg-background/80 backdrop-blur-sm`.
+- Контейнер: `max-w-3xl max-h-[90vh] rounded-2xl border border-border bg-surface`.
+- Шапка: `px-6 py-4 border-b border-border` + крестик.
+- Тело: `p-6 overflow-y-auto`.
+- Футер: `px-6 py-4 border-t border-border` + кнопки.
+
+## 🖱️ Паттерн: Hover-оверлей (Карточки)
+- Фон: `bg-black/85`.
+- Появление: `opacity-0 group-hover:opacity-100 transition-opacity`.
+- Внутри: синопсис (`line-clamp-[14]`) и панель статусов (`CardStatusToolbar`).
