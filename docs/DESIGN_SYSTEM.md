@@ -6,6 +6,7 @@
 - Границы: `border-border`, `border-border/50` (мягкие).
 - Акцент: `text-accent`, `bg-accent`, `bg-accent/10`.
 - Эмоции: `text-cry-safe`, `text-cry-happy`, `text-cry-sad`.
+⚠️ НИКОГДА: `bg-zinc-*`, `bg-gray-*`, `text-gray-*`.
 
 ## 🧱 Паттерн: Bento-блок
 Используется для карточек на страницах.
@@ -35,3 +36,17 @@
 - Фон: `bg-black/85`.
 - Появление: `opacity-0 group-hover:opacity-100 transition-opacity`.
 - Внутри: синопсис (`line-clamp-[14]`) и панель статусов (`CardStatusToolbar`).
+
+## 📝 Паттерн: Формы (Input/Select/Textarea)
+- Классы для инпутов: `w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors text-sm`.
+- Лейблы: `block text-xs font-medium text-muted mb-1.5`.
+- ⚠️ Эти классы дублируются в `NewDramaForm`, `PersonForm`, `EditEntryForm` и т.д. **Рекомендуется вынести в `components/ui/form-elements.tsx`**.
+
+## 🔤 Паттерн: Обрезка длинных списков
+- Функция `processList(arr, limit)` возвращает `{ visible, hidden }`.
+- `visible` — первые N элементов, `hidden` — остальные.
+- Для скрытых используется `MoreItemsPopover` (каналы, студии, озвучка).
+
+## 📅 Паттерн: Форматирование дат
+- Функция `formatAired(from, to)` возвращает красивую строку (без "г.").
+- Дублируется в `app/dramas/[id]/page.tsx`. **Рекомендуется вынести в `lib/date-utils.ts`**.
