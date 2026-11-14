@@ -14,10 +14,11 @@
 - Внутри: заголовок с иконкой (`text-lg font-semibold flex items-center gap-2`), затем контент.
 - Разделители: `<div className="border-t border-border/50 my-4" />`.
 
-## 🖼️ Паттерн: Постер (PosterImage)
-- Aspect: `aspect-[2/3]`.
-- Скругления: `rounded-xl` или `rounded-2xl`.
-- Заглушка: если картинки нет, показываем иконку 🎬 и название.
+## 🖼️ Паттерн: Постер и Фотографии (PosterImage)
+- **Формат:** Строго прямоугольный `aspect-[2/3]` (для больших постеров) или `w-14 h-20` (для мини-карточек актеров в касте).
+- **Скругления:** `rounded-lg`, `rounded-xl` или `rounded-2xl`. ❌ Круглые аватарки (`rounded-full`) запрещены.
+- **Объект:** `object-cover`, чтобы не искажать пропорции.
+- **Заглушка:** Если картинки нет, показываем иконку из `lucide-react` (например, `<User />` или `<Film />`) и/или название. ❌ Эмодзи (🎬, 👤) запрещены.
 
 ## 🏷️ Паттерн: Пилюли (Badges/Tags)
 - Жанры: `bg-accent/10 text-accent border border-accent/20 rounded-full px-2 py-0.5 text-[10px]`.
