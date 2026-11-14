@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import {
   Star, Calendar, MapPin, Film, Clock, PlayCircle, Eye,
   BookOpen, Video, ChevronRight, Crown, Languages, Tv,
-  Info, Tag, FaceSlightlySmilingPlus, Star as StarIcon,
+  Info, Tag, FaceSlightlySmilingPlus, User, Clapperboard, Users, Star as StarIcon,
 
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
@@ -472,15 +472,23 @@ export default async function DramaPage({
 
             {/* АКТЁРЫ: ГЛАВНАЯ */}
             {leadActors.length > 0 && (
-              <AccordionItem value="lead">
-                <AccordionTrigger className="text-lg font-semibold">🎭 Главные роли</AccordionTrigger>
-                <AccordionContent>
+              <AccordionItem value="lead" className="bg-surface/20 border border-border/50 rounded-2xl mb-4 overflow-hidden">
+                <AccordionTrigger className="px-6 py-4 hover:bg-surface/30 transition-colors">
+                  <div className="flex items-center gap-2 text-lg font-semibold">
+                    <Users className="w-5 h-5 text-accent" /> Главные роли
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-6 pb-6 pt-2">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {leadActors.map((a) => (
                       <div key={a.id} className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 border-l-yellow-400/70">
                         <Link href={`/people/${a.person.id}`} className="shrink-0">
                           <div className="w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden">
-                            {a.person.photoUrl ? <img src={a.person.photoUrl} className="w-full h-full object-cover" /> : "👤"}
+                            {a.person.photoUrl ? (
+                              <img src={a.person.photoUrl} className="w-full h-full object-cover" style={{ imageRendering: "auto" }} />
+                            ) : (
+                              <User className="w-6 h-6 text-muted" />
+                            )}
                           </div>
                         </Link>
                         <div className="min-w-0 flex-1">
@@ -499,15 +507,23 @@ export default async function DramaPage({
 
             {/* АКТЁРЫ: ВТОРОСТЕПЕННЫЕ */}
             {supportActors.length > 0 && (
-              <AccordionItem value="support">
-                <AccordionTrigger className="text-lg font-semibold">🎭 Второстепенные роли</AccordionTrigger>
-                <AccordionContent>
+              <AccordionItem value="support" className="bg-surface/20 border border-border/50 rounded-2xl mb-4 overflow-hidden">
+                <AccordionTrigger className="px-6 py-4 hover:bg-surface/30 transition-colors">
+                  <div className="flex items-center gap-2 text-lg font-semibold">
+                    <Users className="w-5 h-5 text-accent" /> Второстепенные роли
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-6 pb-6 pt-2">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {supportActors.map((a) => (
                       <div key={a.id} className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 border-l-accent/50">
                         <Link href={`/people/${a.person.id}`} className="shrink-0">
                           <div className="w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden">
-                            {a.person.photoUrl ? <img src={a.person.photoUrl} className="w-full h-full object-cover" /> : "👤"}
+                            {a.person.photoUrl ? (
+                              <img src={a.person.photoUrl} className="w-full h-full object-cover" style={{ imageRendering: "auto" }} />
+                            ) : (
+                              <User className="w-6 h-6 text-muted" />
+                            )}
                           </div>
                         </Link>
                         <div className="min-w-0 flex-1">
@@ -526,15 +542,23 @@ export default async function DramaPage({
 
             {/* АКТЁРЫ: ЭПИЗОДЫ */}
             {guestActors.length > 0 && (
-              <AccordionItem value="guest">
-                <AccordionTrigger className="text-lg font-semibold">🎭 Эпизодические роли</AccordionTrigger>
-                <AccordionContent>
+              <AccordionItem value="guest" className="bg-surface/20 border border-border/50 rounded-2xl mb-4 overflow-hidden">
+                <AccordionTrigger className="px-6 py-4 hover:bg-surface/30 transition-colors">
+                  <div className="flex items-center gap-2 text-lg font-semibold">
+                    <Users className="w-5 h-5 text-accent" /> Эпизодические роли
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-6 pb-6 pt-2">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {guestActors.map((a) => (
                       <div key={a.id} className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 border-l-border">
                         <Link href={`/people/${a.person.id}`} className="shrink-0">
                           <div className="w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden">
-                            {a.person.photoUrl ? <img src={a.person.photoUrl} className="w-full h-full object-cover" /> : "👤"}
+                            {a.person.photoUrl ? (
+                              <img src={a.person.photoUrl} className="w-full h-full object-cover" style={{ imageRendering: "auto" }} />
+                            ) : (
+                              <User className="w-6 h-6 text-muted" />
+                            )}
                           </div>
                         </Link>
                         <div className="min-w-0 flex-1">
@@ -553,9 +577,13 @@ export default async function DramaPage({
 
             {/* СЪЕМОЧНАЯ ГРУППА */}
             {Object.keys(crewByRole).length > 0 && (
-              <AccordionItem value="crew">
-                <AccordionTrigger className="text-lg font-semibold">🎬 Съёмочная группа</AccordionTrigger>
-                <AccordionContent>
+              <AccordionItem value="crew" className="bg-surface/20 border border-border/50 rounded-2xl mb-4 overflow-hidden">
+                <AccordionTrigger className="px-6 py-4 hover:bg-surface/30 transition-colors">
+                  <div className="flex items-center gap-2 text-lg font-semibold">
+                    <Clapperboard className="w-5 h-5 text-accent" /> Съёмочная группа
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-6 pb-6 pt-2">
                   <div className="flex flex-col gap-6">
                     {Object.entries(crewByRole).map(([role, people]) => (
                       <div key={role}>
@@ -564,7 +592,11 @@ export default async function DramaPage({
                           {people.map((c) => (
                             <div key={c.id} className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 border-l-blue-400/50">
                               <div className="w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden shrink-0">
-                                {c.person.photoUrl ? <img src={c.person.photoUrl} className="w-full h-full object-cover" /> : "🎬"}
+                                {c.person.photoUrl ? (
+                                  <img src={c.person.photoUrl} className="w-full h-full object-cover" style={{ imageRendering: "auto" }} />
+                                ) : (
+                                  <Clapperboard className="w-6 h-6 text-muted" />
+                                )}
                               </div>
                               <div className="min-w-0 flex-1">
                                 <Link href={`/people/${c.person.id}`} className="font-semibold text-foreground hover:text-accent transition-colors">{c.person.name}</Link>
