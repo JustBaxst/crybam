@@ -167,8 +167,13 @@ export default async function CharacterPage({ params }: { params: Params }) {
           <div className="mt-auto pt-4 border-t border-border/50 grid grid-cols-2 gap-3">
             {actor && (
               <Link href={`/people/${actor.id}`} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background hover:border-accent/50 transition-colors group">
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-accent-soft/50 flex items-center justify-center shrink-0">
-                  {actor.photoUrl ? <img src={actor.photoUrl} className="w-full h-full object-cover" /> : <UserIcon className="w-5 h-5 text-muted" />}
+                {/* Прямоугольное фото 2:3 */}
+                <div className="w-10 h-14 rounded-md overflow-hidden bg-accent-soft/50 flex items-center justify-center shrink-0">
+                  {actor.photoUrl ? (
+                    <img src={actor.photoUrl} className="w-full h-full object-cover" />
+                  ) : (
+                    <UserIcon className="w-4 h-4 text-muted" />
+                  )}
                 </div>
                 <div className="min-w-0">
                   <p className="text-[10px] text-muted uppercase tracking-wider">Играет актер</p>
@@ -178,8 +183,9 @@ export default async function CharacterPage({ params }: { params: Params }) {
             )}
 
             <Link href={`/dramas/${character.drama.id}`} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background hover:border-accent/50 transition-colors group">
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-accent-soft/50 flex items-center justify-center shrink-0">
-                <Film className="w-5 h-5 text-muted" />
+              {/* Прямоугольный постер 2:3 */}
+              <div className="w-10 h-14 rounded-md overflow-hidden bg-accent-soft/50 flex items-center justify-center shrink-0">
+                <Film className="w-4 h-4 text-muted" />
               </div>
               <div className="min-w-0">
                 <p className="text-[10px] text-muted uppercase tracking-wider">Из дорамы</p>
