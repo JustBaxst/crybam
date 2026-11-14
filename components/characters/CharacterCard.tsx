@@ -45,14 +45,14 @@ export function CharacterCard({ character }: { character: CharacterWithData }) {
                         </p>
                     </div>
                     <div className="w-full shrink-0 flex flex-col gap-2">
-                        <Link href={`/dramas/${character.drama.id}`} className="flex items-center justify-between w-full h-8 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-medium transition-colors">
+                        <Link href={`/dramas/${character.drama.id}`} className="flex items-center gap-2 w-full h-9 px-3 rounded-lg bg-surface/20 border border-white/10 hover:bg-surface/40 hover:border-accent/40 text-white text-xs font-medium transition-colors">
+                            <Film className="w-4 h-4 text-accent" />
                             <span>К дораме</span>
-                            <Film className="w-3.5 h-3.5" />
                         </Link>
                         {actor && (
-                            <Link href={`/people/${actor.id}`} className="flex items-center justify-between w-full h-8 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-medium transition-colors">
+                            <Link href={`/people/${actor.id}`} className="flex items-center gap-2 w-full h-9 px-3 rounded-lg bg-surface/20 border border-white/10 hover:bg-surface/40 hover:border-accent/40 text-white text-xs font-medium transition-colors">
+                                <UserCircle className="w-4 h-4 text-accent" />
                                 <span>К актеру</span>
-                                <UserCircle className="w-3.5 h-3.5" />
                             </Link>
                         )}
                     </div>
@@ -71,9 +71,9 @@ export function CharacterCard({ character }: { character: CharacterWithData }) {
                         {actor.name}
                     </p>
                 )}
-
-                <p className="text-[10px] text-muted/70 mt-2 flex items-center gap-1">
-                    <Film className="w-3 h-3" /> <span className="truncate">{character.drama.title}</span>
+                <p className="text-xs text-muted mt-2 flex items-center gap-1.5">
+                    <Film className="w-4 h-4 shrink-0 text-accent" />
+                    <span className="truncate">{character.drama.title}</span>
                 </p>
             </div>
         </div>

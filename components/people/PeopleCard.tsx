@@ -14,8 +14,6 @@ type PersonWithData = {
 };
 
 export function PeopleCard({ person, isFavorite }: { person: PersonWithData; isFavorite: boolean }) {
-    // Ищем корейское имя для пилюли
-    const koreanAlias = person.aliases.find(a => a.language === "ko")?.name;
 
     return (
         <div className="group relative flex flex-col rounded-xl border border-border bg-surface transition-colors hover:border-accent/50">
@@ -73,11 +71,6 @@ export function PeopleCard({ person, isFavorite }: { person: PersonWithData; isF
                     <h3 className="font-semibold text-sm leading-tight truncate">
                         {person.name}
                     </h3>
-                    {koreanAlias && (
-                        <span className="text-[9px] px-1.5 py-0.5 rounded-sm bg-accent/10 text-accent border border-accent/20 uppercase tracking-widest">
-                            KO
-                        </span>
-                    )}
                 </Link>
 
                 <p className="text-xs text-muted mt-1.5 flex items-center gap-1">
