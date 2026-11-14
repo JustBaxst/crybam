@@ -123,6 +123,13 @@ export TagsPopover: (props: { genres, themes, moods, hiddenCount }) => JSX.Eleme
 client: yes
 
 ## components/characters/
+
+### CharacterCard.tsx
+Карточка персонажа в каталоге и избранном. Bento, hover-оверлей (опционально).
+export CharacterCard: (props: { character: CharacterWithData; hideHover?: boolean }) => JSX.Element
+client: no
+Режим `hideHover` — без оверлея (для страницы избранного).
+
 ### FavoriteCharacterButton.tsx
 Кнопка "В избранное" для персонажа (с оптимистичным обновлением).
 export FavoriteCharacterButton: (props: { characterId: number; initialIsFavorite: boolean; isOverlay?: boolean }) => JSX.Element
@@ -134,6 +141,13 @@ export PublicCharacterRelations: (props: { relations: Relation[] }) => JSX.Eleme
 client: no
 
 ## components/people/
+
+### PeopleCard.tsx
+Карточка актера в каталоге и избранном. Поддерживает два режима.
+export PeopleCard: (props: { person: PersonWithData; isFavorite: boolean; hideHover?: boolean; note?: string | null; showFavoritePills?: boolean }) => JSX.Element
+client: yes
+Режимы: `hideHover` — без оверлея, `note` — показать заметку, `showFavoritePills` — скрыть пилюли.
+
 ### FavoriteActorButton.tsx
 Кнопка "В избранное" (с оптимистичным обновлением и тостами).
 export FavoriteActorButton: (props: { personId: number; initialIsFavorite: boolean }) => JSX.Element
