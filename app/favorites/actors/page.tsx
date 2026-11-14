@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { CURRENT_USER_ID } from "@/lib/current-user";
+import { PeopleCard } from "@/components/people/PeopleCard";
 
 export default async function FavoriteActorsPage() {
     const favorites = await prisma.userFavoriteActor.findMany({
@@ -129,34 +130,16 @@ export default async function FavoriteActorsPage() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {favorites.map((fav) => {
-                            const actor = fav.person;
-                            return (
-                                <Link
-                                    key={fav.personId}
-                                    href={`/people/${actor.id}`}
-                                    className="group flex flex-col rounded-xl border border-border bg-surface hover:border-accent/50 transition-colors overflow-hidden"
-                                >
-                                    <div className="aspect-2/3 bg-accent-soft overflow-hidden relative">
-                                        {actor.photoUrl ? (
-                                            <img src={actor.photoUrl} alt={actor.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-5xl text-muted">👤</div>
-                                        )}
-                                        {fav.note && (
-                                            <div className="absolute bottom-2 left-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] p-1.5 rounded border border-white/20 line-clamp-2">
-                                                {fav.note}
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="p-3">
-                                        <h3 className="font-semibold text-sm truncate group-hover:text-accent transition-colors">{actor.name}</h3>
-                                        <p className="text-xs text-muted mt-1 truncate">{actor.agency || "Агентство не указано"}</p>
-                                        <p className="text-xs text-muted mt-0.5">{actor._count.credits} ролей</p>
-                                    </div>
-                                </Link>
-                            );
-                        })}
+                        {favorites.map((fav) => (
+                            <PeopleCard
+                                key={fav.personId}
+                                person={fav.person as any}
+                                isFavorite={true}
+                                hideHover={true}
+                                note={fav.note}
+                                showFavoritePills={false}
+                            />
+                        ))}
                     </div>
                 )}
             </section>
