@@ -726,7 +726,6 @@ export async function removeEntry(dramaId: number) {
 }
 
 export async function rateDrama(dramaId: number, rating: number) {
-  // Проверка на всякий случай
   if (rating < 1 || rating > 10) return { error: "Неверная оценка" };
 
   const existing = await prisma.userDramaEntry.findFirst({
@@ -744,10 +743,31 @@ export async function rateDrama(dramaId: number, rating: number) {
     });
   }
 
+  // --- МАГИЯ РЕЙТИНГА CRYBAM ---
+  // 1. Считаем среднее арифметическое и количество всех оценок для этой дорамы
+  const aggregate = await prisma.userDramaEntry.aggregate({
+    where: { dramaId, rating: { not: null } },
+    _avg: { rating: true },
+    _count: { rating: true },
+  });
+
+  // 2. Обновляем саму карточку дорамы
+  await prisma.drama.update({
+    where: { id: dramaId },
+    data: {
+      ratingCrybam: aggregate._avg.rating, // Среднее (например, 9.5)
+      crybamVotes: aggregate._count.rating, // Количество голосов
+    },
+  });
+  // -----------------------------
+
   revalidatePath(`/dramas/${dramaId}`);
   revalidatePath("/library");
+  revalidatePath("/");
   return { success: true };
 }
+
+
 export async function saveCryTag(dramaId: number, cryTag: string) {
   if (!["safe", "bittersweet", "sad"].includes(cryTag)) {
     return { error: "Неверное значение" };
