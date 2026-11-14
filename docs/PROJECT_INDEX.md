@@ -123,6 +123,11 @@ client: yes
 export FavoriteCharacterButton: (props: { characterId: number; initialIsFavorite: boolean; isOverlay?: boolean }) => JSX.Element
 client: yes
 
+### PublicCharacterRelations.tsx
+Публичное отображение связей персонажа (read-only, Bento-стиль).
+export PublicCharacterRelations: (props: { relations: Relation[] }) => JSX.Element
+client: no
+
 ## components/people/
 ### FavoriteActorButton.tsx
 Кнопка "В избранное" (с оптимистичным обновлением и тостами).
