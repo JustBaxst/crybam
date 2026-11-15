@@ -6,10 +6,14 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { normalizeTitle } from "@/lib/drama-utils";
 import { CURRENT_USER_ID } from "@/lib/current-user"; // ← Добавили для логов
-import { getDramaStatusLevel, getPersonStatusLevel, getCharacterStatusLevel } from "@/lib/status-utils";
+import {
+  getDramaStatusLevel,
+  getPersonStatusLevel,
+  getCharacterStatusLevel,
+} from "@/lib/status-utils";
 
 export async function createDrama(
-  formData: FormData
+  formData: FormData,
 ): Promise<{ error?: string; existingId?: number } | undefined> {
   await requireModerator();
 
@@ -46,18 +50,22 @@ export async function createDrama(
       ...(country ? { country } : {}),
       OR: [
         { titleLower: normalizedTitle },
-        { titles: { some: { titleLower: normalizedTitle } } }
-      ]
+        { titles: { some: { titleLower: normalizedTitle } } },
+      ],
     },
     include: {
-      titles: { select: { title: true, titleLower: true } }
-    }
+      titles: { select: { title: true, titleLower: true } },
+    },
   });
 
   if (exactDuplicate) {
     // Выясняем, какое именно название совпало (основное или альтернативное)
-    const matchedAltTitle = exactDuplicate.titles.find(t => t.titleLower === normalizedTitle);
-    const matchedName = matchedAltTitle ? `альтернативное название «${matchedAltTitle.title}»` : `название «${exactDuplicate.title}»`;
+    const matchedAltTitle = exactDuplicate.titles.find(
+      (t) => t.titleLower === normalizedTitle,
+    );
+    const matchedName = matchedAltTitle
+      ? `альтернативное название «${matchedAltTitle.title}»`
+      : `название «${exactDuplicate.title}»`;
 
     return {
       error: `Внимание! Найдена дорама с таким же названием: ${matchedName} (${[exactDuplicate.year, exactDuplicate.country].filter(Boolean).join(", ") || "год/страна не указаны"}). Возможно, вы пытаетесь добавить дубль.`,
@@ -81,7 +89,6 @@ export async function createDrama(
       ratingKinopoisk: float("ratingKinopoisk"),
       ratingMDL: float("ratingMDL"),
       ratingIMDB: float("ratingIMDB"),
-      ratingDouban: float("ratingDouban"),
       dubbingStudios: str("dubbingStudios"),
       airStatus: str("airStatus") || "released",
       curatorCryTag: str("curatorCryTag"),
@@ -97,25 +104,43 @@ export async function createDrama(
       entityId: drama.id,
       entityName: drama.title,
       isPublic: true,
-    }
+    },
   });
 
   // Платформы и студии...
   const platformsRaw = String(formData.get("platforms") ?? "").trim();
   if (platformsRaw) {
-    const names = platformsRaw.split(",").map(s => s.trim()).filter(Boolean);
+    const names = platformsRaw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
     for (const name of names) {
-      const platform = await prisma.platform.upsert({ where: { name }, update: {}, create: { name } });
-      await prisma.dramaPlatform.create({ data: { dramaId: drama.id, platformId: platform.id } });
+      const platform = await prisma.platform.upsert({
+        where: { name },
+        update: {},
+        create: { name },
+      });
+      await prisma.dramaPlatform.create({
+        data: { dramaId: drama.id, platformId: platform.id },
+      });
     }
   }
 
   const studiosRaw = String(formData.get("studios") ?? "").trim();
   if (studiosRaw) {
-    const names = studiosRaw.split(",").map(s => s.trim()).filter(Boolean);
+    const names = studiosRaw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
     for (const name of names) {
-      const studio = await prisma.studio.upsert({ where: { name }, update: {}, create: { name } });
-      await prisma.dramaStudio.create({ data: { dramaId: drama.id, studioId: studio.id } });
+      const studio = await prisma.studio.upsert({
+        where: { name },
+        update: {},
+        create: { name },
+      });
+      await prisma.dramaStudio.create({
+        data: { dramaId: drama.id, studioId: studio.id },
+      });
     }
   }
 
@@ -127,15 +152,19 @@ export async function createDrama(
 export async function deleteDrama(formData: FormData) {
   await requireModerator();
   const dramaId = Number(formData.get("dramaId"));
-  if (!Number.isInteger(dramaId) || dramaId <= 0) return { error: "Неверный ID" };
+  if (!Number.isInteger(dramaId) || dramaId <= 0)
+    return { error: "Неверный ID" };
 
-  const drama = await prisma.drama.findUnique({ where: { id: dramaId }, select: { title: true } });
+  const drama = await prisma.drama.findUnique({
+    where: { id: dramaId },
+    select: { title: true },
+  });
   if (!drama) return { error: "Дорама не найдена" };
 
   // Мягкое удаление
   await prisma.drama.update({
     where: { id: dramaId },
-    data: { deletedAt: new Date() }
+    data: { deletedAt: new Date() },
   });
 
   // Логирование
@@ -147,7 +176,7 @@ export async function deleteDrama(formData: FormData) {
       entityId: dramaId,
       entityName: drama.title,
       isPublic: true,
-    }
+    },
   });
 
   revalidatePath("/admin/dramas");
@@ -155,13 +184,19 @@ export async function deleteDrama(formData: FormData) {
   revalidatePath("/library");
 }
 
-export async function fixRandomDrama(): Promise<{ dramaId?: number; error?: string }> {
+export async function fixRandomDrama(): Promise<{
+  dramaId?: number;
+  error?: string;
+}> {
   await requireModerator();
 
   const dramas = await prisma.drama.findMany({
     where: { deletedAt: null }, // ← Только активные
     select: {
-      id: true, title: true, posterUrl: true, synopsis: true,
+      id: true,
+      title: true,
+      posterUrl: true,
+      synopsis: true,
       titles: { select: { id: true } },
       _count: { select: { genres: true, credits: true } },
     },
@@ -190,19 +225,25 @@ export async function fixRandomDrama(): Promise<{ dramaId?: number; error?: stri
 
 export async function getAdminOverviewData() {
   const user = await getCurrentUser();
-  if (!user || (user.role !== "admin" && user.role !== "moderator")) return null;
+  if (!user || (user.role !== "admin" && user.role !== "moderator"))
+    return null;
 
   // 1. Статистика БД (только активные)
   const dramas = await prisma.drama.findMany({
     where: { deletedAt: null },
     select: {
-      id: true, posterUrl: true, synopsis: true, createdAt: true,
+      id: true,
+      posterUrl: true,
+      synopsis: true,
+      createdAt: true,
       titles: { select: { id: true } },
       _count: { select: { genres: true, credits: true } },
     },
   });
 
-  let dGreen = 0, dYellow = 0, dRed = 0;
+  let dGreen = 0,
+    dYellow = 0,
+    dRed = 0;
   for (const d of dramas) {
     const status = getDramaStatusLevel({
       hasPoster: !!d.posterUrl,
@@ -219,10 +260,18 @@ export async function getAdminOverviewData() {
 
   const persons = await prisma.person.findMany({
     where: { deletedAt: null },
-    select: { id: true, photoUrl: true, bio: true, createdAt: true, aliases: { select: { id: true } } },
+    select: {
+      id: true,
+      photoUrl: true,
+      bio: true,
+      createdAt: true,
+      aliases: { select: { id: true } },
+    },
   });
 
-  let pGreen = 0, pYellow = 0, pRed = 0;
+  let pGreen = 0,
+    pYellow = 0,
+    pRed = 0;
   for (const p of persons) {
     const status = getPersonStatusLevel({
       hasPhoto: !!p.photoUrl,
@@ -237,10 +286,18 @@ export async function getAdminOverviewData() {
 
   const characters = await prisma.character.findMany({
     where: { deletedAt: null },
-    select: { id: true, imageUrl: true, description: true, createdAt: true, aliases: { select: { id: true } } },
+    select: {
+      id: true,
+      imageUrl: true,
+      description: true,
+      createdAt: true,
+      aliases: { select: { id: true } },
+    },
   });
 
-  let cGreen = 0, cYellow = 0, cRed = 0;
+  let cGreen = 0,
+    cYellow = 0,
+    cRed = 0;
   for (const c of characters) {
     const status = getCharacterStatusLevel({
       hasImage: !!c.imageUrl,
@@ -262,15 +319,29 @@ export async function getAdminOverviewData() {
 
   const logs = await prisma.adminLog.findMany({
     where: { createdAt: { gte: yearAgo }, isPublic: true },
-    select: { createdAt: true, userId: true, user: { select: { name: true } }, action: true, entityName: true },
+    select: {
+      createdAt: true,
+      userId: true,
+      user: { select: { name: true } },
+      action: true,
+      entityName: true,
+    },
     orderBy: { createdAt: "asc" },
   });
 
-  const activityMap = new Map<string, {
-    count: number;
-    events: { userName: string; action: string; entityName: string; userId: number }[];
-    userIds: number[];
-  }>();
+  const activityMap = new Map<
+    string,
+    {
+      count: number;
+      events: {
+        userName: string;
+        action: string;
+        entityName: string;
+        userId: number;
+      }[];
+      userIds: number[];
+    }
+  >();
 
   for (const log of logs) {
     const dateKey = log.createdAt.toLocaleDateString("sv-SE");
@@ -287,23 +358,37 @@ export async function getAdminOverviewData() {
       existing.events.push(event);
       existing.userIds.push(log.userId);
     } else {
-      activityMap.set(dateKey, { count: 1, events: [event], userIds: [log.userId] });
+      activityMap.set(dateKey, {
+        count: 1,
+        events: [event],
+        userIds: [log.userId],
+      });
     }
   }
 
-  const heatmapActivities = Array.from(activityMap.entries()).map(([date, data]) => ({
-    date,
-    level: Math.min(Math.ceil(data.count / 2), 4),
-    episodes: data.count,
-    events: data.events, // ← Передаем массив событий вместо строки
-    userIds: data.userIds,
-  }));
+  const heatmapActivities = Array.from(activityMap.entries()).map(
+    ([date, data]) => ({
+      date,
+      level: Math.min(Math.ceil(data.count / 2), 4),
+      episodes: data.count,
+      events: data.events, // ← Передаем массив событий вместо строки
+      userIds: data.userIds,
+    }),
+  );
 
   // Ищем победу среди всех типов
   const lastVictory = await prisma.adminLog.findFirst({
-    where: { action: { in: ["DRAMA_COMPLETED", "PERSON_COMPLETED", "CHARACTER_COMPLETED"] } },
+    where: {
+      action: {
+        in: ["DRAMA_COMPLETED", "PERSON_COMPLETED", "CHARACTER_COMPLETED"],
+      },
+    },
     orderBy: { createdAt: "desc" },
-    select: { entityName: true, createdAt: true, user: { select: { name: true } } },
+    select: {
+      entityName: true,
+      createdAt: true,
+      user: { select: { name: true } },
+    },
   });
 
   const recentLogs = await prisma.adminLog.findMany({
@@ -321,19 +406,47 @@ export async function getAdminOverviewData() {
   const weekAgo = new Date();
   weekAgo.setDate(weekAgo.getDate() - 7);
 
-  const dramaGrowth = dramas.filter(d => new Date(d.createdAt) >= weekAgo).length;
-  const personGrowth = persons.filter(p => new Date(p.createdAt) >= weekAgo).length;
-  const characterGrowth = characters.filter(c => new Date(c.createdAt) >= weekAgo).length;
+  const dramaGrowth = dramas.filter(
+    (d) => new Date(d.createdAt) >= weekAgo,
+  ).length;
+  const personGrowth = persons.filter(
+    (p) => new Date(p.createdAt) >= weekAgo,
+  ).length;
+  const characterGrowth = characters.filter(
+    (c) => new Date(c.createdAt) >= weekAgo,
+  ).length;
 
   return {
     user,
     stats: {
-      dramas: { total, green: dGreen, yellow: dYellow, red: dRed, progress, weeklyGrowth: dramaGrowth },
-      persons: { total: persons.length, green: pGreen, yellow: pYellow, red: pRed, weeklyGrowth: personGrowth },
-      characters: { total: characters.length, green: cGreen, yellow: cYellow, red: cRed, weeklyGrowth: characterGrowth },
-      genres: genresCount, nominations: nominationsCount,
+      dramas: {
+        total,
+        green: dGreen,
+        yellow: dYellow,
+        red: dRed,
+        progress,
+        weeklyGrowth: dramaGrowth,
+      },
+      persons: {
+        total: persons.length,
+        green: pGreen,
+        yellow: pYellow,
+        red: pRed,
+        weeklyGrowth: personGrowth,
+      },
+      characters: {
+        total: characters.length,
+        green: cGreen,
+        yellow: cYellow,
+        red: cRed,
+        weeklyGrowth: characterGrowth,
+      },
+      genres: genresCount,
+      nominations: nominationsCount,
     },
-    heatmapActivities, lastVictory, recentLogs,
+    heatmapActivities,
+    lastVictory,
+    recentLogs,
   };
 }
 
