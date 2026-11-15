@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Plus, Film, FileText, User as UserIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { AdminSearchBar } from "@/components/AdminSearchBar";
@@ -187,9 +188,16 @@ export default async function AdminPeoplePage({
                               { label: "Биография", isFilled: !!p.bio },
                             ]}
                           />
-                          <div className="w-10 h-14 rounded-md bg-accent-soft/40 flex items-center justify-center shrink-0 overflow-hidden">
+                          <div className="relative w-10 h-14 rounded-md bg-accent-soft/40 flex items-center justify-center shrink-0 overflow-hidden">
                             {p.photoUrl ? (
-                              <img src={p.photoUrl} alt={p.name} className="w-full h-full object-cover" />
+                              <Image
+                                src={p.photoUrl}
+                                alt={p.name}
+                                fill
+                                className="object-cover"
+                                sizes="40px"
+                                quality={100}
+                              />
                             ) : (
                               <UserIcon className="w-5 h-5 text-muted" />
                             )}
