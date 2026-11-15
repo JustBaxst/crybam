@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { CURRENT_USER_ID } from "@/lib/current-user";
@@ -99,9 +100,16 @@ export default async function CharacterPage({ params }: { params: Params }) {
 
         {/* Колонка 1: Фото и Избранное */}
         <div className="lg:col-span-1 flex flex-col gap-4">
-          <div className="aspect-2/3 rounded-2xl overflow-hidden border border-border bg-accent-soft flex items-center justify-center text-6xl shadow-lg">
+          <div className="relative aspect-2/3 rounded-2xl overflow-hidden border border-border bg-accent-soft flex items-center justify-center text-6xl shadow-lg">
             {character.imageUrl ? (
-              <img src={character.imageUrl} alt={character.name} className="w-full h-full object-cover" />
+              <Image
+                src={character.imageUrl}
+                alt={character.name}
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 25vw"
+                priority // Большое фото на первом экране загружаем сразу
+              />
             ) : (
               <UserIcon className="w-16 h-16 text-muted" />
             )}
@@ -167,14 +175,21 @@ export default async function CharacterPage({ params }: { params: Params }) {
           <div className="mt-auto pt-4 border-t border-border/50 grid grid-cols-2 gap-3">
             {actor && (
               <Link href={`/people/${actor.id}`} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background hover:border-accent/50 transition-colors group">
-                {/* Увеличенное фото 2:3 */}
-                <div className="w-20 h-28 rounded-lg overflow-hidden bg-accent-soft/50 flex items-center justify-center shrink-0">
+                <div className="relative w-20 h-28 rounded-lg overflow-hidden bg-accent-soft/50 flex items-center justify-center shrink-0">
                   {actor.photoUrl ? (
-                    <img src={actor.photoUrl} className="w-full h-full object-cover" />
+                    <Image
+                      src={actor.photoUrl}
+                      alt={actor.name}
+                      fill
+                      className="object-cover"
+                      sizes="80px"
+                      quality={100}
+                    />
                   ) : (
                     <UserIcon className="w-6 h-6 text-muted" />
                   )}
                 </div>
+
                 <div className="min-w-0 flex-1">
                   <p className="text-[10px] text-muted uppercase tracking-wider mb-1">Играет актер</p>
                   <p className="text-sm font-semibold truncate group-hover:text-accent transition-colors">{actor.name}</p>
@@ -184,9 +199,16 @@ export default async function CharacterPage({ params }: { params: Params }) {
 
             <Link href={`/dramas/${character.drama.id}`} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background hover:border-accent/50 transition-colors group">
               {/* Увеличенный постер 2:3 с реальной картинкой */}
-              <div className="w-20 h-28 rounded-lg overflow-hidden bg-accent-soft/50 flex items-center justify-center shrink-0">
+              <div className="relative w-20 h-28 rounded-lg overflow-hidden bg-accent-soft/50 flex items-center justify-center shrink-0">
                 {character.drama.posterUrl ? (
-                  <img src={character.drama.posterUrl} className="w-full h-full object-cover" />
+                  <Image
+                    src={character.drama.posterUrl}
+                    alt={character.name}
+                    fill
+                    className="object-cover"
+                    sizes="80px"
+                    quality={100}
+                  />
                 ) : (
                   <Film className="w-6 h-6 text-muted" />
                 )}
