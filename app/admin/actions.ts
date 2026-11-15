@@ -182,7 +182,7 @@ export async function fixRandomDrama(): Promise<{ dramaId?: number; error?: stri
   });
 
   const incomplete = dramasWithStatus.filter((d) => d.status !== "green");
-  if (incomplete.length === 0) return { error: "Все драмы уже 🟢 Готово!" };
+  if (incomplete.length === 0) return { error: "Все драмы уже готовы!" };
 
   const random = incomplete[Math.floor(Math.random() * incomplete.length)];
   return { dramaId: random.id };

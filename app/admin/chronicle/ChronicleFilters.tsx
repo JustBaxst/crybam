@@ -32,10 +32,10 @@ export function ChronicleFilters({ users }: { users: UserOption[] }) {
                 className={inputCls}
             >
                 <option value="all">Все действия</option>
-                <option value="DRAMA_COMPLETED">✨ Завершение карточек</option>
-                <option value="DRAMA_CREATED">🎬 Добавление дорам</option>
-                <option value="PERSON_CREATED">👤 Добавление актеров</option>
-                <option value="CHARACTER_CREATED">🎭 Добавление персонажей</option>
+                <option value="DRAMA_COMPLETED">Завершение карточек</option>
+                <option value="DRAMA_CREATED">Добавление дорам</option>
+                <option value="PERSON_CREATED">Добавление актеров</option>
+                <option value="CHARACTER_CREATED">Добавление персонажей</option>
             </select>
 
             <select

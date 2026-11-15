@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { X, Save } from "lucide-react";
+import { X, Save, Sparkles } from "lucide-react";
 import { updateGenres } from "./actions";
 import { toast } from "sonner";
 
@@ -40,7 +40,9 @@ export function GenresEditor({
         setError(result.error);
       } else {
         if (result.isJustCompleted) {
-          toast.success(`✨ Глава завершена!`); // можно передать название из пропсов, если есть
+          toast.success(`Глава завершена!`, {
+            icon: <Sparkles className="w-4 h-4" />,
+          }); // можно передать название из пропсов, если есть
         }
         onClose();
       }

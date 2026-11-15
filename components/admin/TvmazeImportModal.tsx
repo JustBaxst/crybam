@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { X, Search, Star, Calendar, MapPin } from "lucide-react";
+import { X, Search, Star, Calendar, MapPin, Tv, Film } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // Обновленные фейковые данные (совпадают с полями формы)
@@ -77,7 +77,7 @@ export function TvmazeImportModal({
                 <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
                     <div>
                         <h2 className="text-lg font-semibold flex items-center gap-2">
-                            <span className="text-accent">📺</span> Импорт из TVmaze
+                            <Tv className="w-5 h-5 text-accent" /> Импорт из TVmaze
                         </h2>
                         <p className="text-xs text-muted mt-0.5">
                             Найдите дораму, чтобы автоматически заполнить данные
@@ -139,7 +139,9 @@ export function TvmazeImportModal({
                                         {item.posterUrl ? (
                                             <Image src={item.posterUrl} alt={item.title} width={64} height={96} className="w-full h-full object-cover" />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-2xl">🎬</div>
+                                            <div className="w-full h-full flex items-center justify-center">
+                                                <Film className="w-6 h-6 text-muted" />
+                                            </div>
                                         )}
                                     </div>
 

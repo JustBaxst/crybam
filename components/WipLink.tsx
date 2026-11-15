@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 export function WipLink({
   children,
-  message = "Этот раздел ещё в разработке 🚧"
+  message = "Этот раздел ещё в разработке"
 }: {
   children: React.ReactNode;
   message?: string;

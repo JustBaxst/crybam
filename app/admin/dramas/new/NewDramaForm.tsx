@@ -192,9 +192,9 @@ export function NewDramaForm() {
               <label className={labelCls}>Метка плача (до отзывов)</label>
               <select name="curatorCryTag" defaultValue="" className={inputCls}>
                 <option value="">— не указана —</option>
-                <option value="safe">❤️ Безопасно</option>
-                <option value="bittersweet">❤️‍🩹 Слёзы счастья</option>
-                <option value="sad">💔 Рыдай</option>
+                <option value="safe">Безопасно</option>
+                <option value="bittersweet">Слёзы счастья</option>
+                <option value="sad">Рыдай</option>
               </select>
             </div>
           </div>

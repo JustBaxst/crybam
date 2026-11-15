@@ -13,6 +13,7 @@ import {
   Network,
   Settings,
   LogOut,
+  Rocket,
 } from "lucide-react";
 import { MenuLink } from "@/components/MenuLink";
 import { toast } from "sonner"; // ← Добавили импорт тостов
@@ -90,7 +91,9 @@ export function UserMenu({ user }: UserMenuProps) {
           <div className="border-t border-border">
             <button
               onClick={() => {
-                toast.info("Авторизация появится в следующем обновлении 🚀");
+                toast.info("Авторизация появится в следующем обновлении", {
+                  icon: <Rocket className="w-4 h-4" />,
+                });
                 setOpen(false);
               }}
               className="w-full text-left flex items-center gap-3 px-4 py-3 text-sm text-muted hover:text-red-400 hover:bg-red-400/5 transition-colors"

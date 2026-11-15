@@ -15,6 +15,7 @@ import {
   Star,
   MapPin,
   Cake,
+  Film,
 } from "lucide-react";
 import { YearHeatmap } from "@/components/YearHeatmap";
 import { LibraryBar } from "@/components/LibraryBar";
@@ -105,8 +106,8 @@ export default async function HomePage() {
     <div className="max-w-6xl mx-auto px-6 py-10 space-y-12">
       {/* ─── Приветствие ─── */}
       <section className="flex items-center gap-5">
-        <div className="w-20 h-20 rounded-full bg-accent-soft flex items-center justify-center text-3xl shrink-0">
-          🎬
+        <div className="w-20 h-20 rounded-full bg-accent-soft flex items-center justify-center shrink-0">
+          <Film className="w-8 h-8 text-accent" />
         </div>
         <div>
           <h1 className="text-2xl font-bold">Привет, {user?.name || "Артём"}</h1>
@@ -337,7 +338,7 @@ function ReviewPreview({
             className="w-full h-full object-cover"
           />
         ) : (
-          <span className="text-muted">🎬</span>
+          <Film className="w-6 h-6 text-muted" />
         )}
       </div>
 

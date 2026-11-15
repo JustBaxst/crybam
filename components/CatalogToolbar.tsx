@@ -6,7 +6,7 @@ import {
     DropdownMenuItem, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ArrowUpDown, Filter, Check } from "lucide-react";
+import { ChevronDown, ArrowUpDown, Filter, Check, Shuffle, Dices, } from "lucide-react";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 
 type Option = { id?: number; name: string };
@@ -191,7 +191,7 @@ export function CatalogToolbar({ allGenres, allMoods, allThemes, allCountries }:
                         <DropdownMenuSeparator />
 
                         <DropdownMenuItem onClick={() => setParam("sort", "random")} className="cursor-pointer flex justify-between text-accent">
-                            🎲 Случайно {currentSort === "random" && <Check className="w-4 h-4 text-accent shrink-0" />}
+                            <Dices className="w-4 h-4 shrink-0" /> Случайно {currentSort === "random" && <Check className="w-4 h-4 text-accent shrink-0" />}
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

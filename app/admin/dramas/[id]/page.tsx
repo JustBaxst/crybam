@@ -14,6 +14,7 @@ import {
   Music,
   Smile, // <-- Иконка для настроений
   Hash,  // <-- Иконка для тем
+  User,  // <-- Иконка для заглушки актёра
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { EditDramaButton } from "../../../dramas/[id]/EditDramaButton";
@@ -379,8 +380,8 @@ export default async function AdminDramaEditPage({
                 key={a.id}
                 className={`flex items-start gap-3 rounded-xl border border-border bg-background p-3 border-l-4 ${importanceBorderColor(a.importance)}`}
               >
-                <div className="w-10 h-10 rounded-full bg-accent-soft/50 flex items-center justify-center text-lg shrink-0">
-                  👤
+                <div className="w-10 h-14 rounded-lg bg-accent-soft/50 flex items-center justify-center shrink-0 overflow-hidden">
+                  <User className="w-5 h-5 text-muted" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">

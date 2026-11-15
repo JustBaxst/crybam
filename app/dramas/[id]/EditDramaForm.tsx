@@ -9,7 +9,8 @@ import {
   Star,
   Image,
   Sliders,
-  Hash, // <-- Добавили иконку для тем
+  Hash,
+  Sparkles, // <-- Добавили иконку для тем
 } from "lucide-react";
 import { updateDrama } from "./actions";
 import { FormSection } from "@/components/FormSection";
@@ -63,7 +64,9 @@ export function EditDramaForm({
         setError(result.error);
       } else {
         if (result.isJustCompleted) {
-          toast.success(`✨ Глава завершена: ${drama.title}`);
+          toast.success(`Глава завершена: ${drama.title}`, {
+            icon: <Sparkles className="w-4 h-4" />,
+          });
         }
         onClose();
       }
@@ -211,9 +214,9 @@ export function EditDramaForm({
                   <label className={labelCls}>Метка плача (до отзывов)</label>
                   <select name="curatorCryTag" defaultValue={drama.curatorCryTag || ""} className={inputCls}>
                     <option value="">— не указана —</option>
-                    <option value="safe">❤️ Безопасно</option>
-                    <option value="bittersweet">❤️‍🩹 Слёзы счастья</option>
-                    <option value="sad">💔 Рыдай</option>
+                    <option value="safe">Безопасно</option>
+                    <option value="bittersweet">Слёзы счастья</option>
+                    <option value="sad">Рыдай</option>
                   </select>
                 </div>
               </div>
