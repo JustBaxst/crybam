@@ -153,28 +153,20 @@ export default async function FavoriteActorsPage() {
                     </h2>
                     <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
                         {globalTopActors.map((actor, idx) => (
-                            <Link
-                                key={actor.id}
-                                href={`/people/${actor.id}`}
-                                className="group relative w-40 shrink-0 rounded-xl border border-border bg-surface overflow-hidden hover:border-accent/50 transition-colors"
-                            >
-                                <div className="aspect-2/3 bg-accent-soft relative overflow-hidden">
-                                    {actor.photoUrl ? (
-                                        <img src={actor.photoUrl} alt={actor.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-4xl text-muted">👤</div>
-                                    )}
-                                    <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-xs font-bold text-white border border-white/20">
-                                        {idx + 1}
-                                    </div>
-                                </div>
-                                <div className="p-2 text-center">
-                                    <p className="text-sm font-semibold truncate">{actor.name}</p>
-                                    <p className="text-[10px] text-muted flex items-center justify-center gap-1 mt-0.5">
-                                        <Heart className="w-3 h-3 text-red-400 fill-current" /> {actor._count.favoriteBy} в избранном
-                                    </p>
-                                </div>
-                            </Link>
+                            <div key={actor.id} className="w-40 shrink-0">
+                                <PeopleCard
+                                    person={actor as any}
+                                    isFavorite={false}
+                                    hideHover={true}
+                                    showFavoritePills={false}
+                                    rank={idx + 1}
+                                    footerText={
+                                        <p className="flex items-center justify-center gap-1 text-[10px]">
+                                            <Heart className="w-3 h-3 text-red-400 fill-current" /> {actor._count.favoriteBy} в избранном
+                                        </p>
+                                    }
+                                />
+                            </div>
                         ))}
                     </div>
                 </section>
@@ -189,28 +181,20 @@ export default async function FavoriteActorsPage() {
                     </h2>
                     <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
                         {topByRoles.map((actor, idx) => (
-                            <Link
-                                key={actor.id}
-                                href={`/people/${actor.id}`}
-                                className="group relative w-40 shrink-0 rounded-xl border border-border bg-surface overflow-hidden hover:border-accent/50 transition-colors"
-                            >
-                                <div className="aspect-2/3 bg-accent-soft relative overflow-hidden">
-                                    {actor.photoUrl ? (
-                                        <img src={actor.photoUrl} alt={actor.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-4xl text-muted">👤</div>
-                                    )}
-                                    <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-xs font-bold text-white border border-white/20">
-                                        {idx + 1}
-                                    </div>
-                                </div>
-                                <div className="p-2 text-center">
-                                    <p className="text-sm font-semibold truncate">{actor.name}</p>
-                                    <p className="text-[10px] text-muted flex items-center justify-center gap-1 mt-0.5">
-                                        <Film className="w-3 h-3 text-accent" /> {actor._count.credits} ролей
-                                    </p>
-                                </div>
-                            </Link>
+                            <div key={actor.id} className="w-40 shrink-0">
+                                <PeopleCard
+                                    person={actor as any}
+                                    isFavorite={false}
+                                    hideHover={true}
+                                    showFavoritePills={false}
+                                    rank={idx + 1}
+                                    footerText={
+                                        <p className="flex items-center justify-center gap-1 text-[10px]">
+                                            <Film className="w-3 h-3 text-accent" /> {actor._count.credits} ролей
+                                        </p>
+                                    }
+                                />
+                            </div>
                         ))}
                     </div>
                 </section>

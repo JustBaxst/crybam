@@ -18,17 +18,23 @@ export function PeopleCard({
     isFavorite,
     hideHover = false,
     note = null,
-    showFavoritePills = true
+    showFavoritePills = true,
+    rank,
+    footerText,
+    className = ""
 }: {
     person: PersonWithData;
     isFavorite: boolean;
     hideHover?: boolean;
     note?: string | null;
     showFavoritePills?: boolean;
+    rank?: number;
+    footerText?: React.ReactNode;
+    className?: string;
 }) {
 
     return (
-        <div className="group relative flex flex-col rounded-xl border border-border bg-surface transition-colors hover:border-accent/50">
+        <div className={`group relative flex flex-col rounded-xl border border-border bg-surface transition-colors hover:border-accent/50 ${className}`}>
 
             {/* ─── ПОСТЕР И HOVER-ОВЕРЛЕЙ ─── */}
             <div className="relative aspect-2/3 bg-accent-soft overflow-hidden rounded-t-xl">
@@ -40,25 +46,31 @@ export function PeopleCard({
                 {/* Верхние пилюли */}
                 {showFavoritePills && (
                     <div className="absolute top-2 left-2 right-2 flex justify-between items-start z-20 pointer-events-none">
-                        {/* Левая: Количество избранных */}
                         <div className="inline-flex items-center gap-1.5 h-6 px-2 rounded-full border border-white/20 bg-black/60 backdrop-blur-md text-xs font-semibold shadow-sm text-white">
                             <Heart className={`w-3.5 h-3.5 ${person._count.favoriteBy > 0 ? "fill-red-400 text-red-400" : ""}`} />
                             <span>{person._count.favoriteBy}</span>
                         </div>
 
-                        {note && (
-                            <div className="absolute bottom-2 left-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] p-1.5 rounded border border-white/20 line-clamp-2 z-20">
-                                {note}
-                            </div>
-                        )}
-
-                        {/* Правая: Статус избранного */}
                         {isFavorite && (
                             <div className="inline-flex items-center gap-1.5 h-6 px-2 rounded-full border border-yellow-400/30 bg-black/60 backdrop-blur-md text-xs font-semibold shadow-sm text-yellow-400">
                                 <Crown className="w-3.5 h-3.5" />
                                 <span>В избранном</span>
                             </div>
                         )}
+                    </div>
+                )}
+
+                {/* Бейдж места (для топов) */}
+                {rank && (
+                    <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-xs font-bold text-white border border-white/20 z-20 pointer-events-none">
+                        {rank}
+                    </div>
+                )}
+
+                {/* Заметка (не зависит от пилюль) */}
+                {note && (
+                    <div className="absolute bottom-2 left-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] p-1.5 rounded border border-white/20 line-clamp-2 z-20 pointer-events-none">
+                        {note}
                     </div>
                 )}
 
@@ -95,9 +107,13 @@ export function PeopleCard({
                     </h3>
                 </Link>
 
-                <p className="text-xs text-muted mt-1.5 flex items-center gap-1">
-                    <Film className="w-3 h-3" /> {person._count.credits} ролей
-                </p>
+                {footerText ? (
+                    <div className="text-xs text-muted mt-1.5">{footerText}</div>
+                ) : (
+                    <p className="text-xs text-muted mt-1.5 flex items-center gap-1">
+                        <Film className="w-3 h-3" /> {person._count.credits} ролей
+                    </p>
+                )}
             </div>
         </div>
     );
