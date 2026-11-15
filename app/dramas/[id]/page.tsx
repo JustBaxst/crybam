@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import {
   Star, Calendar, MapPin, Film, Clock, PlayCircle, Eye,
@@ -185,11 +186,18 @@ export default async function DramaPage({
 
         {/* Колонка 1: Постер и Статус */}
         <div className="lg:col-span-1 flex flex-col gap-4">
-          <div className="aspect-2/3 rounded-2xl overflow-hidden border border-border bg-accent-soft flex items-center justify-center text-6xl shadow-lg">
+          <div className="relative aspect-2/3 rounded-2xl overflow-hidden border border-border bg-accent-soft flex items-center justify-center text-6xl shadow-lg">
             {drama.posterUrl ? (
-              <img src={drama.posterUrl} alt={mainTitle} className="w-full h-full object-cover" />
+              <Image
+                src={drama.posterUrl}
+                alt={mainTitle}
+                fill
+                priority
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 25vw"
+              />
             ) : (
-              <span className="text-muted">🎬</span>
+              <Film className="w-12 h-12 text-muted" />
             )}
           </div>
           <StatusDropdown dramaId={drama.id} entry={entry} episodes={drama.episodes} />
@@ -483,9 +491,16 @@ export default async function DramaPage({
                     {leadActors.map((a) => (
                       <div key={a.id} className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 border-l-yellow-400/70">
                         <Link href={`/people/${a.person.id}`} className="shrink-0">
-                          <div className="w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden">
+                          <div className="relative w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden">
                             {a.person.photoUrl ? (
-                              <img src={a.person.photoUrl} className="w-full h-full object-cover" style={{ imageRendering: "auto" }} />
+                              <Image
+                                src={a.person.photoUrl}
+                                alt={a.person.name}
+                                fill
+                                className="object-cover"
+                                sizes="56px"
+                                quality={100}
+                              />
                             ) : (
                               <User className="w-6 h-6 text-muted" />
                             )}
@@ -518,9 +533,16 @@ export default async function DramaPage({
                     {supportActors.map((a) => (
                       <div key={a.id} className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 border-l-accent/50">
                         <Link href={`/people/${a.person.id}`} className="shrink-0">
-                          <div className="w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden">
+                          <div className="relative w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden">
                             {a.person.photoUrl ? (
-                              <img src={a.person.photoUrl} className="w-full h-full object-cover" style={{ imageRendering: "auto" }} />
+                              <Image
+                                src={a.person.photoUrl}
+                                alt={a.person.name}
+                                fill
+                                className="object-cover"
+                                sizes="56px"
+                                quality={100}
+                              />
                             ) : (
                               <User className="w-6 h-6 text-muted" />
                             )}
@@ -553,9 +575,16 @@ export default async function DramaPage({
                     {guestActors.map((a) => (
                       <div key={a.id} className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 border-l-border">
                         <Link href={`/people/${a.person.id}`} className="shrink-0">
-                          <div className="w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden">
+                          <div className="relative w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden">
                             {a.person.photoUrl ? (
-                              <img src={a.person.photoUrl} className="w-full h-full object-cover" style={{ imageRendering: "auto" }} />
+                              <Image
+                                src={a.person.photoUrl}
+                                alt={a.person.name}
+                                fill
+                                className="object-cover"
+                                sizes="56px"
+                                quality={100}
+                              />
                             ) : (
                               <User className="w-6 h-6 text-muted" />
                             )}
@@ -591,9 +620,16 @@ export default async function DramaPage({
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {people.map((c) => (
                             <div key={c.id} className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 border-l-blue-400/50">
-                              <div className="w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden shrink-0">
+                              <div className="relative w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden">
                                 {c.person.photoUrl ? (
-                                  <img src={c.person.photoUrl} className="w-full h-full object-cover" style={{ imageRendering: "auto" }} />
+                                  <Image
+                                    src={c.person.photoUrl}
+                                    alt={c.person.name}
+                                    fill
+                                    className="object-cover"
+                                    sizes="56px"
+                                    quality={100}
+                                  />
                                 ) : (
                                   <Clapperboard className="w-6 h-6 text-muted" />
                                 )}
