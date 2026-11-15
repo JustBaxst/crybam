@@ -143,10 +143,25 @@ client: no
 ## components/people/
 
 ### PeopleCard.tsx
-Карточка актера в каталоге и избранном. Поддерживает два режима.
-export PeopleCard: (props: { person: PersonWithData; isFavorite: boolean; hideHover?: boolean; note?: string | null; showFavoritePills?: boolean }) => JSX.Element
+Карточка актера. Поддерживает три режима: каталог, избранное, топы.
+export PeopleCard: (props: {
+  person: PersonWithData;
+  isFavorite: boolean;
+  hideHover?: boolean;
+  note?: string | null;
+  showFavoritePills?: boolean;
+  rank?: number;
+  footerText?: React.ReactNode;
+  className?: string;
+}) => JSX.Element
 client: yes
-Режимы: `hideHover` — без оверлея, `note` — показать заметку, `showFavoritePills` — скрыть пилюли.
+Режимы:
+- `hideHover` — без оверлея (для избранного и топов).
+- `note` — показать заметку поверх постера.
+- `showFavoritePills` — скрыть пилюли «В избранном» и счётчик.
+- `rank` — бейдж с номером места (для топов).
+- `footerText` — кастомная подпись под именем (вместо «X ролей»).
+- `className` — дополнительные классы (например, `w-40` для топов).
 
 ### FavoriteActorButton.tsx
 Кнопка "В избранное" (с оптимистичным обновлением и тостами).
