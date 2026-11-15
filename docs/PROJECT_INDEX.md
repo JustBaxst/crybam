@@ -216,6 +216,11 @@ client: no
 export PosterImage: (props: { posterUrl: string | null; title: string; year?: number; className?: string }) => JSX.Element
 client: yes
 
+### EditDramaForm.tsx
+Форма редактирования дорамы (модалка). Клиентский компонент.
+Путь: `app/dramas/[id]/EditDramaForm.tsx`
+Особенности: использует `useLockBodyScroll`, `FormSection`. Вызывает экшен `updateDrama`.
+
 ### FormSection.tsx
 Обертка для секций формы (иконка + заголовок + контент).
 export FormSection: (props: { Icon, title, description, children }) => JSX.Element
@@ -236,6 +241,11 @@ client: no
 
 ### AdminBreadcrumbs.tsx, AdminSearchBar.tsx, ChronicleFeed.tsx, CommandPalette.tsx, HorizontalScroll.tsx, LibraryBar.tsx, MenuLink.tsx, SmartLink.tsx, WipLink.tsx, DramaGrid.tsx, ComingSoon.tsx, CryBadge.tsx
 Вспомогательные компоненты.
+
+### admin/dramas/page.tsx
+Страница списка дорам в админке (таблица).
+Путь: `app/admin/dramas/page.tsx`
+Особенности: выводит рейтинг (приоритет Crybam -> Кинопоиск -> IMDb, заглушка с пустой звездой). Использует `StatusDot`, `AliasBadge`, `MetricsIcons`.
 
 ## lib/
 ### pluralize.ts
@@ -321,6 +331,11 @@ export EntryData: type
 Управление дневником и данными дорамы.
 Экшены: updateEntry, updateDrama, updateGenres, addCredit, removeCredit, updateCredit, quickSetStatus, updateTitles, addSoundtrack, removeSoundtrack, incrementProgress, removeEntry, rateDrama (с пересчетом ratingCrybam), saveCryTag, updateMoods, updateThemes.
 Особенности: логирование в AdminLog, проверка oldStatus -> newStatus (зеленение), revalidatePath.
+Дополнение к `app/dramas/[id]/actions.ts`:
+- `updateDrama` — обновляет основные поля, пересоздает связи (платформы, студии, темы), проверяет статус на "позеленение", логирует в `AdminLog`.
+- `updateEntry` — обновляет/создает запись дневника (статус, оценки, отзывы).
+- `rateDrama` — ставит оценку и пересчитывает средний `ratingCrybam` и `crybamVotes`.
+- `saveCryTag` — сохраняет эмоцию.
 
 ### app/admin/actions.ts
 CRUD дорам, аналитика.
