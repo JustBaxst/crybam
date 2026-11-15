@@ -20,6 +20,20 @@
 5. **Защита от дублей.** Всегда проверяем не только основное имя, но и альтернативные (см. `createPerson` и `createDrama`).
 6. **Все мутации логируются в `AdminLog`.** После каждого `create/update/delete` пишем лог с `action`, `entityType`, `entityId`, `entityName`. Флаг `isPublic` ставим `true` только для значимых событий (создание, удаление, завершение).
 
+## 🖼️ Правила работы с изображениями
+1. **Всегда `next/image`.** Обычный `<img>` запрещён — только `<Image>` из `next/image`.
+2. **Внешние домены — только из белого списка.** Все `remotePatterns` живут в `next.config.ts`. Если нужен новый источник картинок — сначала добавь домен в конфиг, потом используй.
+3. **Текущий белый список:**
+   - `i.mydramalist.com`, `s.mydramalist.com` — MyDramaList.
+   - `kinopoiskapiunofficial.tech`, `st.kp.yandex.net`, `avatars.mds.yandex.net` — Кинопоиск.
+   - `raw.githubusercontent.com` — статика из репозитория (маскот).
+   - `i.ytimg.com`, `i.scdn.co` — обложки YouTube / Spotify.
+   - `static.tvmaze.com` — импорт TVmaze.
+   - `i1.sndcdn.com`, `**.sndcdn.com`, `vk-cdn.net`, `**.vk-cdn.net`, `mycdn.me`, `avatars.yandex.net` — обложки аудио (SoundCloud, VK, Яндекс Музыка).
+4. **Обязательные пропсы:** `alt` (для доступности) и `width/height` **или** `fill` + обёртка `relative`.
+5. **Iframe не требует `remotePatterns`.** SoundCloud, VK, Yandex, YouTube-плееры вставляются обычным `<iframe>` — настройка `images` на них не влияет.
+6. **Не отключай оптимизацию** (`unoptimized={true}`) без причины — это ломает смысл `next/image`.
+
 ## 🎨 UI-правила
 1. **Только семантические токены** (`bg-surface`, `text-accent`, `border-border`). Никаких `bg-zinc-800`!
 2. **Используй `components/ui/`.** Не пиши кастомные кнопки, меню или инпуты (см. `Button`, `DropdownMenu`, `SearchableSelect`).

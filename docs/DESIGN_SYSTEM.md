@@ -19,6 +19,7 @@
 - **Скругления:** `rounded-lg`, `rounded-xl` или `rounded-2xl`. ❌ Круглые аватарки (`rounded-full`) запрещены.
 - **Объект:** `object-cover`, чтобы не искажать пропорции.
 - **Заглушка:** Если картинки нет, показываем иконку из `lucide-react` (например, `<User />` или `<Film />`) и/или название. ❌ Эмодзи (🎬, 👤) запрещены.
+- **Источники картинок:** только из белого списка `next.config.ts` (см. `PROJECT_RULES.md`). Новый домен — сначала в конфиг, потом в код.
 
 ## 🏷️ Паттерн: Пилюли (Badges/Tags)
 - Жанры: `bg-accent/10 text-accent border border-accent/20 rounded-full px-2 py-0.5 text-[10px]`.
