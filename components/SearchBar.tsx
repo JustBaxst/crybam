@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Search, Star, Loader2, Film, User, UserCircle, X } from "lucide-react";
 import { useLockBodyScroll } from "@/lib/use-lock-body-scroll";
 
@@ -191,8 +192,12 @@ export function SearchBar() {
                           onClick={() => goTo(`/dramas/${r.id}`)}
                           className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-left ${i === activeIndex ? "bg-accent/10" : "hover:bg-foreground/5"}`}
                         >
-                          <div className="w-10 h-14 rounded-md bg-accent-soft/40 flex items-center justify-center text-xl shrink-0 overflow-hidden">
-                            {r.posterUrl ? <img src={r.posterUrl} alt={r.title} className="w-full h-full object-cover" /> : <span className="text-muted">🎬</span>}
+                          <div className="relative w-10 h-14 rounded-md bg-accent-soft/40 flex items-center justify-center shrink-0 overflow-hidden">
+                            {r.posterUrl ? (
+                              <Image src={r.posterUrl} alt={r.title} fill className="object-cover" sizes="40px" quality={100} />
+                            ) : (
+                              <Film className="w-4 h-4 text-muted" />
+                            )}
                           </div>
                           <div className="min-w-0 flex-1">
                             <p className="text-sm font-medium truncate">{r.title}</p>
@@ -225,9 +230,9 @@ export function SearchBar() {
                             onClick={() => goTo(`/people/${r.id}`)}
                             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-left ${globalIdx === activeIndex ? "bg-accent/10" : "hover:bg-foreground/5"}`}
                           >
-                            <div className="w-10 h-14 rounded-md bg-accent-soft/40 flex items-center justify-center shrink-0 overflow-hidden">
+                            <div className="relative w-10 h-14 rounded-md bg-accent-soft/40 flex items-center justify-center shrink-0 overflow-hidden">
                               {r.photoUrl ? (
-                                <img src={r.photoUrl} alt={r.name} className="w-full h-full object-cover" />
+                                <Image src={r.photoUrl} alt={r.name} fill className="object-cover" sizes="40px" quality={100} />
                               ) : (
                                 <UserCircle className="w-5 h-5 text-muted" />
                               )}
@@ -257,9 +262,9 @@ export function SearchBar() {
                             onClick={() => goTo(`/characters/${r.id}`)}
                             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-left ${globalIdx === activeIndex ? "bg-accent/10" : "hover:bg-foreground/5"}`}
                           >
-                            <div className="w-10 h-14 rounded-md bg-accent-soft/40 flex items-center justify-center shrink-0 overflow-hidden">
-                              {r.imageUrl ? ( // ← Здесь imageUrl
-                                <img src={r.imageUrl} alt={r.name} className="w-full h-full object-cover" />
+                            <div className="relative w-10 h-14 rounded-md bg-accent-soft/40 flex items-center justify-center shrink-0 overflow-hidden">
+                              {r.imageUrl ? (
+                                <Image src={r.imageUrl} alt={r.name} fill className="object-cover" sizes="40px" quality={100} />
                               ) : (
                                 <UserCircle className="w-5 h-5 text-muted" />
                               )}
