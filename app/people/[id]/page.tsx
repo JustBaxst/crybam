@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import {
   ChevronRight, Calendar, Briefcase, Film, User as UserIcon, MapPin,
@@ -89,9 +90,16 @@ export default async function PersonPage({ params }: { params: Params }) {
 
         {/* Колонка 1: Фото */}
         <div className="lg:col-span-1 flex flex-col gap-4">
-          <div className="aspect-2/3 rounded-2xl overflow-hidden border border-border bg-accent-soft flex items-center justify-center text-6xl shadow-lg">
+          <div className="relative aspect-2/3 rounded-2xl overflow-hidden border border-border bg-accent-soft flex items-center justify-center text-6xl shadow-lg">
             {person.photoUrl ? (
-              <img src={person.photoUrl} alt={person.name} className="w-full h-full object-cover" />
+              <Image
+                src={person.photoUrl}
+                alt={person.name}
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 25vw"
+                priority
+              />
             ) : (
               <UserIcon className="w-16 h-16 text-muted" />
             )}
@@ -271,7 +279,14 @@ export default async function PersonPage({ params }: { params: Params }) {
                   {/* Постер */}
                   <Link href={`/dramas/${c.drama.id}`} className="w-16 h-24 rounded-lg overflow-hidden bg-accent-soft/40 flex items-center justify-center shrink-0 relative z-10">
                     {c.drama.posterUrl ? (
-                      <img src={c.drama.posterUrl} alt={c.drama.title} className="w-full h-full object-cover" />
+                      <Image
+                        src={c.drama.posterUrl}
+                        alt={c.drama.title}
+                        fill
+                        className="object-cover"
+                        sizes="64px"
+                        quality={100}
+                      />
                     ) : (
                       <Film className="w-6 h-6 text-muted" />
                     )}
