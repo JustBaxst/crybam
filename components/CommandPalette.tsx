@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Command } from "cmdk";
 import { Search, Film, User, UserCircle, Loader2 } from "lucide-react";
 
@@ -152,9 +153,16 @@ export function CommandPalette() {
                     onSelect={() => handleSelect(`/admin/characters/${c.id}`)}
                     className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-foreground cursor-pointer aria-selected:bg-accent/10 aria-selected:text-accent"
                   >
-                    <div className="w-8 h-10 rounded bg-accent-soft/40 flex items-center justify-center shrink-0 overflow-hidden">
+                    <div className="relative w-8 h-10 rounded bg-accent-soft/40 flex items-center justify-center shrink-0 overflow-hidden">
                       {c.imageUrl ? (
-                        <img src={c.imageUrl} alt={c.name} className="w-full h-full object-cover" />
+                        <Image
+                          src={c.imageUrl}
+                          alt={c.name}
+                          fill
+                          className="object-cover"
+                          sizes="32px"
+                          quality={100}
+                        />
                       ) : (
                         <UserCircle className="w-4 h-4 text-muted" />
                       )}
