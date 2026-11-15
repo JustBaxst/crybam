@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Plus, UserCircle, FileText } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { AdminSearchBar } from "@/components/AdminSearchBar";
@@ -172,9 +173,16 @@ export default async function AdminCharactersPage({
                             { label: "Описание", isFilled: !!c.description },
                           ]}
                         />
-                        <div className="w-10 h-14 rounded-md bg-accent-soft/40 flex items-center justify-center shrink-0 overflow-hidden">
+                        <div className="relative w-10 h-14 rounded-md bg-accent-soft/40 flex items-center justify-center shrink-0 overflow-hidden">
                           {c.imageUrl ? (
-                            <img src={c.imageUrl} alt={c.name} className="w-full h-full object-cover" />
+                            <Image
+                              src={c.imageUrl}
+                              alt={c.name}
+                              fill
+                              className="object-cover"
+                              sizes="40px"
+                              quality={100}
+                            />
                           ) : (
                             <UserCircle className="w-5 h-5 text-muted" />
                           )}
