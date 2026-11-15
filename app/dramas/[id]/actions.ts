@@ -121,7 +121,6 @@ export async function updateDrama(formData: FormData) {
         ratingKinopoisk: float("ratingKinopoisk"),
         ratingMDL: float("ratingMDL"),
         ratingIMDB: float("ratingIMDB"),
-        ratingDouban: float("ratingDouban"),
         dubbingStudios: str("dubbingStudios"),
         airStatus: str("airStatus") || "released",
         curatorCryTag: str("curatorCryTag"),
