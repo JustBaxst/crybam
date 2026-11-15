@@ -211,12 +211,29 @@ export default async function AdminDramasPage({
                         </div>
                         <div className="min-w-0">
                           <p className="text-sm font-semibold truncate">{d.title}</p>
-                          {(d.ratingKinopoisk || d.ratingIMDB) && (
-                            <p className="text-xs text-muted flex items-center gap-1 mt-0.5">
-                              <Star className="w-3 h-3 fill-current text-yellow-400" />
-                              {d.ratingKinopoisk ?? d.ratingIMDB}
-                            </p>
-                          )}
+                          <div className="text-xs text-muted flex items-center gap-1 mt-0.5">
+                            {d.ratingCrybam != null && d.ratingCrybam > 0 ? (
+                              <>
+                                <Star className="w-3 h-3 fill-current text-accent" />
+                                <span className="text-accent font-semibold">{d.ratingCrybam.toFixed(1)}</span>
+                              </>
+                            ) : d.ratingKinopoisk != null && d.ratingKinopoisk > 0 ? (
+                              <>
+                                <Star className="w-3 h-3 fill-current text-yellow-400" />
+                                <span>{d.ratingKinopoisk}</span>
+                              </>
+                            ) : d.ratingIMDB != null && d.ratingIMDB > 0 ? (
+                              <>
+                                <Star className="w-3 h-3 fill-current text-yellow-400" />
+                                <span>{d.ratingIMDB}</span>
+                              </>
+                            ) : (
+                              <>
+                                <Star className="w-3 h-3 text-muted/30" />
+                                <span className="text-muted/50">—</span>
+                              </>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </td>
