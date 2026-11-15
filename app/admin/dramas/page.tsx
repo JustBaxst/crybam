@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Plus, Star } from "lucide-react";
+import Image from "next/image";
+import { Plus, Star, Film } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { AdminSearchBar } from "@/components/AdminSearchBar";
 import { MobileSearchButton } from "@/components/MobileSearchButton";
@@ -194,11 +195,18 @@ export default async function AdminDramasPage({
                             { label: "Описание", isFilled: !!d.synopsis },
                           ]}
                         />
-                        <div className="w-8 h-12 rounded bg-accent-soft/40 flex items-center justify-center text-lg shrink-0 overflow-hidden">
+                        <div className="relative w-8 h-12 rounded bg-accent-soft/40 flex items-center justify-center shrink-0 overflow-hidden">
                           {d.posterUrl ? (
-                            <img src={d.posterUrl} alt={d.title} className="w-full h-full object-cover" />
+                            <Image
+                              src={d.posterUrl}
+                              alt={d.title}
+                              fill
+                              className="object-cover"
+                              sizes="32px"
+                              quality={100}
+                            />
                           ) : (
-                            <span className="text-muted text-sm">🎬</span>
+                            <Film className="w-4 h-4 text-muted" />
                           )}
                         </div>
                         <div className="min-w-0">
