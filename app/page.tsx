@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { CryBadge } from "@/components/CryBadge";
 import {
   Flame,
@@ -328,9 +329,11 @@ function ReviewPreview({
     <div className="rounded-2xl border border-border bg-surface p-4 flex gap-4">
       <div className="w-16 h-24 rounded-lg overflow-hidden bg-accent-soft/40 flex items-center justify-center text-2xl shrink-0">
         {posterUrl ? (
-          <img
+          <Image
             src={posterUrl}
             alt={title}
+            width={64}
+            height={96}
             className="w-full h-full object-cover"
           />
         ) : (

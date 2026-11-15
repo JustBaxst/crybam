@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { X, Search, Star, Calendar, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -136,7 +137,7 @@ export function TvmazeImportModal({
                                 >
                                     <div className="w-16 h-24 rounded-lg overflow-hidden bg-accent-soft/40 shrink-0">
                                         {item.posterUrl ? (
-                                            <img src={item.posterUrl} alt={item.title} className="w-full h-full object-cover" />
+                                            <Image src={item.posterUrl} alt={item.title} width={64} height={96} className="w-full h-full object-cover" />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-2xl">🎬</div>
                                         )}
