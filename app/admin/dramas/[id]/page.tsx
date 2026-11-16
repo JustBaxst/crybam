@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import {
   Film,
@@ -12,9 +13,9 @@ import {
   Tv,
   Layers,
   Music,
-  Smile, // <-- Иконка для настроений
-  Hash,  // <-- Иконка для тем
-  User,  // <-- Иконка для заглушки актёра
+  Smile,
+  Hash,
+  User,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { EditDramaButton } from "../../../dramas/[id]/EditDramaButton";
@@ -46,8 +47,8 @@ export default async function AdminDramaEditPage({
       platforms: { include: { platform: true } },
       studios: { include: { studio: true } },
       genres: { include: { genre: true } },
-      moods: { include: { mood: true } },   // <-- Подтягиваем настроения
-      themes: { include: { theme: true } }, // <-- Подтягиваем темы
+      moods: { include: { mood: true } },
+      themes: { include: { theme: true } },
       soundtrack: true,
       credits: {
         include: { person: true, character: true },
@@ -58,10 +59,11 @@ export default async function AdminDramaEditPage({
 
   if (!drama) notFound();
 
-  // Получаем все возможные жанры, настроения и темы для модалок
   const allGenres = await prisma.genre.findMany({ orderBy: { name: "asc" } });
   const allMoods = await prisma.mood.findMany({ orderBy: { name: "asc" } });
-  const allThemes = await prisma.dramaTheme.findMany({ orderBy: { name: "asc" } });
+  const allThemes = await prisma.dramaTheme.findMany({
+    orderBy: { name: "asc" },
+  });
 
   const allPersons = await prisma.person.findMany({
     where: { deletedAt: null },
@@ -100,27 +102,26 @@ export default async function AdminDramaEditPage({
     { name: "Кинопоиск", value: drama.ratingKinopoisk },
     { name: "MyDramaList", value: drama.ratingMDL },
     { name: "IMDb", value: drama.ratingIMDB },
-  ].filter((r) => r.value != null);
+  ].filter((r) => r.value != null && r.value > 0);
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-10">
-
       <AdminBreadcrumbs
         items={[
           { label: "Дорамы", href: "/admin/dramas" },
-          { label: drama.title }
+          { label: drama.title },
         ]}
       />
 
-      {/* Заголовок с действиями */}
-      <div className="flex items-start justify-between gap-4 mb-8 flex-wrap">
+      {/* Шапка */}
+      <div className="flex items-start justify-between gap-4 mb-8 flex-wrap mt-2">
         <div className="min-w-0 flex items-center gap-4 flex-wrap">
-          <h1 className="text-2xl font-bold leading-tight">
-            {drama.title}
-          </h1>
+          <h1 className="text-2xl font-bold leading-tight">{drama.title}</h1>
           <TitlesEditButton
             dramaId={drama.id}
-            currentTitles={drama.titles.filter(t => !t.isPrimary).map(t => t.title)}
+            currentTitles={drama.titles
+              .filter((t) => !t.isPrimary)
+              .map((t) => t.title)}
           />
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -143,7 +144,7 @@ export default async function AdminDramaEditPage({
               dubbingStudios: drama.dubbingStudios,
               platforms: platforms,
               studios: productionStudios,
-              themes: drama.themes.map(t => t.theme.name), // <-- Передаем темы в форму
+              themes: drama.themes.map((t) => t.theme.name),
               airStatus: drama.airStatus,
               curatorCryTag: drama.curatorCryTag,
             }}
@@ -152,300 +153,332 @@ export default async function AdminDramaEditPage({
         </div>
       </div>
 
-      {/* Основные факты */}
-      <section className="rounded-2xl border border-border bg-surface p-6 mb-6">
-        <h2 className="text-sm font-medium text-muted uppercase tracking-wide mb-4">
-          Факты
-        </h2>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-          <FactRow Icon={Calendar} label="Год" value={drama.year} />
-          <FactRow Icon={MapPin} label="Страна" value={drama.country} />
-          <FactRow Icon={Film} label="Серий" value={drama.episodes} />
-          <FactRow Icon={Layers} label="Сезонов" value={drama.seasons} />
-          <FactRow
-            Icon={Clock}
-            label="Длительность"
-            value={
-              drama.episodeDuration ? `${drama.episodeDuration} мин` : null
-            }
-          />
-          <FactRow
-            Icon={Languages}
-            label="Озвучка"
-            value={drama.dubbingStudios}
-          />
-          <FactRow
-            Icon={Tv}
-            label="Платформы"
-            value={platforms.join(", ") || null}
-          />
-          <FactRow
-            Icon={Video}
-            label="Производство"
-            value={productionStudios.join(", ") || null}
-          />
+      {/* Hero-сетка (Постер + Факты) */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        {/* Левая колонка: Постер */}
+        <div className="md:col-span-1">
+          <div className="relative aspect-2/3 rounded-2xl overflow-hidden border border-border bg-surface/20">
+            {drama.posterUrl ? (
+              <Image
+                src={drama.posterUrl}
+                alt={drama.title}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 33vw"
+                quality={100}
+              />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+                <Film className="w-10 h-10 text-muted/30" />
+                <span className="text-[10px] text-muted/50 uppercase tracking-widest">
+                  Нет постера
+                </span>
+              </div>
+            )}
+          </div>
         </div>
 
-        {externalRatings.length > 0 && (
-          <div className="pt-4 border-t border-border">
-            <p className="text-xs text-muted mb-2">Внешние рейтинги</p>
+        {/* Правая колонка: Факты */}
+        <div className="md:col-span-3">
+          <section className="bg-surface/20 p-6 rounded-2xl border border-border/50 h-full flex flex-col">
+            <h2 className="text-sm font-medium text-muted uppercase tracking-wide mb-4 flex items-center gap-2">
+              <Film className="w-4 h-4" /> Факты
+            </h2>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-4">
+              <FactRow Icon={Calendar} label="Год" value={drama.year} />
+              <FactRow Icon={MapPin} label="Страна" value={drama.country} />
+              <FactRow Icon={Film} label="Серий" value={drama.episodes} />
+              <FactRow Icon={Layers} label="Сезонов" value={drama.seasons} />
+              <FactRow
+                Icon={Clock}
+                label="Длительность"
+                value={
+                  drama.episodeDuration ? `${drama.episodeDuration} мин` : null
+                }
+              />
+              <FactRow
+                Icon={Languages}
+                label="Озвучка"
+                value={drama.dubbingStudios}
+              />
+              <FactRow
+                Icon={Tv}
+                label="Платформы"
+                value={platforms.join(", ") || null}
+              />
+              <FactRow
+                Icon={Video}
+                label="Производство"
+                value={productionStudios.join(", ") || null}
+              />
+            </div>
+
+            {externalRatings.length > 0 && (
+              <div className="mt-auto pt-4 border-t border-border/50">
+                <p className="text-[10px] text-muted uppercase tracking-wide mb-2">
+                  Внешние рейтинги
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {externalRatings.map((r) => (
+                    <span
+                      key={r.name}
+                      className="text-xs px-2 py-1 rounded-md border border-border bg-background"
+                    >
+                      <span className="text-muted">{r.name}:</span>{" "}
+                      <span className="font-semibold text-foreground">
+                        {r.value?.toFixed(1)}
+                      </span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+        </div>
+      </div>
+
+      {/* Секции тегов */}
+      <div className="space-y-6">
+        {/* Жанры */}
+        <section className="bg-surface/20 p-6 rounded-2xl border border-border/50">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-medium text-muted uppercase tracking-wide flex items-center gap-2">
+              <TagIcon className="w-4 h-4" /> Жанры
+            </h2>
+            <GenresEditButton
+              dramaId={drama.id}
+              allGenres={allGenres}
+              linkedGenreIds={linkedGenreIds}
+            />
+          </div>
+          {genres.length === 0 ? (
+            <p className="text-xs text-muted/50 italic">
+              Жанры пока не заполнены
+            </p>
+          ) : (
             <div className="flex flex-wrap gap-2">
-              {externalRatings.map((r) => (
+              {genres.map((g) => (
                 <span
-                  key={r.name}
-                  className="text-xs px-2 py-1 rounded-md border border-border bg-background"
+                  key={g}
+                  className="text-sm px-3 py-1 rounded-full border border-border text-muted"
                 >
-                  <span className="text-muted">{r.name}:</span>{" "}
-                  <span className="font-semibold">{r.value?.toFixed(1)}</span>
+                  {g}
                 </span>
               ))}
             </div>
+          )}
+        </section>
+
+        {/* Настроения */}
+        <section className="bg-surface/20 p-6 rounded-2xl border border-border/50">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-medium text-muted uppercase tracking-wide flex items-center gap-2">
+              <Smile className="w-4 h-4" /> Настроения
+            </h2>
+            <MoodsEditButton
+              dramaId={drama.id}
+              allMoods={allMoods}
+              linkedMoodIds={linkedMoodIds}
+            />
           </div>
-        )}
-      </section>
-
-      {/* Жанры */}
-      <section className="rounded-2xl border border-border bg-surface p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-medium text-muted uppercase tracking-wide flex items-center gap-2">
-            <TagIcon className="w-4 h-4" />
-            Жанры
-          </h2>
-          <GenresEditButton
-            dramaId={drama.id}
-            allGenres={allGenres}
-            linkedGenreIds={linkedGenreIds}
-          />
-        </div>
-
-        {genres.length === 0 ? (
-          <p className="text-xs text-muted/70 italic">
-            Жанры пока не заполнены
-          </p>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {genres.map((g) => (
-              <span
-                key={g}
-                className="text-sm px-3 py-1 rounded-full border border-border text-muted"
-              >
-                {g}
-              </span>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* Настроения (НОВЫЙ БЛОК) */}
-      <section className="rounded-2xl border border-border bg-surface p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-medium text-muted uppercase tracking-wide flex items-center gap-2">
-            <Smile className="w-4 h-4" />
-            Настроения
-          </h2>
-          <MoodsEditButton
-            dramaId={drama.id}
-            allMoods={allMoods}
-            linkedMoodIds={linkedMoodIds}
-          />
-        </div>
-
-        {drama.moods.length === 0 ? (
-          <p className="text-xs text-muted/70 italic">
-            Настроения пока не заполнены
-          </p>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {drama.moods.map((m) => (
-              <span
-                key={m.mood.id}
-                className="text-sm px-3 py-1 rounded-full border border-border text-muted"
-              >
-                {m.mood.name}
-              </span>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* Темы (НОВЫЙ БЛОК) */}
-      <section className="rounded-2xl border border-border bg-surface p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-medium text-muted uppercase tracking-wide flex items-center gap-2">
-            <Hash className="w-4 h-4" />
-            Темы
-          </h2>
-          <ThemesEditButton
-            dramaId={drama.id}
-            allThemes={allThemes}
-            linkedThemeIds={linkedThemeIds}
-          />
-        </div>
-
-        {drama.themes.length === 0 ? (
-          <p className="text-xs text-muted/70 italic">
-            Темы пока не заполнены
-          </p>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {drama.themes.map((t) => (
-              <span
-                key={t.theme.id}
-                className="text-sm px-3 py-1 rounded-full border border-border text-muted"
-              >
-                #{t.theme.name}
-              </span>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* Съёмочная группа */}
-      <section className="rounded-2xl border border-border bg-surface p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-medium text-muted uppercase tracking-wide flex items-center gap-2">
-            <Video className="w-4 h-4" />
-            Съёмочная группа
-          </h2>
-          <CreditsEditButton
-            dramaId={drama.id}
-            credits={drama.credits.map((c) => ({
-              id: c.id,
-              roleType: c.roleType,
-              personName: c.person.name,
-              characterName: c.character?.name ?? null,
-              characterDescription: c.character?.description ?? null,
-              importance: c.importance,
-            }))}
-            existingPersons={allPersons.map((p) => p.name)}
-          />
-        </div>
-
-        {directors.length === 0 && writers.length === 0 ? (
-          <p className="text-xs text-muted/70 italic">
-            Режиссёр и сценаристы пока не заполнены
-          </p>
-        ) : (
-          <div className="space-y-1.5 text-sm">
-            {directors.length > 0 && (
-              <p>
-                <span className="text-muted">Режиссёр:</span>{" "}
-                <span className="text-foreground">
-                  {directors.map((d) => d.person.name).join(", ")}
+          {drama.moods.length === 0 ? (
+            <p className="text-xs text-muted/50 italic">
+              Настроения пока не заполнены
+            </p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {drama.moods.map((m) => (
+                <span
+                  key={m.mood.id}
+                  className="text-sm px-3 py-1 rounded-full border border-border text-muted"
+                >
+                  {m.mood.name}
                 </span>
-              </p>
-            )}
-            {writers.length > 0 && (
-              <p>
-                <span className="text-muted">Сценаристы:</span>{" "}
-                <span className="text-foreground">
-                  {writers.map((w) => w.person.name).join(", ")}
-                </span>
-              </p>
-            )}
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Темы */}
+        <section className="bg-surface/20 p-6 rounded-2xl border border-border/50">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-medium text-muted uppercase tracking-wide flex items-center gap-2">
+              <Hash className="w-4 h-4" /> Темы
+            </h2>
+            <ThemesEditButton
+              dramaId={drama.id}
+              allThemes={allThemes}
+              linkedThemeIds={linkedThemeIds}
+            />
           </div>
-        )}
-      </section>
+          {drama.themes.length === 0 ? (
+            <p className="text-xs text-muted/50 italic">
+              Темы пока не заполнены
+            </p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {drama.themes.map((t) => (
+                <span
+                  key={t.theme.id}
+                  className="text-sm px-3 py-1 rounded-full border border-border text-muted"
+                >
+                  #{t.theme.name}
+                </span>
+              ))}
+            </div>
+          )}
+        </section>
 
-      {/* Актёры и персонажи */}
-      <section className="rounded-2xl border border-border bg-surface p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-medium text-muted uppercase tracking-wide flex items-center gap-2">
-            <Users className="w-4 h-4" />
-            Актёры и персонажи
-          </h2>
-          <CreditsEditButton
-            dramaId={drama.id}
-            credits={drama.credits.map((c) => ({
-              id: c.id,
-              roleType: c.roleType,
-              personName: c.person.name,
-              characterName: c.character?.name ?? null,
-              characterDescription: c.character?.description ?? null,
-              importance: c.importance,
-            }))}
-            existingPersons={allPersons.map((p) => p.name)}
-          />
-        </div>
+        {/* Съёмочная группа */}
+        <section className="bg-surface/20 p-6 rounded-2xl border border-border/50">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-medium text-muted uppercase tracking-wide flex items-center gap-2">
+              <Video className="w-4 h-4" /> Съёмочная группа
+            </h2>
+            <CreditsEditButton
+              dramaId={drama.id}
+              credits={drama.credits.map((c) => ({
+                id: c.id,
+                roleType: c.roleType,
+                personName: c.person.name,
+                characterName: c.character?.name ?? null,
+                characterDescription: c.character?.description ?? null,
+                importance: c.importance,
+              }))}
+              existingPersons={allPersons.map((p) => p.name)}
+            />
+          </div>
+          {directors.length === 0 && writers.length === 0 ? (
+            <p className="text-xs text-muted/50 italic">
+              Режиссёр и сценаристы пока не заполнены
+            </p>
+          ) : (
+            <div className="space-y-1.5 text-sm">
+              {directors.length > 0 && (
+                <p>
+                  <span className="text-muted">Режиссёр:</span>{" "}
+                  <span className="text-foreground">
+                    {directors.map((d) => d.person.name).join(", ")}
+                  </span>
+                </p>
+              )}
+              {writers.length > 0 && (
+                <p>
+                  <span className="text-muted">Сценаристы:</span>{" "}
+                  <span className="text-foreground">
+                    {writers.map((w) => w.person.name).join(", ")}
+                  </span>
+                </p>
+              )}
+            </div>
+          )}
+        </section>
 
-        {actors.length === 0 ? (
-          <p className="text-xs text-muted/70 italic">
-            Актёры пока не заполнены
-          </p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {actors.map((a) => (
-              <div
-                key={a.id}
-                className={`flex items-start gap-3 rounded-xl border border-border bg-background p-3 border-l-4 ${importanceBorderColor(a.importance)}`}
-              >
-                <div className="w-10 h-14 rounded-lg bg-accent-soft/50 flex items-center justify-center shrink-0 overflow-hidden">
-                  <User className="w-5 h-5 text-muted" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Link
-                      href={`/admin/people/${a.person.id}?fromDrama=${drama.id}`}
-                      className="text-sm font-semibold truncate hover:text-accent transition-colors"
-                    >
-                      {a.person.name}
-                    </Link>
-                    {a.importance === "lead" && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-full border border-yellow-400/40 bg-yellow-400/10 text-yellow-400">
-                        Главная
-                      </span>
+        {/* Актёры и персонажи */}
+        <section className="bg-surface/20 p-6 rounded-2xl border border-border/50">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-medium text-muted uppercase tracking-wide flex items-center gap-2">
+              <Users className="w-4 h-4" /> Актёры и персонажи
+            </h2>
+            <CreditsEditButton
+              dramaId={drama.id}
+              credits={drama.credits.map((c) => ({
+                id: c.id,
+                roleType: c.roleType,
+                personName: c.person.name,
+                characterName: c.character?.name ?? null,
+                characterDescription: c.character?.description ?? null,
+                importance: c.importance,
+              }))}
+              existingPersons={allPersons.map((p) => p.name)}
+            />
+          </div>
+          {actors.length === 0 ? (
+            <p className="text-xs text-muted/50 italic">
+              Актёры пока не заполнены
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {actors.map((a) => (
+                <div
+                  key={a.id}
+                  className={`flex items-start gap-3 rounded-xl border border-border bg-background p-3 border-l-4 ${importanceBorderColor(a.importance)}`}
+                >
+                  <div className="w-10 h-14 rounded-lg bg-accent-soft/50 flex items-center justify-center shrink-0 overflow-hidden">
+                    <User className="w-5 h-5 text-muted" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Link
+                        href={`/admin/people/${a.person.id}?fromDrama=${drama.id}`}
+                        className="text-sm font-semibold truncate hover:text-accent transition-colors"
+                      >
+                        {a.person.name}
+                      </Link>
+                      {a.importance === "lead" && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full border border-yellow-400/40 bg-yellow-400/10 text-yellow-400">
+                          Главная
+                        </span>
+                      )}
+                    </div>
+                    {a.character?.name && (
+                      <Link
+                        href={`/admin/characters/${a.character.id}?fromDrama=${drama.id}`}
+                        className="inline-flex items-center text-xs text-accent mt-0.5 truncate hover:underline"
+                      >
+                        → {a.character.name}
+                      </Link>
+                    )}
+                    {a.character?.description && (
+                      <p className="text-xs text-muted mt-0.5 line-clamp-2">
+                        {a.character.description}
+                      </p>
                     )}
                   </div>
-
-                  {a.character?.name && (
-                    <Link
-                      href={`/admin/characters/${a.character.id}?fromDrama=${drama.id}`}
-                      className="inline-flex items-center text-xs text-accent mt-0.5 truncate hover:underline"
-                    >
-                      → {a.character.name}
-                    </Link>
-                  )}
-
-                  {a.character?.description && (
-                    <p className="text-xs text-muted mt-0.5 line-clamp-2">
-                      {a.character.description}
-                    </p>
-                  )}
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Саундтрек */}
+        <section className="bg-surface/20 p-6 rounded-2xl border border-border/50">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-medium text-muted uppercase tracking-wide flex items-center gap-2">
+              <Music className="w-4 h-4" /> Саундтрек
+            </h2>
+            <SoundtracksEditButton
+              dramaId={drama.id}
+              soundtracks={drama.soundtrack}
+            />
           </div>
-        )}
-      </section>
-
-      {/* ── САУНДТРЕК ── */}
-      <section className="rounded-2xl border border-border bg-surface p-6 mt-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-medium text-muted uppercase tracking-wide flex items-center gap-2">
-            <Music className="w-4 h-4" />
-            Саундтрек
-          </h2>
-          <SoundtracksEditButton dramaId={drama.id} soundtracks={drama.soundtrack} />
-        </div>
-        {drama.soundtrack.length === 0 ? (
-          <p className="text-xs text-muted/70 italic">Саундтрек пока не заполнен</p>
-        ) : (
-          <div className="space-y-2">
-            {drama.soundtrack.map((s) => (
-              <div key={s.id} className="flex items-center gap-3 rounded-lg border border-border bg-background p-3">
-                <div className="w-8 h-8 rounded bg-accent/10 flex items-center justify-center text-accent shrink-0">
-                  <Music className="w-4 h-4" />
+          {drama.soundtrack.length === 0 ? (
+            <p className="text-xs text-muted/50 italic">
+              Саундтрек пока не заполнен
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {drama.soundtrack.map((s) => (
+                <div
+                  key={s.id}
+                  className="flex items-center gap-3 rounded-lg border border-border bg-background p-3"
+                >
+                  <div className="w-8 h-8 rounded bg-accent/10 flex items-center justify-center text-accent shrink-0">
+                    <Music className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{s.title}</p>
+                    {s.artist && (
+                      <p className="text-xs text-muted truncate">{s.artist}</p>
+                    )}
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium truncate">{s.title}</p>
-                  {s.artist && <p className="text-xs text-muted truncate">{s.artist}</p>}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
     </div>
   );
 }
@@ -467,7 +500,7 @@ function FactRow({
           {label}
         </p>
         <p className="text-sm text-foreground truncate">
-          {value ?? <span className="text-muted/50">—</span>}
+          {value || <span className="text-muted/50">—</span>}
         </p>
       </div>
     </div>
