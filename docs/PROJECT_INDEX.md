@@ -116,10 +116,6 @@ client: no
 export StatusDot: (props: { items: StatusItem[] }) => JSX.Element
 client: no
 
-### AdminHeatmap.tsx [DEPRECATED]
-
-⚠️ Устарел. Используй `YearHeatmap` из components/YearHeatmap.tsx.
-
 ### AliasBadge.tsx, ApiStatus.tsx, FixRandomButton.tsx, LastVictory.tsx, RecentActivity.tsx
 
 Вспомогательные компоненты админки.
@@ -249,10 +245,10 @@ client: yes
 
 ### YearHeatmap.tsx
 
-Тепловая карта активности (по дням). Используется на главной и в админке.
-export YearHeatmap: (props: { activities: any[] }) => JSX.Element
-client: no
-Не дублировать: новые компоненты для heatmap.
+Тепловая карта активности. Использует Popover для детализации (клик по дню).
+export YearHeatmap: (props: { activities: any[]; mode?: "user" | "admin"; currentUserId?: number }) => JSX.Element
+client: yes
+Особенности: В режиме `admin` показывает переключатель «Вся команда / Только я» и логи действий (события). В режиме `user` показывает просмотренные серии/дорамы. ❌ Не дублировать: старый `AdminHeatmap` удален.
 
 ### DramaCard.tsx
 

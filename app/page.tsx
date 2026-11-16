@@ -36,9 +36,9 @@ export default async function HomePage() {
       drama: {
         include: {
           genres: { include: { genre: true } }, // <-- Добавили жанры
-          themes: { include: { theme: true } }  // <-- Добавили темы
-        }
-      }
+          themes: { include: { theme: true } }, // <-- Добавили темы
+        },
+      },
     },
     orderBy: { updatedAt: "desc" },
   });
@@ -54,7 +54,11 @@ export default async function HomePage() {
   const totalHours = Math.round(
     entries
       .filter((e) => e.status === "watched")
-      .reduce((sum, e) => sum + (e.drama.episodes || 0) * (e.drama.episodeDuration || 60), 0) / 60
+      .reduce(
+        (sum, e) =>
+          sum + (e.drama.episodes || 0) * (e.drama.episodeDuration || 60),
+        0,
+      ) / 60,
   );
 
   const favoritesCount = entries.filter((e) => e.isFavorite).length;
@@ -67,10 +71,13 @@ export default async function HomePage() {
   // 4. Особое место
   const heartDramas = entries
     .filter((e) => e.isFavorite && e.quote)
-    .slice(0, 10)
+    .slice(0, 10);
 
   // 5. Heatmap
-  const heatmapGrouped = new Map<string, { totalEpisodes: number; dramas: { title: string; episodes: number }[] }>();
+  const heatmapGrouped = new Map<
+    string,
+    { totalEpisodes: number; dramas: { title: string; episodes: number }[] }
+  >();
 
   entries
     .filter((e) => e.watchedAt)
@@ -91,15 +98,20 @@ export default async function HomePage() {
       }
     });
 
-  const heatmapActivities = Array.from(heatmapGrouped.entries()).map(([date, data]) => ({
-    date,
-    level: Math.min(Math.ceil(data.totalEpisodes / 4), 4), // Уровень зависит от суммы серий
-    episodes: data.totalEpisodes,
-    items: data.dramas, // Массив дорам
-  }));
+  const heatmapActivities = Array.from(heatmapGrouped.entries()).map(
+    ([date, data]) => ({
+      date,
+      level: Math.min(Math.ceil(data.totalEpisodes / 4), 4), // Уровень зависит от суммы серий
+      episodes: data.totalEpisodes,
+      items: data.dramas, // Массив дорам
+    }),
+  );
 
   const joinDate = user?.createdAt
-    ? new Date(user.createdAt).toLocaleDateString("ru-RU", { month: "long", year: "numeric" })
+    ? new Date(user.createdAt).toLocaleDateString("ru-RU", {
+        month: "long",
+        year: "numeric",
+      })
     : "недавно";
 
   return (
@@ -110,10 +122,10 @@ export default async function HomePage() {
           <Film className="w-8 h-8 text-accent" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold">Привет, {user?.name || "Артём"}</h1>
-          <p className="text-muted text-sm mt-1">
-            в дневнике с {joinDate}
-          </p>
+          <h1 className="text-2xl font-bold">
+            Привет, {user?.name || "Артём"}
+          </h1>
+          <p className="text-muted text-sm mt-1">в дневнике с {joinDate}</p>
           <div className="text-muted text-xs mt-1.5 flex items-center gap-3">
             <span className="flex items-center gap-1">
               <MapPin className="w-3.5 h-3.5 text-accent" /> Страна
@@ -146,7 +158,7 @@ export default async function HomePage() {
           href="/stats"
           count={null}
         />
-        <YearHeatmap activities={heatmapActivities} />
+        <YearHeatmap activities={heatmapActivities} mode="user" />
       </section>
 
       {/* ─── Особое место ─── */}
@@ -160,7 +172,10 @@ export default async function HomePage() {
           />
           <HorizontalScroll>
             {heartDramas.map((entry) => (
-              <div key={entry.id} className="min-w-70 max-w-80 snap-start shrink-0">
+              <div
+                key={entry.id}
+                className="min-w-70 max-w-80 snap-start shrink-0"
+              >
                 <HeartPreview
                   title={entry.drama.title}
                   year={entry.drama.year || 0}
@@ -271,7 +286,10 @@ function SectionHeader({
           <span className="text-sm text-muted font-normal">({count})</span>
         )}
       </h2>
-      <Link href={href} className="text-sm text-accent hover:underline shrink-0">
+      <Link
+        href={href}
+        className="text-sm text-accent hover:underline shrink-0"
+      >
         все →
       </Link>
     </div>
@@ -296,9 +314,7 @@ function HeartPreview({
           className="group flex items-center gap-1.5 hover:text-accent transition-colors"
         >
           <Crown className="w-4 h-4 text-yellow-400" />
-          <h3 className="font-bold text-sm">
-            {title}
-          </h3>
+          <h3 className="font-bold text-sm">{title}</h3>
         </Link>
         <span className="text-xs text-muted">{year}</span>
       </div>
