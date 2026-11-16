@@ -1,11 +1,17 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Save, User, FileText, Image, Link2 } from "lucide-react";
-import Link from "next/link"; // <-- Добавили для ссылки на дубликат
+import { Save, User, FileText, Image } from "lucide-react";
 import { createPerson, updatePerson } from "./actions";
 import { FormSection } from "@/components/FormSection";
 import { COUNTRIES } from "@/lib/constants";
+import {
+  FormField,
+  FormInput,
+  FormSelect,
+  FormTextarea,
+  FormError,
+} from "@/components/ui/form-elements";
 
 type PersonData = {
   id?: number;
@@ -25,15 +31,21 @@ type PersonData = {
   zodiacChinese: string | null;
 };
 
-export function PersonForm({ person, fromDrama }: { person?: PersonData; fromDrama?: string }) {
+export function PersonForm({
+  person,
+  fromDrama,
+}: {
+  person?: PersonData;
+  fromDrama?: string;
+}) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [existingId, setExistingId] = useState<number | null>(null); // <-- Новое состояние
+  const [existingId, setExistingId] = useState<number | null>(null);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
-    setExistingId(null); // Сбрасываем прошлую ошибку
+    setExistingId(null);
     const formData = new FormData(e.currentTarget);
     if (fromDrama) formData.set("fromDrama", fromDrama);
 
@@ -43,16 +55,12 @@ export function PersonForm({ person, fromDrama }: { person?: PersonData; fromDra
 
       if (result?.error) {
         setError(result.error);
-        if ('existingId' in result && result.existingId) {
+        if ("existingId" in result && result.existingId) {
           setExistingId(result.existingId);
         }
       }
     });
   };
-
-  const inputCls =
-    "w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors text-sm";
-  const labelCls = "block text-xs font-medium text-muted mb-1.5";
 
   const dateValue = person?.birthDate
     ? new Date(person.birthDate).toISOString().slice(0, 10)
@@ -71,136 +79,141 @@ export function PersonForm({ person, fromDrama }: { person?: PersonData; fromDra
         title="Основное"
         description="Имя и информация о человеке"
       >
-        {/* Имя */}
-        <div>
-          <label className={labelCls}>
-            Имя <span className="text-accent">*</span>
-          </label>
-          <input
+        <FormField label="Имя" required>
+          <FormInput
             type="text"
             name="name"
             defaultValue={person?.name ?? ""}
             required
             placeholder="Ким Су Хён"
-            className={inputCls}
           />
-        </div>
+        </FormField>
 
-        {/* Дата рождения и агентство (2 колонки) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className={labelCls}>Дата рождения</label>
-            <input
-              type="date"
-              name="birthDate"
-              defaultValue={dateValue}
-              className={inputCls}
-            />
-          </div>
-          <div>
-            <label className={labelCls}>Агентство</label>
-            <input
+          <FormField label="Дата рождения">
+            <FormInput type="date" name="birthDate" defaultValue={dateValue} />
+          </FormField>
+          <FormField label="Агентство">
+            <FormInput
               type="text"
               name="agency"
               defaultValue={person?.agency ?? ""}
               placeholder="Gold Medalist"
-              className={inputCls}
             />
-          </div>
+          </FormField>
         </div>
 
-        {/* Пол, рост, место рождения (4 колонки) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-
-          <div>
-            <label className={labelCls}>Страна / Национальность</label>
-            <select
+          <FormField label="Страна / Национальность">
+            <FormSelect
               name="nationality"
               defaultValue={person?.nationality ?? ""}
-              className={inputCls}
             >
               <option value="">— не указана —</option>
               {COUNTRIES.map((c) => (
-                <option key={c} value={c}>{c}</option>
+                <option key={c} value={c}>
+                  {c}
+                </option>
               ))}
-            </select>
-          </div>
-
-          <div>
-            <label className={labelCls}>Пол</label>
-            <select
-              name="gender"
-              defaultValue={person?.gender ?? ""}
-              className={inputCls}
-            >
+            </FormSelect>
+          </FormField>
+          <FormField label="Пол">
+            <FormSelect name="gender" defaultValue={person?.gender ?? ""}>
               <option value="">— не указан —</option>
               <option value="male">Мужской</option>
               <option value="female">Женский</option>
               <option value="other">Другой</option>
-            </select>
-          </div>
-          <div>
-            <label className={labelCls}>Рост (см)</label>
-            <input
+            </FormSelect>
+          </FormField>
+          <FormField label="Рост (см)">
+            <FormInput
               type="number"
               name="height"
               defaultValue={person?.height ?? ""}
               placeholder="180"
-              className={inputCls}
             />
-          </div>
-          <div>
-            <label className={labelCls}>Место рождения</label>
-            <input
+          </FormField>
+          <FormField label="Место рождения">
+            <FormInput
               type="text"
               name="birthPlace"
               defaultValue={person?.birthPlace ?? ""}
               placeholder="Сеул, Южная Корея"
-              className={inputCls}
             />
-          </div>
+          </FormField>
         </div>
 
-        {/* Группа крови, MBTI, Зодиаки (4 колонки) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div>
-            <label className={labelCls}>Группа крови</label>
-            <select name="bloodType" defaultValue={person?.bloodType ?? ""} className={inputCls}>
+          <FormField label="Группа крови">
+            <FormSelect name="bloodType" defaultValue={person?.bloodType ?? ""}>
               <option value="">— нет —</option>
               <option value="O(I)">O(I)</option>
               <option value="A(II)">A(II)</option>
               <option value="B(III)">B(III)</option>
               <option value="AB(IV)">AB(IV)</option>
-            </select>
-          </div>
-          <div>
-            <label className={labelCls}>MBTI</label>
-            <input
+            </FormSelect>
+          </FormField>
+          <FormField label="MBTI">
+            <FormInput
               type="text"
               name="mbti"
               defaultValue={person?.mbti ?? ""}
               placeholder="INFP"
-              className={`${inputCls} uppercase`}
+              className="uppercase"
             />
-          </div>
-          <div>
-            <label className={labelCls}>Западный зодиак</label>
-            <select name="zodiacWestern" defaultValue={person?.zodiacWestern ?? ""} className={inputCls}>
+          </FormField>
+          <FormField label="Западный зодиак">
+            <FormSelect
+              name="zodiacWestern"
+              defaultValue={person?.zodiacWestern ?? ""}
+            >
               <option value="">— нет —</option>
-              {["Овен", "Телец", "Близнецы", "Рак", "Лев", "Дева", "Весы", "Скорпион", "Стрелец", "Козерог", "Водолей", "Рыбы"].map(z => (
-                <option key={z} value={z}>{z}</option>
+              {[
+                "Овен",
+                "Телец",
+                "Близнецы",
+                "Рак",
+                "Лев",
+                "Дева",
+                "Весы",
+                "Скорпион",
+                "Стрелец",
+                "Козерог",
+                "Водолей",
+                "Рыбы",
+              ].map((z) => (
+                <option key={z} value={z}>
+                  {z}
+                </option>
               ))}
-            </select>
-          </div>
-          <div>
-            <label className={labelCls}>Китайский зодиак</label>
-            <select name="zodiacChinese" defaultValue={person?.zodiacChinese ?? ""} className={inputCls}>
+            </FormSelect>
+          </FormField>
+          <FormField label="Китайский зодиак">
+            <FormSelect
+              name="zodiacChinese"
+              defaultValue={person?.zodiacChinese ?? ""}
+            >
               <option value="">— нет —</option>
-              {["Крыса", "Бык", "Тигр", "Кролик", "Дракон", "Змея", "Лошадь", "Коза", "Обезьяна", "Петух", "Собака", "Свинья"].map(z => (
-                <option key={z} value={z}>{z}</option>
+              {[
+                "Крыса",
+                "Бык",
+                "Тигр",
+                "Кролик",
+                "Дракон",
+                "Змея",
+                "Лошадь",
+                "Коза",
+                "Обезьяна",
+                "Петух",
+                "Собака",
+                "Свинья",
+              ].map((z) => (
+                <option key={z} value={z}>
+                  {z}
+                </option>
               ))}
-            </select>
-          </div>
+            </FormSelect>
+          </FormField>
         </div>
       </FormSection>
 
@@ -210,16 +223,14 @@ export function PersonForm({ person, fromDrama }: { person?: PersonData; fromDra
         title="Биография"
         description="Краткая справка о человеке"
       >
-        <div>
-          <label className={labelCls}>Био</label>
-          <textarea
+        <FormField label="Био">
+          <FormTextarea
             name="bio"
             defaultValue={person?.bio ?? ""}
             rows={5}
             placeholder="Несколько предложений о карьере и жизни..."
-            className={`${inputCls} resize-y`}
           />
-        </div>
+        </FormField>
       </FormSection>
 
       {/* ─── МЕДИА И ССЫЛКИ ─── */}
@@ -228,34 +239,52 @@ export function PersonForm({ person, fromDrama }: { person?: PersonData; fromDra
         title="Медиа и ссылки"
         description="Фото и соцсети актёра"
       >
-        <div>
-          <label className={labelCls}>URL фотографии</label>
-          <input
+        <FormField label="URL фотографии">
+          <FormInput
             type="url"
             name="photoUrl"
             defaultValue={person?.photoUrl ?? ""}
             placeholder="https://..."
-            className={inputCls}
           />
-        </div>
+        </FormField>
 
-        <div>
-          <label className={labelCls}>
-            Соцсети <span className="text-muted/60 font-normal">(формат: платформа|ссылка, каждая с новой строки)</span>
-          </label>
-          <textarea
+        <FormField
+          label="Соцсети"
+          description="Формат: платформа|ссылка, каждая с новой строки"
+        >
+          <FormTextarea
             name="socialLinks"
-            defaultValue={person?.socialLinks?.map((l) => `${l.platform}|${l.url}`).join("\n") ?? ""}
+            defaultValue={
+              person?.socialLinks
+                ?.map((l) => `${l.platform}|${l.url}`)
+                .join("\n") ?? ""
+            }
             rows={3}
-            placeholder="instagram|https://...&#10;youtube|https://...&#10;wikipedia|https://..."
-            className={`${inputCls} resize-y`}
+            placeholder="instagram|https://...&#10;youtube|https://..."
           />
           <div className="mt-2 flex flex-wrap gap-1.5">
             {[
-              'instagram', 'youtube', 'twitter', 'tiktok', 'weibo', 'wikipedia',
-              'facebook', 'linkedin', 'telegram', 'discord', 'threads', 'bluesky',
-              'vk', 'spotify', 'soundcloud', 'naver', 'kakao', 'wechat', 'bilibili',
-              'imdb', 'website'
+              "instagram",
+              "youtube",
+              "twitter",
+              "tiktok",
+              "weibo",
+              "wikipedia",
+              "facebook",
+              "linkedin",
+              "telegram",
+              "discord",
+              "threads",
+              "bluesky",
+              "vk",
+              "spotify",
+              "soundcloud",
+              "naver",
+              "kakao",
+              "wechat",
+              "bilibili",
+              "imdb",
+              "website",
             ].map((platform) => (
               <span
                 key={platform}
@@ -264,25 +293,18 @@ export function PersonForm({ person, fromDrama }: { person?: PersonData; fromDra
                 {platform}
               </span>
             ))}
-            <span className="text-[10px] text-muted/40 self-center ml-1">и другие...</span>
+            <span className="text-[10px] text-muted/40 self-center ml-1">
+              и другие...
+            </span>
           </div>
-        </div>
+        </FormField>
       </FormSection>
 
-      {/* Вывод ошибки с кнопкой перехода */}
-      {error && (
-        <div className="text-sm text-red-400 border border-red-500/30 bg-red-500/10 rounded-lg px-3 py-2 flex items-start justify-between gap-3">
-          <span className="flex-1">{error}</span>
-          {existingId && (
-            <Link
-              href={`/admin/people/${existingId}`}
-              className="shrink-0 px-3 py-1 bg-red-500/20 hover:bg-red-500/30 rounded-md transition-colors text-red-200 whitespace-nowrap"
-            >
-              Открыть её →
-            </Link>
-          )}
-        </div>
-      )}
+      <FormError
+        error={error}
+        existingId={existingId}
+        href={`/admin/people/${existingId}`}
+      />
 
       <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
         <button

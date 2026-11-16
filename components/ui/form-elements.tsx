@@ -5,6 +5,7 @@ import {
   TextareaHTMLAttributes,
 } from "react";
 import { AlertCircle } from "lucide-react";
+import Link from "next/link";
 
 /**
  * Обертка для поля формы (Лейбл + Инпут + Подсказка).
@@ -101,12 +102,12 @@ export function FormError({
         {error}
       </span>
       {existingId && href && (
-        <a
+        <Link
           href={href}
           className="shrink-0 px-3 py-1 bg-red-500/20 hover:bg-red-500/30 rounded-md transition-colors text-red-200 whitespace-nowrap"
         >
           Открыть её →
-        </a>
+        </Link>
       )}
     </div>
   );
