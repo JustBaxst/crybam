@@ -38,6 +38,7 @@ model User {
   createdAt         DateTime  @default(now())
 
   entries            UserDramaEntry[]
+  episodeViews      UserEpisodeView[]
   favoriteActors     UserFavoriteActor[]
   favoriteCharacters UserFavoriteCharacter[]
   nominations        Nomination[]
@@ -93,6 +94,7 @@ model Drama {
   media       DramaMedia[]
   themes      DramaThemeLink[]
   moods       DramaMoodLink[]
+  episodeViews      UserEpisodeView[]
 
   @@index([year])
   @@index([country])
@@ -203,6 +205,7 @@ model UserDramaEntry {
   @@unique([userId, dramaId])
   @@index([userId, status])
 }
+
 
 // ─────────────────────────────────────────────
 // Карточка зрителя — пункты, которые строит ИИ
@@ -597,4 +600,21 @@ model AdminLog {
 
   @@index([createdAt])
   @@index([userId])
+}
+
+// ─────────────────────────────────────────────
+// История просмотра серий (для тепловой карты)
+// ─────────────────────────────────────────────
+model UserEpisodeView {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  dramaId   Int
+  count     Int      @default(1) // По умолчанию 1 серия, но можно передавать и больше
+  viewedAt  DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  drama     Drama    @relation(fields: [dramaId], references: [id], onDelete: Cascade)
+
+  @@index([userId, viewedAt])
+  @@index([dramaId])
 }
