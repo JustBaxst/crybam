@@ -8,6 +8,10 @@
 - Акцент: `text-accent`, `bg-accent`, `bg-accent/10`.
 - Эмоции: `text-cry-safe`, `text-cry-happy`, `text-cry-sad`.
   ⚠️ НИКОГДА: `bg-zinc-*`, `bg-gray-*`, `text-gray-*`.
+- **Источник правды:** Все цвета и переменные темы объявляются в `app/globals.css` (в блоке `@theme`). ❌ Запрещено использовать хардкод-цвета (например, `bg-purple-500`, `text-green-400`), если для них можно создать семантический токен.
+- Эмоции: `text-cry-safe`, `text-cry-happy`, `text-cry-sad`.
+- Системные статусы: `text-success` (готово), `text-warning` (в процессе/лиды), `text-danger` (ошибки/удаление), `text-info` (пересмотр).
+  ⚠️ НИКОГДА: `bg-zinc-*`, `bg-gray-*`, `text-gray-*`, `bg-green-*`, `text-purple-*`. Используйте только системные токены.
 
 ## 🧱 Паттерн: Bento-блок
 

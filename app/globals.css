@@ -6,15 +6,21 @@
   /* Светлая тема — тёплая молочная, не ослепляет */
   --background: oklch(0.94 0.008 260);
   --surface: oklch(0.97 0.005 260);
-  --foreground: oklch(0.20 0.015 260);
-  --muted: oklch(0.50 0.02 260);
+  --foreground: oklch(0.2 0.015 260);
+  --muted: oklch(0.5 0.02 260);
   --border: oklch(0.86 0.012 260);
-  --cry-sad: oklch(0.60 0.18 25);
+  --cry-sad: oklch(0.6 0.18 25);
   --cry-happy: oklch(0.68 0.15 75);
-  --cry-safe: oklch(0.60 0.12 155);
+  --cry-safe: oklch(0.6 0.12 155);
 
-  --accent: oklch(0.55 0.20 285);
+  --accent: oklch(0.55 0.2 285);
   --accent-soft: oklch(0.88 0.05 285);
+
+  /* Новые семантические токены */
+  --success: oklch(0.6 0.15 145); /* Зеленый (Готово, Успех) */
+  --warning: oklch(0.7 0.15 75); /* Желтый (В процессе, Важное) */
+  --danger: oklch(0.6 0.2 25); /* Красный (Ошибка, Удаление) */
+  --info: oklch(0.6 0.2 285); /* Фиолетовый (Пересмотр, Инфо) */
 }
 
 .dark {
@@ -23,23 +29,29 @@
   --foreground: oklch(0.95 0.005 260);
   --muted: oklch(0.65 0.02 260);
   --border: oklch(0.28 0.02 260);
-  --cry-sad: oklch(0.60 0.20 25);
-  --cry-happy: oklch(0.70 0.18 85);
+  --cry-sad: oklch(0.6 0.2 25);
+  --cry-happy: oklch(0.7 0.18 85);
   --cry-safe: oklch(0.65 0.12 155);
 
-  --accent: oklch(0.70 0.22 285);
+  --accent: oklch(0.7 0.22 285);
   --accent-soft: oklch(0.25 0.08 285);
+
+  /* Новые семантические токены (для темной темы) */
+  --success: oklch(0.7 0.15 145);
+  --warning: oklch(0.8 0.15 75);
+  --danger: oklch(0.65 0.2 25);
+  --info: oklch(0.7 0.2 285);
 }
 
 /* ── Цветовые схемы ── */
 
 /* Розовый */
 [data-accent="rose"] {
-  --accent: oklch(0.60 0.20 15);
+  --accent: oklch(0.6 0.2 15);
   --accent-soft: oklch(0.92 0.05 15);
 }
 .dark[data-accent="rose"] {
-  --accent: oklch(0.70 0.20 15);
+  --accent: oklch(0.7 0.2 15);
   --accent-soft: oklch(0.25 0.08 15);
 }
 
@@ -65,7 +77,7 @@
 
 /* Изумрудный */
 [data-accent="emerald"] {
-  --accent: oklch(0.60 0.16 165);
+  --accent: oklch(0.6 0.16 165);
   --accent-soft: oklch(0.92 0.05 165);
 }
 .dark[data-accent="emerald"] {
@@ -85,21 +97,21 @@
 
 /* Синий */
 [data-accent="blue"] {
-  --accent: oklch(0.60 0.18 240);
+  --accent: oklch(0.6 0.18 240);
   --accent-soft: oklch(0.92 0.05 240);
 }
 .dark[data-accent="blue"] {
-  --accent: oklch(0.70 0.18 240);
+  --accent: oklch(0.7 0.18 240);
   --accent-soft: oklch(0.25 0.08 240);
 }
 
 /* Малиновый */
 [data-accent="pink"] {
-  --accent: oklch(0.65 0.20 330);
+  --accent: oklch(0.65 0.2 330);
   --accent-soft: oklch(0.93 0.05 330);
 }
 .dark[data-accent="pink"] {
-  --accent: oklch(0.72 0.20 330);
+  --accent: oklch(0.72 0.2 330);
   --accent-soft: oklch(0.27 0.08 330);
 }
 
@@ -114,6 +126,10 @@
   --color-cry-sad: var(--cry-sad);
   --color-cry-happy: var(--cry-happy);
   --color-cry-safe: var(--cry-safe);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -123,7 +139,9 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
   min-height: 100vh;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 * {
@@ -141,7 +159,7 @@ svg.lucide {
   height: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent; 
+  background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: var(--border); /* Серый по умолчанию */
