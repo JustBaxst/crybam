@@ -53,9 +53,10 @@ client: yes
 
 ### popover.tsx
 
-Обертка над Radix Popover.
-export Popover, PopoverTrigger, PopoverContent
+Обертка над Radix Popover. Стилизована под Bento-дизайн (bg-surface, shadow-xl).
+export Popover, PopoverTrigger, PopoverContent, PopoverAnchor
 client: yes
+Не дублировать: стилизовать попапы вручную.
 
 ### split-button.tsx
 
