@@ -8,6 +8,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { getActionLabel } from "@/lib/action-labels";
+import { Tooltip } from "@/components/Tooltip";
 
 type DramaItem = { title: string; episodes: number };
 type AdminEvent = {
@@ -271,13 +272,20 @@ export function YearHeatmap({
 
                     return (
                       <Popover key={di}>
-                        <PopoverTrigger asChild>
-                          <button
-                            className={`rounded-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-background ${levelClass(day.level)}`}
-                            style={{ width: CELL, height: CELL }}
-                            aria-label={`Активность за ${day.date}`}
-                          />
-                        </PopoverTrigger>
+                        <Tooltip
+                          content={new Date(day.date).toLocaleDateString(
+                            "ru-RU",
+                            { day: "numeric", month: "long", year: "numeric" },
+                          )}
+                        >
+                          <PopoverTrigger asChild>
+                            <button
+                              className={`rounded-sm transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-background hover:scale-125 hover:ring-1 hover:ring-accent ${levelClass(day.level)}`}
+                              style={{ width: CELL, height: CELL }}
+                              aria-label={`Активность за ${day.date}`}
+                            />
+                          </PopoverTrigger>
+                        </Tooltip>
                         <PopoverContent className="w-72 p-0" align="center">
                           <div className="px-3 py-2 border-b border-border/50 bg-surface/50 rounded-t-xl">
                             <div className="font-semibold text-xs text-foreground flex items-center justify-between">
