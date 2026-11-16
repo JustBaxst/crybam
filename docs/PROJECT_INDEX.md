@@ -248,7 +248,7 @@ client: yes
 Тепловая карта активности. Использует Popover для детализации (клик по дню).
 export YearHeatmap: (props: { activities: any[]; mode?: "user" | "admin"; currentUserId?: number }) => JSX.Element
 client: yes
-Особенности: В режиме `admin` показывает переключатель «Вся команда / Только я» и логи действий (события). В режиме `user` показывает просмотренные серии/дорамы. ❌ Не дублировать: старый `AdminHeatmap` удален.
+Особенности: В режиме `admin` показывает переключатель «Вся команда / Только я» и логи действий. В режиме `user` показывает просмотренные серии/дорамы. ❌ Не дублировать: старый `AdminHeatmap` удален.
 
 ### DramaCard.tsx
 
@@ -428,6 +428,9 @@ export EntryData: type
 - `updateEntry` — обновляет/создает запись дневника (статус, оценки, отзывы).
 - `rateDrama` — ставит оценку и пересчитывает средний `ratingCrybam` и `crybamVotes`.
 - `saveCryTag` — сохраняет эмоцию.
+- `decrementProgress` — убирает 1 серию из прогресса и удаляет последнюю запись из `UserEpisodeView`.
+- `incrementProgress` — добавляет 1 серию, обновляет `UserEpisodeView`.
+- `quickSetStatus` / `updateEntry` — при смене статуса на `rewatching` сбрасывают прогресс и увеличивают `rewatchCount`. При удалении записи или статусе `planned` очищают `UserEpisodeView`.
 
 ### app/admin/actions.ts
 
@@ -469,6 +472,12 @@ CRUD персонажей.
 - `/favorites/actors` (Любимые актеры) -> `app/favorites/actors/page.tsx`
 - `/admin/dramas/[id]`, `/admin/people/[id]`, `/admin/characters/[id]` — Bento-дашборды сущностей (постер слева, факты справа, блоки с кнопками «Редактировать», открывающими модалки).
 - `/favorites/characters` (Любимые персонажи) -> `app/favorites/characters/page.tsx`
+
+## Prisma Schema
+
+### Модели БД (новые)
+
+- **`UserEpisodeView`** — история просмотров серий. Используется для точного построения тепловой карты (heatmap) и статистики. Поля: `userId`, `dramaId`, `count` (сколько серий), `viewedAt` (дата). Связи с `User` и `Drama`.
 
 ## Планы на будущее (в разработке)
 

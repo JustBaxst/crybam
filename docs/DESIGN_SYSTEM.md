@@ -61,6 +61,12 @@
 - Заголовок внутри таба: иконка `w-5 h-5 text-accent` + `text-lg font-semibold`.
 - Пустое состояние: `text-center py-10 text-muted italic border border-dashed border-border rounded-2xl`.
 
+## 📊 Паттерн: Тепловая карта (Heatmap)
+
+- **Сетка:** Пустые дни — прозрачный фон с тонкой рамкой (`bg-transparent border border-border/60`). Дни с активностью — градация акцентного цвета (`bg-accent/25`, `bg-accent/50` и т.д.).
+- **Ховер:** При наведении ячейка увеличивается (`hover:scale-125`) и получает акцентную рамку (`hover:ring-1 hover:ring-accent`).
+- **Детализация:** По клику открывается `Popover` (не тултип!), внутри которого можно скроллить список событий.
+
 ## 🪟 Паттерн: Модалка (Form)
 
 - Оверлей: `fixed inset-0 bg-background/80 backdrop-blur-sm`.
