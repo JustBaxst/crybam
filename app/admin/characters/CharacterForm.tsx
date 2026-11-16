@@ -1,9 +1,16 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Save, UserCircle, FileText, Image, Users, Sparkles } from "lucide-react";
+import { Save, UserCircle, FileText, Image } from "lucide-react";
 import { createCharacter, updateCharacter } from "./actions";
 import { FormSection } from "@/components/FormSection";
+import {
+  FormField,
+  FormInput,
+  FormSelect,
+  FormTextarea,
+  FormError,
+} from "@/components/ui/form-elements";
 
 type CharacterData = {
   id?: number;
@@ -40,6 +47,7 @@ export function CharacterForm({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
     const formData = new FormData(e.currentTarget);
     if (fromDrama) formData.set("fromDrama", fromDrama);
 
@@ -51,10 +59,6 @@ export function CharacterForm({
       }
     });
   };
-
-  const inputCls =
-    "w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors text-sm";
-  const labelCls = "block text-xs font-medium text-muted mb-1.5";
 
   return (
     <form
@@ -72,27 +76,18 @@ export function CharacterForm({
         description="Имя и принадлежность к дораме"
       >
         {character ? (
-          <div>
-            <label className={labelCls}>Дорама</label>
+          <FormField
+            label="Дорама"
+            description="Дораму нельзя изменить после создания"
+          >
             <div className="px-3 py-2 rounded-lg border border-border bg-background/50 text-sm text-muted">
               {dramas.find((d) => d.id === character.dramaId)?.title ??
                 "Неизвестная дорама"}
             </div>
-            <p className="text-[11px] text-muted/70 mt-1.5">
-              Дораму нельзя изменить после создания
-            </p>
-          </div>
+          </FormField>
         ) : (
-          <div>
-            <label className={labelCls}>
-              Дорама <span className="text-accent">*</span>
-            </label>
-            <select
-              name="dramaId"
-              required
-              defaultValue=""
-              className={inputCls}
-            >
+          <FormField label="Дорама" required>
+            <FormSelect name="dramaId" required defaultValue="">
               <option value="" disabled>
                 — выбери дораму —
               </option>
@@ -102,81 +97,64 @@ export function CharacterForm({
                   {d.year && ` (${d.year})`}
                 </option>
               ))}
-            </select>
-          </div>
+            </FormSelect>
+          </FormField>
         )}
 
-        <div>
-          <label className={labelCls}>
-            Имя персонажа <span className="text-accent">*</span>
-          </label>
-          <input
+        <FormField label="Имя персонажа" required>
+          <FormInput
             type="text"
             name="name"
             defaultValue={character?.name ?? ""}
             required
             placeholder="Мун Ган Тэ"
-            className={inputCls}
           />
-        </div>
+        </FormField>
 
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className={labelCls}>Пол</label>
-            <select
-              name="gender"
-              defaultValue={character?.gender ?? ""}
-              className={inputCls}
-            >
+          <FormField label="Пол">
+            <FormSelect name="gender" defaultValue={character?.gender ?? ""}>
               <option value="">— не указан —</option>
               <option value="male">Мужской</option>
               <option value="female">Женский</option>
               <option value="other">Другой</option>
-            </select>
-          </div>
-          <div>
-            <label className={labelCls}>Профессия / Роль</label>
-            <input
+            </FormSelect>
+          </FormField>
+          <FormField label="Профессия / Роль">
+            <FormInput
               type="text"
               name="occupation"
               defaultValue={character?.occupation ?? ""}
               placeholder="Наследный принц, Детектив..."
-              className={inputCls}
             />
-          </div>
+          </FormField>
         </div>
 
         <div className="grid grid-cols-3 gap-4">
-          <div>
-            <label className={labelCls}>Рост</label>
-            <input
+          <FormField label="Рост">
+            <FormInput
               type="text"
               name="height"
               defaultValue={character?.height ?? ""}
               placeholder="178 см"
-              className={inputCls}
             />
-          </div>
-          <div>
-            <label className={labelCls}>Возраст</label>
-            <input
+          </FormField>
+          <FormField label="Возраст">
+            <FormInput
               type="text"
               name="age"
               defaultValue={character?.age ?? ""}
               placeholder="25 (или 1000+)"
-              className={inputCls}
             />
-          </div>
-          <div>
-            <label className={labelCls}>День рождения</label>
-            <input
+          </FormField>
+          <FormField label="День рождения">
+            <FormInput
               type="text"
               name="birthDate"
               defaultValue={character?.birthDate ?? ""}
               placeholder="14 февраля"
-              className={inputCls}
             />
-          </div>
+          </FormField>
         </div>
       </FormSection>
 
@@ -186,37 +164,29 @@ export function CharacterForm({
         title="Описание"
         description="Роль персонажа в сюжете"
       >
-        <div>
-          <label className={labelCls}>Описание роли</label>
-          <textarea
+        <FormField label="Описание роли">
+          <FormTextarea
             name="description"
             defaultValue={character?.description ?? ""}
             rows={4}
             placeholder="Медбрат в психиатрической больнице, заботится о старшем брате..."
-            className={`${inputCls} resize-y`}
           />
-        </div>
+        </FormField>
       </FormSection>
 
       {/* ─── МЕДИА ─── */}
       <FormSection Icon={Image} title="Медиа" description="Фото персонажа">
-        <div>
-          <label className={labelCls}>URL фотографии</label>
-          <input
+        <FormField label="URL фотографии">
+          <FormInput
             type="url"
             name="imageUrl"
             defaultValue={character?.imageUrl ?? ""}
             placeholder="https://..."
-            className={inputCls}
           />
-        </div>
+        </FormField>
       </FormSection>
 
-      {error && (
-        <p className="text-sm text-red-400 border border-red-500/30 bg-red-500/10 rounded-lg px-3 py-2">
-          {error}
-        </p>
-      )}
+      <FormError error={error} />
 
       <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
         <button
@@ -225,11 +195,7 @@ export function CharacterForm({
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
         >
           <Save className="w-4 h-4" />
-          {isPending
-            ? "Сохранение..."
-            : character
-            ? "Сохранить"
-            : "Создать"}
+          {isPending ? "Сохранение..." : character ? "Сохранить" : "Создать"}
         </button>
       </div>
     </form>
