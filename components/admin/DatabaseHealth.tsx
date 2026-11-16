@@ -3,6 +3,11 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 type StatGroup = { total: number; green: number; yellow: number; red: number };
 type TabType = "all" | "dramas" | "persons" | "characters";
@@ -72,21 +77,18 @@ export function DatabaseHealth({
     {
       filter: "green",
       label: "Готовы",
-      count: currentStats.green,
       color: "text-green-500",
       hover: "hover:border-green-500/50",
     },
     {
       filter: "yellow",
       label: "В процессе",
-      count: currentStats.yellow,
       color: "text-yellow-500",
       hover: "hover:border-yellow-500/50",
     },
     {
       filter: "red",
       label: "Требуют внимания",
-      count: currentStats.red,
       color: "text-red-500",
       hover: "hover:border-red-500/50",
     },
@@ -164,36 +166,77 @@ export function DatabaseHealth({
       {/* Плашки со счётчиками внизу */}
       <div className="grid grid-cols-3 gap-3 mt-auto pt-4">
         {cards.map((c) => {
-          const Content = (
+          const statusKey = c.filter as keyof StatGroup;
+          const totalForStatus = currentStats[statusKey];
+
+          const CardContent = (
             <>
-              <span className={`text-2xl font-bold ${c.color}`}>{c.count}</span>
+              <span className={`text-2xl font-bold ${c.color}`}>
+                {totalForStatus}
+              </span>
               <span className="text-[10px] text-muted mt-1 uppercase tracking-wider font-semibold group-hover:text-foreground transition-colors">
                 {c.label}
               </span>
             </>
           );
 
-          // Если выбрана вкладка "Все", выводим заглушку вместо ссылки
+          // Для вкладки "Все" — выпадающее меню (Popover)
           if (tab === "all") {
             return (
-              <div
-                key={c.filter}
-                className="flex flex-col p-3 rounded-xl border border-border bg-background/50 opacity-60 cursor-not-allowed text-center group"
-                title="Выберите категорию для фильтрации"
-              >
-                {Content}
-              </div>
+              <Popover key={c.filter}>
+                <PopoverTrigger asChild>
+                  <button
+                    className={`flex flex-col p-3 rounded-xl border border-border bg-background ${c.hover} transition-colors text-center group w-full cursor-pointer`}
+                  >
+                    {CardContent}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-56 p-2" align="center">
+                  <div className="text-[11px] font-semibold text-muted uppercase tracking-wider px-2 py-1.5 mb-1">
+                    {c.label}
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <Link
+                      href={`/admin/dramas?filter=${c.filter}`}
+                      className="flex items-center justify-between px-2 py-1.5 text-sm rounded-md hover:bg-surface/50 transition-colors"
+                    >
+                      <span>Дорамы</span>
+                      <span className="font-semibold tabular-nums">
+                        {dramas[statusKey]}
+                      </span>
+                    </Link>
+                    <Link
+                      href={`/admin/people?filter=${c.filter}`}
+                      className="flex items-center justify-between px-2 py-1.5 text-sm rounded-md hover:bg-surface/50 transition-colors"
+                    >
+                      <span>Актеры</span>
+                      <span className="font-semibold tabular-nums">
+                        {persons[statusKey]}
+                      </span>
+                    </Link>
+                    <Link
+                      href={`/admin/characters?filter=${c.filter}`}
+                      className="flex items-center justify-between px-2 py-1.5 text-sm rounded-md hover:bg-surface/50 transition-colors"
+                    >
+                      <span>Персонажи</span>
+                      <span className="font-semibold tabular-nums">
+                        {characters[statusKey]}
+                      </span>
+                    </Link>
+                  </div>
+                </PopoverContent>
+              </Popover>
             );
           }
 
-          // Иначе выводим рабочую ссылку
+          // Для конкретной вкладки — обычная ссылка
           return (
             <Link
               key={c.filter}
               href={`${baseUrl}?filter=${c.filter}`}
               className={`flex flex-col p-3 rounded-xl border border-border bg-background ${c.hover} transition-colors text-center group`}
             >
-              {Content}
+              {CardContent}
             </Link>
           );
         })}
