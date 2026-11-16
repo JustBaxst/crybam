@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, Film, User, Users } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -191,34 +191,43 @@ export function DatabaseHealth({
                     {CardContent}
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-56 p-2" align="center">
-                  <div className="text-[11px] font-semibold text-muted uppercase tracking-wider px-2 py-1.5 mb-1">
+                <PopoverContent align="center">
+                  <div className="text-[10px] font-semibold text-muted uppercase tracking-wider px-2 py-1 mb-1 border-b border-border/50 pb-2">
                     {c.label}
                   </div>
-                  <div className="flex flex-col gap-0.5">
+                  <div className="flex flex-col gap-0.5 mt-1">
                     <Link
                       href={`/admin/dramas?filter=${c.filter}`}
-                      className="flex items-center justify-between px-2 py-1.5 text-sm rounded-md hover:bg-surface/50 transition-colors"
+                      className="flex items-center justify-between px-2 py-1.5 text-sm rounded-lg hover:bg-accent/10 hover:text-accent transition-colors group"
                     >
-                      <span>Дорамы</span>
+                      <span className="flex items-center gap-2">
+                        <Film className="w-3.5 h-3.5 text-muted group-hover:text-accent transition-colors" />
+                        Дорамы
+                      </span>
                       <span className="font-semibold tabular-nums">
                         {dramas[statusKey]}
                       </span>
                     </Link>
                     <Link
                       href={`/admin/people?filter=${c.filter}`}
-                      className="flex items-center justify-between px-2 py-1.5 text-sm rounded-md hover:bg-surface/50 transition-colors"
+                      className="flex items-center justify-between px-2 py-1.5 text-sm rounded-lg hover:bg-accent/10 hover:text-accent transition-colors group"
                     >
-                      <span>Актеры</span>
+                      <span className="flex items-center gap-2">
+                        <User className="w-3.5 h-3.5 text-muted group-hover:text-accent transition-colors" />
+                        Актеры
+                      </span>
                       <span className="font-semibold tabular-nums">
                         {persons[statusKey]}
                       </span>
                     </Link>
                     <Link
                       href={`/admin/characters?filter=${c.filter}`}
-                      className="flex items-center justify-between px-2 py-1.5 text-sm rounded-md hover:bg-surface/50 transition-colors"
+                      className="flex items-center justify-between px-2 py-1.5 text-sm rounded-lg hover:bg-accent/10 hover:text-accent transition-colors group"
                     >
-                      <span>Персонажи</span>
+                      <span className="flex items-center gap-2">
+                        <Users className="w-3.5 h-3.5 text-muted group-hover:text-accent transition-colors" />
+                        Персонажи
+                      </span>
                       <span className="font-semibold tabular-nums">
                         {characters[statusKey]}
                       </span>
