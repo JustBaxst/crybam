@@ -62,17 +62,17 @@ function toKey(d: Date) {
 function levelClass(level: number) {
   switch (level) {
     case 0:
-      return "bg-border/40";
+      return "bg-transparent border border-border/60 hover:border-accent/50 hover:bg-accent/5"; // Прозрачный с рамкой
     case 1:
-      return "bg-accent/25";
+      return "bg-accent/25 border border-transparent";
     case 2:
-      return "bg-accent/50";
+      return "bg-accent/50 border border-transparent";
     case 3:
-      return "bg-accent/75";
+      return "bg-accent/75 border border-transparent";
     case 4:
-      return "bg-accent";
+      return "bg-accent border border-transparent";
     default:
-      return "bg-border/40";
+      return "bg-transparent border border-border/60";
   }
 }
 
@@ -270,14 +270,24 @@ export function YearHeatmap({
                         <div key={di} style={{ width: CELL, height: CELL }} />
                       );
 
+                    // Вычисляем текст для тултипа
+                    const count =
+                      mode === "admin"
+                        ? (day.totalActions ?? 0)
+                        : (day.episodes ?? 0);
+                    const unit = mode === "admin" ? "действ." : "сер.";
+                    const dateStr = new Date(day.date).toLocaleDateString(
+                      "ru-RU",
+                      { day: "numeric", month: "long" },
+                    );
+                    const tooltipText =
+                      day.level === 0
+                        ? `${dateStr} · нет активности`
+                        : `${dateStr} · ${count} ${unit}`;
+
                     return (
                       <Popover key={di}>
-                        <Tooltip
-                          content={new Date(day.date).toLocaleDateString(
-                            "ru-RU",
-                            { day: "numeric", month: "long", year: "numeric" },
-                          )}
-                        >
+                        <Tooltip content={tooltipText}>
                           <PopoverTrigger asChild>
                             <button
                               className={`rounded-sm transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-background hover:scale-125 hover:ring-1 hover:ring-accent ${levelClass(day.level)}`}
