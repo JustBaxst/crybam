@@ -63,29 +63,32 @@ export async function updateEntry(formData: FormData) {
     });
   }
 
-  // СИНХРОНИЗАЦИЯ ТЕПЛОВОЙ КАРТЫ
-  // Если дорама просмотрена и указана дата, перезаписываем историю серий под эту дату
+  // СИНХРОНИЗАЦИЯ С КАРТОЙ АКТИВНОСТИ
   if (status === "watched" && watchedAt) {
-    // 1. Получаем общее количество серий в дораме
     const dramaInfo = await prisma.drama.findUnique({
       where: { id: dramaId },
       select: { episodes: true },
     });
 
-    // 2. Удаляем старые записи об просмотре этой дорамы (если мы меняли статусы или жали +)
+    // 1. Удаляем все старые логи просмотров для этой дорамы
     await prisma.userEpisodeView.deleteMany({
       where: { userId: CURRENT_USER_ID, dramaId },
     });
 
-    // 3. Создаем новую запись на ту дату, которую пользователь указал в форме
+    // 2. Создаем новую запись на ту дату, которую указал пользователь
     await prisma.userEpisodeView.create({
       data: {
         userId: CURRENT_USER_ID,
         dramaId,
-        // Если прогресс не указан, берем все серии дорамы (или хотя бы 1)
         count: progress || dramaInfo?.episodes || 1,
         viewedAt: watchedAt,
       },
+    });
+  } else {
+    // Если статус не "Просмотрено", очищаем всю историю для этой дорамы,
+    // чтобы она не висела на карте активности
+    await prisma.userEpisodeView.deleteMany({
+      where: { userId: CURRENT_USER_ID, dramaId },
     });
   }
 
@@ -612,13 +615,11 @@ export async function quickSetStatus(formData: FormData) {
     return { error: "Неверный статус" };
   }
 
-  // Подтягиваем текущую запись и количество серий в дораме
   const existing = await prisma.userDramaEntry.findFirst({
     where: { userId: CURRENT_USER_ID, dramaId },
     include: { drama: { select: { episodes: true } } },
   });
 
-  // Формируем данные для обновления (правим дату только если нужно)
   const updateData: any = { status };
   if (status === "watched" && !existing?.watchedAt) {
     updateData.watchedAt = new Date();
@@ -642,28 +643,27 @@ export async function quickSetStatus(formData: FormData) {
     });
   }
 
-  // ЛОГИКА ДЛЯ ТЕПЛОВОЙ КАРТЫ:
-  // Если статус меняется на "Просмотрено", мы должны засчитать оставшиеся серии
+  // ЛОГИКА СИНХРОНИЗАЦИИ С КАРТОЙ АКТИВНОСТИ
   if (status === "watched") {
     const totalEps = existing?.drama.episodes || 0;
     const watchedEps = existing?.progress || 0;
     const remainingEps = Math.max(totalEps - watchedEps, 0);
 
-    // Если есть непросмотренные серии, записываем их в историю
     if (remainingEps > 0) {
       await prisma.userEpisodeView.create({
-        data: {
-          userId: CURRENT_USER_ID,
-          dramaId,
-          count: remainingEps,
-        },
+        data: { userId: CURRENT_USER_ID, dramaId, count: remainingEps },
       });
     } else if (!existing && totalEps === 0) {
-      // Если у дорамы вообще не указано число серий, но мы её "посмотрели", ставим 1 для активности
+      // Если у дорамы нет числа серий, ставим 1
       await prisma.userEpisodeView.create({
         data: { userId: CURRENT_USER_ID, dramaId, count: 1 },
       });
     }
+  } else {
+    // Если статус НЕ "Просмотрено", полностью очищаем историю серий для этой дорамы
+    await prisma.userEpisodeView.deleteMany({
+      where: { userId: CURRENT_USER_ID, dramaId },
+    });
   }
 
   revalidatePath(`/dramas/${dramaId}`);
@@ -878,7 +878,13 @@ export async function incrementProgress(dramaId: number) {
 }
 
 export async function removeEntry(dramaId: number) {
+  // 1. Удаляем запись из дневника
   await prisma.userDramaEntry.deleteMany({
+    where: { userId: CURRENT_USER_ID, dramaId },
+  });
+
+  // 2. Удаляем историю просмотров серий (чтобы не засорять тепловую карту)
+  await prisma.userEpisodeView.deleteMany({
     where: { userId: CURRENT_USER_ID, dramaId },
   });
 
