@@ -74,9 +74,14 @@
 ## 🗃️ Паттерн: Popover (Всплывающее меню)
 
 - Базовая обертка: `Popover`, `PopoverTrigger`, `PopoverContent` из `components/ui/popover.tsx`.
-- Контейнер (уже настроен в компоненте): `rounded-xl border border-border/50 bg-surface shadow-xl z-50`.
+- Контейнер (уже настроен в компоненте): `rounded-xl border border-border/50 bg-surface shadow-xl z-50 p-2 w-fit`.
 - Отступ от триггера: `sideOffset={6}`.
-- Внутри поповера используется стандартная структура: заголовок (если нужно) + список элементов с `hover:bg-surface/50`.
+- Анимация: нативные CSS-транзишены (`transition-opacity data-[state=open]:opacity-100`).
+- **Внутренние ссылки (списки):**
+  - Обертка: `flex flex-col gap-0.5 mt-1`.
+  - Элемент (Link): `flex items-center justify-between px-2 py-1.5 text-sm rounded-lg hover:bg-accent/10 hover:text-accent transition-colors group`.
+  - Иконка слева: `w-3.5 h-3.5 text-muted group-hover:text-accent transition-colors`.
+  - Число/значение справа: `font-semibold tabular-nums`.
 - ❌ Не использовать стандартный `bg-white` или `bg-zinc` внутри поповеров.
 
 ## 🖱️ Паттерн: Hover-оверлей (Карточки)

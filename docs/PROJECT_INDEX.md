@@ -56,6 +56,7 @@ client: yes
 Обертка над Radix Popover. Стилизована под Bento-дизайн (bg-surface, shadow-xl).
 export Popover, PopoverTrigger, PopoverContent, PopoverAnchor
 client: yes
+Особенности: ширина подстраивается под контент (`w-fit min-w-[200px]`). Используются нативные CSS-анимации (`transition-opacity`), плагин `tailwindcss-animate` не требуется.
 Не дублировать: стилизовать попапы вручную.
 
 ### split-button.tsx
