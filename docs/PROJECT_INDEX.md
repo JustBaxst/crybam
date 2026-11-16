@@ -124,7 +124,8 @@ client: no
 
 ### CardStatusToolbar.tsx
 
-Панель быстрых статусов (Segmented Control) для карточки каталога.
+Панель быстрых статусов для hover-оверлея карточки каталога.
+Особенности: использует кастомные тултипы (без bg-zinc) и берет иконки из `DRAMA_STATUSES`. Включает статус «Пересматриваю» и кнопку удаления.
 export CardStatusToolbar: (props: { dramaId: number; currentStatus?: string }) => JSX.Element
 client: yes
 
@@ -312,6 +313,10 @@ client: no
 
 Вспомогательные компоненты.
 
+### LibraryBar.tsx
+
+Полоса распределения статусов на главной. Включает сегмент `rewatching` (Пересматриваю).
+
 ### admin/dramas/page.tsx
 
 Страница списка дорам в админке (таблица).
@@ -335,7 +340,7 @@ export cryTagLabel: (tag: string | null | undefined) => string
 
 ### drama-status.ts
 
-Статусы дневника (Смотрю, В планах и т.д.).
+Статусы дневника (Смотрю, Пересматриваю, В планах и т.д.). Содержит единые иконки (Check, Play, RotateCcw и др.) для всего проекта.
 export DRAMA_STATUSES: Record<DramaStatus, { label: string; Icon: LucideIcon }>
 export getStatusLabel: (status: string | null | undefined) => string
 
@@ -428,9 +433,6 @@ export EntryData: type
 - `updateEntry` — обновляет/создает запись дневника (статус, оценки, отзывы).
 - `rateDrama` — ставит оценку и пересчитывает средний `ratingCrybam` и `crybamVotes`.
 - `saveCryTag` — сохраняет эмоцию.
-- `decrementProgress` — убирает 1 серию из прогресса и удаляет последнюю запись из `UserEpisodeView`.
-- `incrementProgress` — добавляет 1 серию, обновляет `UserEpisodeView`.
-- `quickSetStatus` / `updateEntry` — при смене статуса на `rewatching` сбрасывают прогресс и увеличивают `rewatchCount`. При удалении записи или статусе `planned` очищают `UserEpisodeView`.
 
 ### app/admin/actions.ts
 
