@@ -286,8 +286,8 @@ export function NewDramaForm() {
 
       {showImport && (
         <TvmazeImportModal
-          onClose={() => setShowImport(false)}
-          onSelect={handleImportSelect}
+          onCloseAction={() => setShowImport(false)}
+          onSelectAction={handleImportSelect}
         />
       )}
     </>

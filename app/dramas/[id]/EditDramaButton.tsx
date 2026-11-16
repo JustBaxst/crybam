@@ -49,7 +49,7 @@ export function EditDramaButton({
         <EditDramaForm
           dramaId={dramaId}
           drama={drama}
-          onClose={() => setOpen(false)}
+          onCloseAction={() => setOpen(false)}
         />
       )}
     </>

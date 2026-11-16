@@ -49,11 +49,11 @@ type DramaData = {
 export function EditDramaForm({
   dramaId,
   drama,
-  onClose,
+  onCloseAction,
 }: {
   dramaId: number;
   drama: DramaData;
-  onClose: () => void;
+  onCloseAction: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -75,7 +75,7 @@ export function EditDramaForm({
             icon: <Sparkles className="w-4 h-4" />,
           });
         }
-        onClose();
+        onCloseAction();
       }
     });
   };
@@ -97,7 +97,7 @@ export function EditDramaForm({
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={onCloseAction}
             className="w-8 h-8 rounded-lg border border-border hover:border-accent/40 flex items-center justify-center transition-colors"
           >
             <X className="w-4 h-4" />
@@ -321,7 +321,7 @@ export function EditDramaForm({
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border shrink-0">
           <button
             type="button"
-            onClick={onClose}
+            onClick={onCloseAction}
             className="px-4 py-2 rounded-lg border border-border text-sm hover:border-accent/40 transition-colors"
           >
             Отмена
