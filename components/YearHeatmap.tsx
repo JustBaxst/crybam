@@ -62,7 +62,7 @@ function toKey(d: Date) {
 function levelClass(level: number) {
   switch (level) {
     case 0:
-      return "bg-transparent border border-border/60 hover:border-accent/50 hover:bg-accent/5"; // Прозрачный с рамкой
+      return "bg-transparent border border-border/60";
     case 1:
       return "bg-accent/25 border border-transparent";
     case 2:
@@ -115,10 +115,10 @@ export function YearHeatmap({
     () =>
       yearActivities.reduce(
         (sum, a) =>
-          sum + (mode === "admin" ? (a.totalActions ?? 0) : (a.episodes ?? 0)),
+          sum + (a.events?.length || a.totalActions || a.episodes || 0),
         0,
       ),
-    [yearActivities, mode],
+    [yearActivities],
   );
 
   const { weeks, monthPositions } = useMemo(() => {
@@ -270,11 +270,12 @@ export function YearHeatmap({
                         <div key={di} style={{ width: CELL, height: CELL }} />
                       );
 
-                    // Вычисляем текст для тултипа
+                    // Берем количество из events (для админа) или episodes (для юзера)
                     const count =
-                      mode === "admin"
-                        ? (day.totalActions ?? 0)
-                        : (day.episodes ?? 0);
+                      day.events?.length ||
+                      day.totalActions ||
+                      day.episodes ||
+                      0;
                     const unit = mode === "admin" ? "действ." : "сер.";
                     const dateStr = new Date(day.date).toLocaleDateString(
                       "ru-RU",
@@ -285,12 +286,17 @@ export function YearHeatmap({
                         ? `${dateStr} · нет активности`
                         : `${dateStr} · ${count} ${unit}`;
 
+                    const isLevel0 = day.level === 0;
+                    const cellHover = isLevel0
+                      ? "hover:border-accent/50 hover:bg-accent/5"
+                      : "";
+
                     return (
                       <Popover key={di}>
                         <Tooltip content={tooltipText}>
                           <PopoverTrigger asChild>
                             <button
-                              className={`rounded-sm transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-background hover:scale-125 hover:ring-1 hover:ring-accent ${levelClass(day.level)}`}
+                              className={`rounded-sm transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-background hover:scale-125 hover:ring-1 hover:ring-accent ${cellHover} ${levelClass(day.level)}`}
                               style={{ width: CELL, height: CELL }}
                               aria-label={`Активность за ${day.date}`}
                             />
@@ -306,9 +312,7 @@ export function YearHeatmap({
                                 )}
                               </span>
                               <span className="text-muted font-normal">
-                                {mode === "admin"
-                                  ? `${day.totalActions || 0} действ.`
-                                  : `${day.episodes || 0} серий`}
+                                {count} {unit}
                               </span>
                             </div>
                           </div>

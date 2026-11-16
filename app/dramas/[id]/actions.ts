@@ -33,7 +33,6 @@ export async function updateEntry(formData: FormData) {
   const startedAt = startedAtRaw ? new Date(startedAtRaw) : null;
   const watchedAt = watchedAtRaw ? new Date(watchedAtRaw) : null;
 
-
   const existing = await prisma.userDramaEntry.findFirst({
     where: { userId: CURRENT_USER_ID, dramaId },
   });
@@ -69,8 +68,6 @@ export async function updateEntry(formData: FormData) {
   revalidatePath("/");
 
   return { success: true };
-
-
 }
 
 export async function updateDrama(formData: FormData) {
@@ -130,14 +127,19 @@ export async function updateDrama(formData: FormData) {
     return { error: "Не удалось сохранить: " + String(e) };
   }
 
-  // Обновляем платформы                                              
+  // Обновляем платформы
   const platformsRaw = String(formData.get("platforms") ?? "").trim();
   await prisma.dramaPlatform.deleteMany({ where: { dramaId } });
   if (platformsRaw) {
-    const names = platformsRaw.split(",").map(s => s.trim()).filter(Boolean);
+    const names = platformsRaw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
     for (const name of names) {
       const platform = await prisma.platform.upsert({
-        where: { name }, update: {}, create: { name },
+        where: { name },
+        update: {},
+        create: { name },
       });
       await prisma.dramaPlatform.create({
         data: { dramaId, platformId: platform.id },
@@ -145,14 +147,19 @@ export async function updateDrama(formData: FormData) {
     }
   }
 
-  // Обновляем студии                                                
+  // Обновляем студии
   const studiosRaw = String(formData.get("studios") ?? "").trim();
   await prisma.dramaStudio.deleteMany({ where: { dramaId } });
   if (studiosRaw) {
-    const names = studiosRaw.split(",").map(s => s.trim()).filter(Boolean);
+    const names = studiosRaw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
     for (const name of names) {
       const studio = await prisma.studio.upsert({
-        where: { name }, update: {}, create: { name },
+        where: { name },
+        update: {},
+        create: { name },
       });
       await prisma.dramaStudio.create({
         data: { dramaId, studioId: studio.id },
@@ -164,10 +171,15 @@ export async function updateDrama(formData: FormData) {
   const themesRaw = String(formData.get("themes") ?? "").trim();
   await prisma.dramaThemeLink.deleteMany({ where: { dramaId } });
   if (themesRaw) {
-    const names = themesRaw.split(",").map(s => s.trim()).filter(Boolean);
+    const names = themesRaw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
     for (const name of names) {
       const theme = await prisma.dramaTheme.upsert({
-        where: { name }, update: {}, create: { name },
+        where: { name },
+        update: {},
+        create: { name },
       });
       await prisma.dramaThemeLink.create({
         data: { dramaId, themeId: theme.id },
@@ -188,7 +200,7 @@ export async function updateDrama(formData: FormData) {
         entityId: dramaId,
         entityName: title,
         isPublic: true,
-      }
+      },
     });
   }
 
@@ -197,9 +209,15 @@ export async function updateDrama(formData: FormData) {
   revalidatePath("/");
 
   await prisma.adminLog.create({
-    data: { userId: CURRENT_USER_ID, action: "DRAMA_UPDATED", entityType: "drama", entityId: dramaId, entityName: title, isPublic: true }
+    data: {
+      userId: CURRENT_USER_ID,
+      action: "DRAMA_UPDATED",
+      entityType: "drama",
+      entityId: dramaId,
+      entityName: title,
+      isPublic: true,
+    },
   });
-
 
   return { success: true, isJustCompleted };
 }
@@ -226,9 +244,9 @@ export async function updateGenres(formData: FormData) {
   const newGenresRaw = String(formData.get("newGenres") ?? "").trim();
   const newGenreNames = newGenresRaw
     ? newGenresRaw
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean)
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
     : [];
 
   // Находим или создаём новые жанры
@@ -258,18 +276,34 @@ export async function updateGenres(formData: FormData) {
   let isJustCompleted = false;
   if (oldStatus !== "green" && newStatus === "green") {
     isJustCompleted = true;
-    const d = await prisma.drama.findUnique({ where: { id: dramaId }, select: { title: true } });
+    const d = await prisma.drama.findUnique({
+      where: { id: dramaId },
+      select: { title: true },
+    });
     await prisma.adminLog.create({
-      data: { userId: CURRENT_USER_ID, action: "DRAMA_COMPLETED", entityType: "drama", entityId: dramaId, entityName: d?.title || "Без названия", isPublic: true }
+      data: {
+        userId: CURRENT_USER_ID,
+        action: "DRAMA_COMPLETED",
+        entityType: "drama",
+        entityId: dramaId,
+        entityName: d?.title || "Без названия",
+        isPublic: true,
+      },
     });
   }
 
   revalidatePath(`/dramas/${dramaId}`);
   revalidatePath("/library");
 
-
   await prisma.adminLog.create({
-    data: { userId: CURRENT_USER_ID, action: "DRAMA_GENRES_UPDATED", entityType: "drama", entityId: dramaId, entityName: "Жанры обновлены", isPublic: false }
+    data: {
+      userId: CURRENT_USER_ID,
+      action: "DRAMA_GENRES_UPDATED",
+      entityType: "drama",
+      entityId: dramaId,
+      entityName: "Жанры обновлены",
+      isPublic: false,
+    },
   });
 
   return { success: true, isJustCompleted };
@@ -292,7 +326,8 @@ export async function addCredit(formData: FormData) {
   const importance = ["lead", "support", "guest"].includes(importanceRaw)
     ? importanceRaw
     : "support";
-  const characterName = String(formData.get("characterName") ?? "").trim() || null;
+  const characterName =
+    String(formData.get("characterName") ?? "").trim() || null;
   const characterDescription =
     String(formData.get("characterDescription") ?? "").trim() || null;
   const orderRaw = String(formData.get("order") ?? "").trim();
@@ -309,14 +344,14 @@ export async function addCredit(formData: FormData) {
   if (persons.length > 1) {
     // Если актеров несколько, возвращаем ошибку и просим уточнить
     return {
-      error: `Найдено несколько актеров с именем «${personName}». Пожалуйста, добавьте роль через карточку нужного актера в админке, чтобы избежать путаницы.`
+      error: `Найдено несколько актеров с именем «${personName}». Пожалуйста, добавьте роль через карточку нужного актера в админке, чтобы избежать путаницы.`,
     };
   } else if (persons.length === 1) {
     person = persons[0];
   } else {
     // Если не нашли — создаем нового
     person = await prisma.person.create({
-      data: { name: personName, nameLower: personName.toLowerCase() }
+      data: { name: personName, nameLower: personName.toLowerCase() },
     });
   }
 
@@ -385,16 +420,19 @@ export async function addCredit(formData: FormData) {
   });
 
   // Логируем добавление в каст
-  const dramaInfo = await prisma.drama.findUnique({ where: { id: dramaId }, select: { title: true } });
+  const dramaInfo = await prisma.drama.findUnique({
+    where: { id: dramaId },
+    select: { title: true },
+  });
   await prisma.adminLog.create({
     data: {
       userId: CURRENT_USER_ID,
       action: "CREDIT_ADDED",
       entityType: "drama",
       entityId: dramaId,
-      entityName: `${personName} (${roleType === 'actor' ? 'Актер' : roleType === 'director' ? 'Режиссер' : 'Сценарист'})`,
+      entityName: `${personName} (${roleType === "actor" ? "Актер" : roleType === "director" ? "Режиссер" : "Сценарист"})`,
       isPublic: true, // Поставь true, если хочешь, чтобы это светилось в Хронике
-    }
+    },
   });
 
   revalidatePath(`/dramas/${dramaId}`);
@@ -403,9 +441,19 @@ export async function addCredit(formData: FormData) {
   let isJustCompleted = false;
   if (oldStatus !== "green" && newStatus === "green") {
     isJustCompleted = true;
-    const d = await prisma.drama.findUnique({ where: { id: dramaId }, select: { title: true } });
+    const d = await prisma.drama.findUnique({
+      where: { id: dramaId },
+      select: { title: true },
+    });
     await prisma.adminLog.create({
-      data: { userId: CURRENT_USER_ID, action: "DRAMA_COMPLETED", entityType: "drama", entityId: dramaId, entityName: d?.title || "Без названия", isPublic: true }
+      data: {
+        userId: CURRENT_USER_ID,
+        action: "DRAMA_COMPLETED",
+        entityType: "drama",
+        entityId: dramaId,
+        entityName: d?.title || "Без названия",
+        isPublic: true,
+      },
     });
   }
 
@@ -432,8 +480,14 @@ export async function removeCredit(formData: FormData) {
   await prisma.credit.delete({ where: { id: creditId } });
 
   // Логируем удаление из каста
-  const dramaInfo = await prisma.drama.findUnique({ where: { id: dramaId }, select: { title: true } });
-  const personInfo = await prisma.person.findUnique({ where: { id: credit.personId }, select: { name: true } });
+  const dramaInfo = await prisma.drama.findUnique({
+    where: { id: dramaId },
+    select: { title: true },
+  });
+  const personInfo = await prisma.person.findUnique({
+    where: { id: credit.personId },
+    select: { name: true },
+  });
 
   await prisma.adminLog.create({
     data: {
@@ -443,7 +497,7 @@ export async function removeCredit(formData: FormData) {
       entityId: dramaId,
       entityName: personInfo?.name || "Неизвестный",
       isPublic: false,
-    }
+    },
   });
 
   // 3. Если у персонажа больше нет кредитов — мягко удаляем и его
@@ -508,7 +562,14 @@ export async function updateCredit(formData: FormData) {
   revalidatePath(`/dramas/${dramaId}`);
 
   await prisma.adminLog.create({
-    data: { userId: CURRENT_USER_ID, action: "CREDIT_UPDATED", entityType: "drama", entityId: dramaId, entityName: "Роль в касте обновлена", isPublic: false }
+    data: {
+      userId: CURRENT_USER_ID,
+      action: "CREDIT_UPDATED",
+      entityType: "drama",
+      entityId: dramaId,
+      entityName: "Роль в касте обновлена",
+      isPublic: false,
+    },
   });
   return { success: true };
 }
@@ -529,11 +590,23 @@ export async function quickSetStatus(formData: FormData) {
     where: { userId: CURRENT_USER_ID, dramaId },
   });
 
+  // Если ставим статус "watched" и даты еще нет — ставим сегодняшнюю.
+  // Если меняем с "watched" на другой — стираем дату.
+  const watchedAtUpdate =
+    status === "watched" ? { watchedAt: new Date() } : { watchedAt: null };
+
   if (existing) {
     // Меняем только статус, остальные поля не трогаем
     await prisma.userDramaEntry.update({
       where: { id: existing.id },
-      data: { status },
+      data: {
+        status,
+        // Обновляем дату только если она изменилась или ставим новую
+        ...(status === "watched" && !existing.watchedAt
+          ? { watchedAt: new Date() }
+          : {}),
+        ...(status !== "watched" ? { watchedAt: null } : {}),
+      },
     });
   } else {
     await prisma.userDramaEntry.create({
@@ -541,6 +614,7 @@ export async function quickSetStatus(formData: FormData) {
         userId: CURRENT_USER_ID,
         dramaId,
         status,
+        watchedAt: status === "watched" ? new Date() : null,
       },
     });
   }
@@ -554,7 +628,8 @@ export async function quickSetStatus(formData: FormData) {
 
 export async function updateTitles(formData: FormData) {
   const dramaId = Number(formData.get("dramaId"));
-  if (!Number.isInteger(dramaId) || dramaId <= 0) return { error: "Неверный ID" };
+  if (!Number.isInteger(dramaId) || dramaId <= 0)
+    return { error: "Неверный ID" };
 
   // СНАЧАЛА читаем старый статус
   const oldStatus = await getDramaStatus(dramaId);
@@ -566,7 +641,10 @@ export async function updateTitles(formData: FormData) {
   });
 
   if (titlesRaw) {
-    const titles = titlesRaw.split(/\n/).map(t => t.trim()).filter(Boolean);
+    const titles = titlesRaw
+      .split(/\n/)
+      .map((t) => t.trim())
+      .filter(Boolean);
 
     for (const title of titles) {
       await prisma.dramaTitle.create({
@@ -586,25 +664,42 @@ export async function updateTitles(formData: FormData) {
   let isJustCompleted = false;
   if (oldStatus !== "green" && newStatus === "green") {
     isJustCompleted = true;
-    const d = await prisma.drama.findUnique({ where: { id: dramaId }, select: { title: true } });
+    const d = await prisma.drama.findUnique({
+      where: { id: dramaId },
+      select: { title: true },
+    });
     await prisma.adminLog.create({
-      data: { userId: CURRENT_USER_ID, action: "DRAMA_COMPLETED", entityType: "drama", entityId: dramaId, entityName: d?.title || "Без названия", isPublic: true }
+      data: {
+        userId: CURRENT_USER_ID,
+        action: "DRAMA_COMPLETED",
+        entityType: "drama",
+        entityId: dramaId,
+        entityName: d?.title || "Без названия",
+        isPublic: true,
+      },
     });
   }
 
   revalidatePath(`/dramas/${dramaId}`);
   revalidatePath(`/admin/dramas/${dramaId}`);
 
-
   await prisma.adminLog.create({
-    data: { userId: CURRENT_USER_ID, action: "DRAMA_TITLES_UPDATED", entityType: "drama", entityId: dramaId, entityName: "Названия обновлены", isPublic: false }
+    data: {
+      userId: CURRENT_USER_ID,
+      action: "DRAMA_TITLES_UPDATED",
+      entityType: "drama",
+      entityId: dramaId,
+      entityName: "Названия обновлены",
+      isPublic: false,
+    },
   });
 
   return { success: true, isJustCompleted };
 }
 export async function addSoundtrack(formData: FormData) {
   const dramaId = Number(formData.get("dramaId"));
-  if (!Number.isInteger(dramaId) || dramaId <= 0) return { error: "Неверный ID" };
+  if (!Number.isInteger(dramaId) || dramaId <= 0)
+    return { error: "Неверный ID" };
 
   const title = String(formData.get("title") ?? "").trim();
   const url = String(formData.get("url") ?? "").trim();
@@ -618,7 +713,9 @@ export async function addSoundtrack(formData: FormData) {
 
   if (url.includes("youtube.com") || url.includes("youtu.be")) {
     provider = "youtube";
-    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=))([^"&?\/\s]{11})/);
+    const match = url.match(
+      /(?:youtu\.be\/|youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=))([^"&?\/\s]{11})/,
+    );
     if (match) embedId = match[1];
   } else if (url.includes("spotify.com")) {
     provider = "spotify";
@@ -642,7 +739,14 @@ export async function addSoundtrack(formData: FormData) {
   });
 
   await prisma.adminLog.create({
-    data: { userId: CURRENT_USER_ID, action: "SOUNDTRACK_ADDED", entityType: "drama", entityId: dramaId, entityName: title, isPublic: false }
+    data: {
+      userId: CURRENT_USER_ID,
+      action: "SOUNDTRACK_ADDED",
+      entityType: "drama",
+      entityId: dramaId,
+      entityName: title,
+      isPublic: false,
+    },
   });
 
   revalidatePath(`/dramas/${dramaId}`);
@@ -660,7 +764,7 @@ export async function removeSoundtrack(formData: FormData) {
   // 1. Сначала находим трек, чтобы узнать его название для лога
   const track = await prisma.soundtrackLink.findUnique({
     where: { id: soundtrackId },
-    select: { title: true }
+    select: { title: true },
   });
 
   // 2. Удаляем
@@ -674,8 +778,8 @@ export async function removeSoundtrack(formData: FormData) {
       entityType: "drama",
       entityId: dramaId,
       entityName: track?.title || "Неизвестный трек",
-      isPublic: false
-    }
+      isPublic: false,
+    },
   });
 
   revalidatePath(`/dramas/${dramaId}`);
@@ -685,7 +789,7 @@ export async function removeSoundtrack(formData: FormData) {
 export async function incrementProgress(dramaId: number) {
   const entry = await prisma.userDramaEntry.findFirst({
     where: { userId: CURRENT_USER_ID, dramaId },
-    include: { drama: { select: { episodes: true } } }
+    include: { drama: { select: { episodes: true } } },
   });
   if (!entry) return { error: "Запись не найдена" };
 
@@ -702,8 +806,8 @@ export async function incrementProgress(dramaId: number) {
     where: { id: entry.id },
     data: {
       progress: newProgress,
-      ...(isFinished ? { status: "watched", watchedAt: new Date() } : {})
-    }
+      ...(isFinished ? { status: "watched", watchedAt: new Date() } : {}),
+    },
   });
 
   revalidatePath(`/dramas/${dramaId}`);
@@ -714,7 +818,7 @@ export async function incrementProgress(dramaId: number) {
 }
 export async function removeEntry(dramaId: number) {
   await prisma.userDramaEntry.deleteMany({
-    where: { userId: CURRENT_USER_ID, dramaId }
+    where: { userId: CURRENT_USER_ID, dramaId },
   });
 
   revalidatePath(`/dramas/${dramaId}`);
@@ -766,7 +870,6 @@ export async function rateDrama(dramaId: number, rating: number) {
   return { success: true };
 }
 
-
 export async function saveCryTag(dramaId: number, cryTag: string) {
   if (!["safe", "bittersweet", "sad"].includes(cryTag)) {
     return { error: "Неверное значение" };
@@ -794,7 +897,8 @@ export async function saveCryTag(dramaId: number, cryTag: string) {
 
 export async function updateMoods(formData: FormData) {
   const dramaId = Number(formData.get("dramaId"));
-  if (!Number.isInteger(dramaId) || dramaId <= 0) return { error: "Неверный ID" };
+  if (!Number.isInteger(dramaId) || dramaId <= 0)
+    return { error: "Неверный ID" };
 
   const oldStatus = await getDramaStatus(dramaId);
 
@@ -807,13 +911,20 @@ export async function updateMoods(formData: FormData) {
   }
 
   const newMoodsRaw = String(formData.get("newMoods") ?? "").trim();
-  const newMoodNames = newMoodsRaw ? newMoodsRaw.split(",").map((s) => s.trim()).filter(Boolean) : [];
+  const newMoodNames = newMoodsRaw
+    ? newMoodsRaw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
 
   const newMoodIds: number[] = [];
   for (const name of newMoodNames) {
     const normalized = name[0].toUpperCase() + name.slice(1);
     const m = await prisma.mood.upsert({
-      where: { name: normalized }, update: {}, create: { name: normalized },
+      where: { name: normalized },
+      update: {},
+      create: { name: normalized },
     });
     newMoodIds.push(m.id);
   }
@@ -830,9 +941,19 @@ export async function updateMoods(formData: FormData) {
   let isJustCompleted = false;
   if (oldStatus !== "green" && newStatus === "green") {
     isJustCompleted = true;
-    const d = await prisma.drama.findUnique({ where: { id: dramaId }, select: { title: true } });
+    const d = await prisma.drama.findUnique({
+      where: { id: dramaId },
+      select: { title: true },
+    });
     await prisma.adminLog.create({
-      data: { userId: CURRENT_USER_ID, action: "DRAMA_COMPLETED", entityType: "drama", entityId: dramaId, entityName: d?.title || "Без названия", isPublic: true }
+      data: {
+        userId: CURRENT_USER_ID,
+        action: "DRAMA_COMPLETED",
+        entityType: "drama",
+        entityId: dramaId,
+        entityName: d?.title || "Без названия",
+        isPublic: true,
+      },
     });
   }
 
@@ -840,16 +961,23 @@ export async function updateMoods(formData: FormData) {
   revalidatePath(`/admin/dramas/${dramaId}`);
 
   await prisma.adminLog.create({
-    data: { userId: CURRENT_USER_ID, action: "DRAMA_MOODS_UPDATED", entityType: "drama", entityId: dramaId, entityName: "Настроения обновлены", isPublic: false }
+    data: {
+      userId: CURRENT_USER_ID,
+      action: "DRAMA_MOODS_UPDATED",
+      entityType: "drama",
+      entityId: dramaId,
+      entityName: "Настроения обновлены",
+      isPublic: false,
+    },
   });
-
 
   return { success: true, isJustCompleted };
 }
 
 export async function updateThemes(formData: FormData) {
   const dramaId = Number(formData.get("dramaId"));
-  if (!Number.isInteger(dramaId) || dramaId <= 0) return { error: "Неверный ID" };
+  if (!Number.isInteger(dramaId) || dramaId <= 0)
+    return { error: "Неверный ID" };
 
   const existingIds: number[] = [];
   for (const [key, value] of formData.entries()) {
@@ -860,12 +988,19 @@ export async function updateThemes(formData: FormData) {
   }
 
   const newThemesRaw = String(formData.get("newThemes") ?? "").trim();
-  const newThemeNames = newThemesRaw ? newThemesRaw.split(",").map((s) => s.trim()).filter(Boolean) : [];
+  const newThemeNames = newThemesRaw
+    ? newThemesRaw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
 
   const newThemeIds: number[] = [];
   for (const name of newThemeNames) {
     const m = await prisma.dramaTheme.upsert({
-      where: { name }, update: {}, create: { name },
+      where: { name },
+      update: {},
+      create: { name },
     });
     newThemeIds.push(m.id);
   }
@@ -882,9 +1017,15 @@ export async function updateThemes(formData: FormData) {
   revalidatePath(`/admin/dramas/${dramaId}`);
 
   await prisma.adminLog.create({
-    data: { userId: CURRENT_USER_ID, action: "DRAMA_THEMES_UPDATED", entityType: "drama", entityId: dramaId, entityName: "Темы обновлены", isPublic: false }
+    data: {
+      userId: CURRENT_USER_ID,
+      action: "DRAMA_THEMES_UPDATED",
+      entityType: "drama",
+      entityId: dramaId,
+      entityName: "Темы обновлены",
+      isPublic: false,
+    },
   });
-
 
   return { success: true };
 }

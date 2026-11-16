@@ -370,8 +370,8 @@ export async function getAdminOverviewData() {
     ([date, data]) => ({
       date,
       level: Math.min(Math.ceil(data.count / 2), 4),
-      episodes: data.count,
-      events: data.events, // ← Передаем массив событий вместо строки
+      totalActions: data.count,
+      events: data.events,
       userIds: data.userIds,
     }),
   );
