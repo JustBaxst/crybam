@@ -586,27 +586,24 @@ export async function quickSetStatus(formData: FormData) {
     return { error: "Неверный статус" };
   }
 
+  // Подтягиваем текущую запись и количество серий в дораме
   const existing = await prisma.userDramaEntry.findFirst({
     where: { userId: CURRENT_USER_ID, dramaId },
+    include: { drama: { select: { episodes: true } } },
   });
 
-  // Если ставим статус "watched" и даты еще нет — ставим сегодняшнюю.
-  // Если меняем с "watched" на другой — стираем дату.
-  const watchedAtUpdate =
-    status === "watched" ? { watchedAt: new Date() } : { watchedAt: null };
+  // Формируем данные для обновления (правим дату только если нужно)
+  const updateData: any = { status };
+  if (status === "watched" && !existing?.watchedAt) {
+    updateData.watchedAt = new Date();
+  } else if (status !== "watched") {
+    updateData.watchedAt = null;
+  }
 
   if (existing) {
-    // Меняем только статус, остальные поля не трогаем
     await prisma.userDramaEntry.update({
       where: { id: existing.id },
-      data: {
-        status,
-        // Обновляем дату только если она изменилась или ставим новую
-        ...(status === "watched" && !existing.watchedAt
-          ? { watchedAt: new Date() }
-          : {}),
-        ...(status !== "watched" ? { watchedAt: null } : {}),
-      },
+      data: updateData,
     });
   } else {
     await prisma.userDramaEntry.create({
@@ -617,6 +614,30 @@ export async function quickSetStatus(formData: FormData) {
         watchedAt: status === "watched" ? new Date() : null,
       },
     });
+  }
+
+  // ЛОГИКА ДЛЯ ТЕПЛОВОЙ КАРТЫ:
+  // Если статус меняется на "Просмотрено", мы должны засчитать оставшиеся серии
+  if (status === "watched") {
+    const totalEps = existing?.drama.episodes || 0;
+    const watchedEps = existing?.progress || 0;
+    const remainingEps = Math.max(totalEps - watchedEps, 0);
+
+    // Если есть непросмотренные серии, записываем их в историю
+    if (remainingEps > 0) {
+      await prisma.userEpisodeView.create({
+        data: {
+          userId: CURRENT_USER_ID,
+          dramaId,
+          count: remainingEps,
+        },
+      });
+    } else if (!existing && totalEps === 0) {
+      // Если у дорамы вообще не указано число серий, но мы её "посмотрели", ставим 1 для активности
+      await prisma.userEpisodeView.create({
+        data: { userId: CURRENT_USER_ID, dramaId, count: 1 },
+      });
+    }
   }
 
   revalidatePath(`/dramas/${dramaId}`);
@@ -787,14 +808,17 @@ export async function removeSoundtrack(formData: FormData) {
   return { success: true };
 }
 export async function incrementProgress(dramaId: number) {
+  // 1. Находим запись пользователя и подтягиваем название дорамы для логов
   const entry = await prisma.userDramaEntry.findFirst({
     where: { userId: CURRENT_USER_ID, dramaId },
-    include: { drama: { select: { episodes: true } } },
+    include: { drama: { select: { episodes: true, title: true } } },
   });
+
   if (!entry) return { error: "Запись не найдена" };
 
   const currentProgress = entry.progress || 0;
   const totalEpisodes = entry.drama.episodes || 0;
+
   if (totalEpisodes > 0 && currentProgress >= totalEpisodes) {
     return { error: "Все серии уже просмотрены" };
   }
@@ -802,11 +826,21 @@ export async function incrementProgress(dramaId: number) {
   const newProgress = currentProgress + 1;
   const isFinished = totalEpisodes > 0 && newProgress >= totalEpisodes;
 
+  // 2. Обновляем прогресс в дневнике
   await prisma.userDramaEntry.update({
     where: { id: entry.id },
     data: {
       progress: newProgress,
       ...(isFinished ? { status: "watched", watchedAt: new Date() } : {}),
+    },
+  });
+
+  // 3. Записываем факт просмотра 1 серии в историю (для тепловой карты)
+  await prisma.userEpisodeView.create({
+    data: {
+      userId: CURRENT_USER_ID,
+      dramaId,
+      count: 1, // Отметили ровно 1 серию
     },
   });
 
@@ -816,6 +850,7 @@ export async function incrementProgress(dramaId: number) {
 
   return { success: true };
 }
+
 export async function removeEntry(dramaId: number) {
   await prisma.userDramaEntry.deleteMany({
     where: { userId: CURRENT_USER_ID, dramaId },

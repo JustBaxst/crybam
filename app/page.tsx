@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { CryBadge } from "@/components/CryBadge";
 import {
   Flame,
@@ -15,13 +14,14 @@ import {
   Star,
   MapPin,
   Cake,
-  Film,
+  Film, // <-- Иконка для заглушки
 } from "lucide-react";
 import { YearHeatmap } from "@/components/YearHeatmap";
 import { LibraryBar } from "@/components/LibraryBar";
 import { prisma } from "@/lib/prisma";
 import { CURRENT_USER_ID } from "@/lib/current-user";
 import { HorizontalScroll } from "@/components/HorizontalScroll";
+import Image from "next/image";
 
 export default async function HomePage() {
   // 1. Пользователь
@@ -35,12 +35,18 @@ export default async function HomePage() {
     include: {
       drama: {
         include: {
-          genres: { include: { genre: true } }, // <-- Добавили жанры
-          themes: { include: { theme: true } }, // <-- Добавили темы
+          genres: { include: { genre: true } },
+          themes: { include: { theme: true } },
         },
       },
     },
     orderBy: { updatedAt: "desc" },
+  });
+
+  // 3. История просмотров из новой таблицы (для тепловой карты)
+  const episodeHistory = await prisma.userEpisodeView.findMany({
+    where: { userId: CURRENT_USER_ID },
+    include: { drama: { select: { title: true } } },
   });
 
   // --- СТАТИСТИКА ---
@@ -63,47 +69,72 @@ export default async function HomePage() {
 
   const favoritesCount = entries.filter((e) => e.isFavorite).length;
 
-  // 3. Недавние отзывы
+  // 4. Недавние отзывы
   const recentReviews = entries
     .filter((e) => e.review || e.impression)
     .slice(0, 3);
 
-  // 4. Особое место
+  // 5. Особое место
   const heartDramas = entries
     .filter((e) => e.isFavorite && e.quote)
     .slice(0, 10);
 
-  // 5. Heatmap
+  // 6. Группировка для тепловой карты
   const heatmapGrouped = new Map<
     string,
     { totalEpisodes: number; dramas: { title: string; episodes: number }[] }
   >();
 
-  entries
-    .filter((e) => e.watchedAt)
-    .forEach((e) => {
-      // Используем локальную дату в формате YYYY-MM-DD
-      const dateKey = e.watchedAt!.toLocaleDateString("sv-SE");
-      const episodes = e.drama.episodes || 1;
+  const addToHeatmap = (dateKey: string, title: string, count: number) => {
+    let day = heatmapGrouped.get(dateKey);
+    if (!day) {
+      day = { totalEpisodes: 0, dramas: [] };
+      heatmapGrouped.set(dateKey, day);
+    }
+    day.totalEpisodes += count;
 
-      const existing = heatmapGrouped.get(dateKey);
-      if (existing) {
-        existing.totalEpisodes += episodes;
-        existing.dramas.push({ title: e.drama.title, episodes });
+    const existingDrama = day.dramas.find((d) => d.title === title);
+    if (existingDrama) {
+      existingDrama.episodes += count;
+    } else {
+      day.dramas.push({ title, episodes: count });
+    }
+  };
+
+  // 6.1. Добавляем поштучные просмотры (из новой таблицы UserEpisodeView)
+  episodeHistory.forEach((view) => {
+    const dateKey = view.viewedAt.toLocaleDateString("sv-SE");
+    addToHeatmap(dateKey, view.drama.title, view.count);
+  });
+
+  // 6.2. Добавляем дорамы, просмотренные ДО внедрения новой таблицы (через watchedAt)
+  entries
+    .filter((e) => e.watchedAt && e.status === "watched")
+    .forEach((e) => {
+      const dateKey = e.watchedAt!.toLocaleDateString("sv-SE");
+      const existingDay = heatmapGrouped.get(dateKey);
+      const existingDrama = existingDay?.dramas.find(
+        (d) => d.title === e.drama.title,
+      );
+
+      if (existingDrama) {
+        const totalEps = e.drama.episodes || 1;
+        const diff = totalEps - existingDrama.episodes;
+        if (diff > 0) {
+          existingDrama.episodes += diff;
+          existingDay!.totalEpisodes += diff;
+        }
       } else {
-        heatmapGrouped.set(dateKey, {
-          totalEpisodes: episodes,
-          dramas: [{ title: e.drama.title, episodes }],
-        });
+        addToHeatmap(dateKey, e.drama.title, e.drama.episodes || 1);
       }
     });
 
   const heatmapActivities = Array.from(heatmapGrouped.entries()).map(
     ([date, data]) => ({
       date,
-      level: Math.min(Math.ceil(data.totalEpisodes / 4), 4), // Уровень зависит от суммы серий
+      level: Math.min(Math.ceil(data.totalEpisodes / 4), 4),
       episodes: data.totalEpisodes,
-      items: data.dramas, // Массив дорам
+      items: data.dramas,
     }),
   );
 
@@ -150,6 +181,7 @@ export default async function HomePage() {
           dropped: droppedCount,
         }}
       />
+
       {/* ─── Активность ─── */}
       <section>
         <SectionHeader
@@ -308,7 +340,6 @@ function HeartPreview({
   return (
     <div className="rounded-2xl border border-border bg-surface p-4 border-l-4 border-l-yellow-400/70 h-full">
       <div className="flex items-baseline justify-between mb-2">
-        {/* Оборачиваем в Link только заголовок */}
         <Link
           href="/heart"
           className="group flex items-center gap-1.5 hover:text-accent transition-colors"
