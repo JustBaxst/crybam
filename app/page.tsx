@@ -53,6 +53,9 @@ export default async function HomePage() {
   const watchedCount = entries.filter((e) => e.status === "watched").length;
   const plannedCount = entries.filter((e) => e.status === "planned").length;
   const watchingCount = entries.filter((e) => e.status === "watching").length;
+  const rewatchingCount = entries.filter(
+    (e) => e.status === "rewatching",
+  ).length;
   const onHoldCount = entries.filter((e) => e.status === "on_hold").length;
   const droppedCount = entries.filter((e) => e.status === "dropped").length;
 
@@ -183,6 +186,7 @@ export default async function HomePage() {
       <LibraryBar
         counts={{
           watched: watchedCount,
+          rewatching: rewatchingCount,
           watching: watchingCount,
           planned: plannedCount,
           on_hold: onHoldCount,

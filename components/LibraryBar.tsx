@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { Library } from "lucide-react";
 
-type StatusKey = "watched" | "watching" | "planned" | "on_hold" | "dropped";
+type StatusKey =
+  | "watched"
+  | "watching"
+  | "rewatching"
+  | "planned"
+  | "on_hold"
+  | "dropped";
 
 type Props = {
   counts: Record<StatusKey, number>;
@@ -14,12 +20,49 @@ const STATUSES: {
   dot: string;
   text: string;
 }[] = [
-    { key: "watched", label: "Просмотрено", bg: "bg-accent/85", dot: "bg-accent/85", text: "text-accent" },
-    { key: "watching", label: "Смотрю", bg: "bg-accent/70", dot: "bg-accent/70", text: "text-accent/80" },
-    { key: "planned", label: "В планах", bg: "bg-accent/45", dot: "bg-accent/45", text: "text-accent/70" },
-    { key: "on_hold", label: "Отложено", bg: "bg-accent/25", dot: "bg-accent/25", text: "text-accent/60" },
-    { key: "dropped", label: "Брошено", bg: "bg-accent/12", dot: "bg-accent/12", text: "text-accent/50" },
-  ];
+  {
+    key: "watched",
+    label: "Просмотрено",
+    bg: "bg-accent/85",
+    dot: "bg-accent/85",
+    text: "text-accent",
+  },
+  {
+    key: "rewatching",
+    label: "Пересматриваю",
+    bg: "bg-purple-500/80",
+    dot: "bg-purple-500",
+    text: "text-purple-400",
+  },
+  {
+    key: "watching",
+    label: "Смотрю",
+    bg: "bg-accent/70",
+    dot: "bg-accent/70",
+    text: "text-accent/80",
+  },
+  {
+    key: "planned",
+    label: "В планах",
+    bg: "bg-accent/45",
+    dot: "bg-accent/45",
+    text: "text-accent/70",
+  },
+  {
+    key: "on_hold",
+    label: "Отложено",
+    bg: "bg-accent/25",
+    dot: "bg-accent/25",
+    text: "text-accent/60",
+  },
+  {
+    key: "dropped",
+    label: "Брошено",
+    bg: "bg-accent/12",
+    dot: "bg-accent/12",
+    text: "text-accent/50",
+  },
+];
 
 export function LibraryBar({ counts }: Props) {
   const total = STATUSES.reduce((sum, s) => sum + (counts[s.key] ?? 0), 0);
@@ -67,7 +110,9 @@ export function LibraryBar({ counts }: Props) {
             href={`/library?status=${s.key}`}
             className="flex items-center gap-1.5 group"
           >
-            <span className={`w-2 h-2 rounded-full ${s.dot} transition-transform group-hover:scale-125`} />
+            <span
+              className={`w-2 h-2 rounded-full ${s.dot} transition-transform group-hover:scale-125`}
+            />
             <span className="text-muted group-hover:text-foreground transition-colors">
               {s.label}
             </span>

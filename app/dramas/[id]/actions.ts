@@ -605,15 +605,19 @@ export async function updateCredit(formData: FormData) {
 
 export async function quickSetStatus(formData: FormData) {
   const dramaId = Number(formData.get("dramaId"));
-  if (!Number.isInteger(dramaId) || dramaId <= 0) {
-    return { error: "Неверный ID дорамы" };
-  }
+  if (!Number.isInteger(dramaId) || dramaId <= 0)
+    return { error: "Неверный ID" };
 
   const status = String(formData.get("status") ?? "");
-  const allowed = ["watching", "planned", "watched", "on_hold", "dropped"];
-  if (!allowed.includes(status)) {
-    return { error: "Неверный статус" };
-  }
+  const allowed = [
+    "watching",
+    "rewatching",
+    "planned",
+    "watched",
+    "on_hold",
+    "dropped",
+  ];
+  if (!allowed.includes(status)) return { error: "Неверный статус" };
 
   const existing = await prisma.userDramaEntry.findFirst({
     where: { userId: CURRENT_USER_ID, dramaId },
@@ -621,9 +625,14 @@ export async function quickSetStatus(formData: FormData) {
   });
 
   const updateData: any = { status };
-  if (status === "watched" && !existing?.watchedAt) {
-    updateData.watchedAt = new Date();
-  } else if (status !== "watched") {
+
+  if (status === "watched") {
+    if (!existing?.watchedAt) updateData.watchedAt = new Date();
+  } else if (status === "rewatching") {
+    updateData.progress = 0; // Сбрасываем прогресс
+    updateData.watchedAt = null; // Убираем дату завершения
+    updateData.rewatchCount = (existing?.rewatchCount || 0) + 1; // Увеличиваем счетчик пересмотров
+  } else {
     updateData.watchedAt = null;
   }
 
@@ -643,7 +652,7 @@ export async function quickSetStatus(formData: FormData) {
     });
   }
 
-  // ЛОГИКА СИНХРОНИЗАЦИИ С КАРТОЙ АКТИВНОСТИ
+  // ЛОГИКА ДЛЯ ТЕПЛОВОЙ КАРТЫ
   if (status === "watched") {
     const totalEps = existing?.drama.episodes || 0;
     const watchedEps = existing?.progress || 0;
@@ -654,22 +663,24 @@ export async function quickSetStatus(formData: FormData) {
         data: { userId: CURRENT_USER_ID, dramaId, count: remainingEps },
       });
     } else if (!existing && totalEps === 0) {
-      // Если у дорамы нет числа серий, ставим 1
       await prisma.userEpisodeView.create({
         data: { userId: CURRENT_USER_ID, dramaId, count: 1 },
       });
     }
-  } else {
-    // Если статус НЕ "Просмотрено", полностью очищаем историю серий для этой дорамы
-    await prisma.userEpisodeView.deleteMany({
-      where: { userId: CURRENT_USER_ID, dramaId },
-    });
+  } else if (status === "planned" || status === "watching") {
+    // Если ставим "В планах", полностью чистим историю (так как еще не смотрел)
+    // Если "Смотрю" и до этого не смотрел, тоже ничего не чистим.
+    if (status === "planned") {
+      await prisma.userEpisodeView.deleteMany({
+        where: { userId: CURRENT_USER_ID, dramaId },
+      });
+    }
   }
+  // Для on_hold, dropped, rewatching — историю НЕ ТРОГАЕМ!
 
   revalidatePath(`/dramas/${dramaId}`);
   revalidatePath("/library");
   revalidatePath("/");
-
   return { success: true };
 }
 
@@ -869,6 +880,47 @@ export async function incrementProgress(dramaId: number) {
       count: 1, // Отметили ровно 1 серию
     },
   });
+
+  revalidatePath(`/dramas/${dramaId}`);
+  revalidatePath("/library");
+  revalidatePath("/");
+
+  return { success: true };
+}
+
+export async function decrementProgress(dramaId: number) {
+  const entry = await prisma.userDramaEntry.findFirst({
+    where: { userId: CURRENT_USER_ID, dramaId },
+  });
+
+  if (!entry) return { error: "Запись не найдена" };
+
+  const currentProgress = entry.progress || 0;
+  if (currentProgress <= 0) return { error: "Прогресс уже равен нулю" };
+
+  const newProgress = currentProgress - 1;
+
+  await prisma.userDramaEntry.update({
+    where: { id: entry.id },
+    data: { progress: newProgress },
+  });
+
+  // Удаляем последнюю запись о просмотре из истории (если она есть за сегодня/недавно)
+  const lastView = await prisma.userEpisodeView.findFirst({
+    where: { userId: CURRENT_USER_ID, dramaId },
+    orderBy: { viewedAt: "desc" },
+  });
+
+  if (lastView) {
+    if (lastView.count > 1) {
+      await prisma.userEpisodeView.update({
+        where: { id: lastView.id },
+        data: { count: lastView.count - 1 },
+      });
+    } else {
+      await prisma.userEpisodeView.delete({ where: { id: lastView.id } });
+    }
+  }
 
   revalidatePath(`/dramas/${dramaId}`);
   revalidatePath("/library");
