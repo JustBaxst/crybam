@@ -63,6 +63,32 @@ export async function updateEntry(formData: FormData) {
     });
   }
 
+  // СИНХРОНИЗАЦИЯ ТЕПЛОВОЙ КАРТЫ
+  // Если дорама просмотрена и указана дата, перезаписываем историю серий под эту дату
+  if (status === "watched" && watchedAt) {
+    // 1. Получаем общее количество серий в дораме
+    const dramaInfo = await prisma.drama.findUnique({
+      where: { id: dramaId },
+      select: { episodes: true },
+    });
+
+    // 2. Удаляем старые записи об просмотре этой дорамы (если мы меняли статусы или жали +)
+    await prisma.userEpisodeView.deleteMany({
+      where: { userId: CURRENT_USER_ID, dramaId },
+    });
+
+    // 3. Создаем новую запись на ту дату, которую пользователь указал в форме
+    await prisma.userEpisodeView.create({
+      data: {
+        userId: CURRENT_USER_ID,
+        dramaId,
+        // Если прогресс не указан, берем все серии дорамы (или хотя бы 1)
+        count: progress || dramaInfo?.episodes || 1,
+        viewedAt: watchedAt,
+      },
+    });
+  }
+
   revalidatePath(`/dramas/${dramaId}`);
   revalidatePath("/library");
   revalidatePath("/");

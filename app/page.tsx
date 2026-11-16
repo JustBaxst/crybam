@@ -108,8 +108,16 @@ export default async function HomePage() {
   });
 
   // 6.2. Добавляем дорамы, просмотренные ДО внедрения новой таблицы (через watchedAt)
+  // Создаем Set с ID дорам, которые уже есть в новой таблице, чтобы избежать дублей
+  const trackedDramaIds = new Set(episodeHistory.map((v) => v.dramaId));
+
   entries
-    .filter((e) => e.watchedAt && e.status === "watched")
+    .filter(
+      (e) =>
+        e.watchedAt &&
+        e.status === "watched" &&
+        !trackedDramaIds.has(e.dramaId),
+    )
     .forEach((e) => {
       const dateKey = e.watchedAt!.toLocaleDateString("sv-SE");
       const existingDay = heatmapGrouped.get(dateKey);
