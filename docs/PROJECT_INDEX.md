@@ -276,6 +276,18 @@ client: yes
 Путь: `app/dramas/[id]/EditDramaForm.tsx`
 Особенности: использует `useLockBodyScroll`, `FormSection`. Вызывает экшен `updateDrama`.
 
+### EditPersonForm.tsx
+
+Модалка редактирования актера. Путь: `app/admin/people/EditPersonForm.tsx`. Использует `form-elements`.
+
+### EditCharacterForm.tsx
+
+Модалка редактирования персонажа. Путь: `app/admin/characters/EditCharacterForm.tsx`.
+
+### EditPersonButton.tsx, EditCharacterButton.tsx
+
+Кнопки вызова модалок (по аналогии с EditDramaButton).
+
 ### FormSection.tsx
 
 Обертка для секций формы (иконка + заголовок + контент).

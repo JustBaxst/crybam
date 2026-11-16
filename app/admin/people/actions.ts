@@ -11,13 +11,18 @@ import { detectLanguage } from "@/lib/language-utils";
 
 const parseSocialLinks = (raw: string) => {
   if (!raw) return [];
-  return raw.split(/\n/).map((line) => {
-    const [platform, url] = line.split("|").map((s) => s.trim());
-    return platform && url ? { platform, url } : null;
-  }).filter(Boolean) as { platform: string; url: string }[];
+  return raw
+    .split(/\n/)
+    .map((line) => {
+      const [platform, url] = line.split("|").map((s) => s.trim());
+      return platform && url ? { platform, url } : null;
+    })
+    .filter(Boolean) as { platform: string; url: string }[];
 };
 
-export async function createPerson(formData: FormData): Promise<{ error?: string; existingId?: number } | never> {
+export async function createPerson(
+  formData: FormData,
+): Promise<{ error?: string; existingId?: number } | never> {
   await requireModerator();
 
   const name = String(formData.get("name") ?? "").trim();
@@ -31,17 +36,21 @@ export async function createPerson(formData: FormData): Promise<{ error?: string
       deletedAt: null,
       OR: [
         { nameLower: nameLower },
-        { aliases: { some: { nameLower: nameLower } } }
-      ]
+        { aliases: { some: { nameLower: nameLower } } },
+      ],
     },
     include: {
-      aliases: { select: { name: true, nameLower: true } }
-    }
+      aliases: { select: { name: true, nameLower: true } },
+    },
   });
 
   if (existingPerson) {
-    const matchedAlias = existingPerson.aliases.find(a => a.nameLower === nameLower);
-    const matchedName = matchedAlias ? `альтернативное имя «${matchedAlias.name}»` : `имя «${existingPerson.name}»`;
+    const matchedAlias = existingPerson.aliases.find(
+      (a) => a.nameLower === nameLower,
+    );
+    const matchedName = matchedAlias
+      ? `альтернативное имя «${matchedAlias.name}»`
+      : `имя «${existingPerson.name}»`;
 
     return {
       error: `Внимание! Найдено совпадение с актером: ${matchedName}. Проверьте, не дубль ли это.`,
@@ -63,7 +72,9 @@ export async function createPerson(formData: FormData): Promise<{ error?: string
   };
 
   const genderRaw = str("gender") as Gender | null;
-  const socialLinks = parseSocialLinks(String(formData.get("socialLinks") ?? ""));
+  const socialLinks = parseSocialLinks(
+    String(formData.get("socialLinks") ?? ""),
+  );
 
   const person = await prisma.person.create({
     data: {
@@ -96,7 +107,7 @@ export async function createPerson(formData: FormData): Promise<{ error?: string
       entityId: person.id,
       entityName: person.name,
       isPublic: true,
-    }
+    },
   });
 
   // Проверка: если сразу создали зелёного
@@ -110,7 +121,7 @@ export async function createPerson(formData: FormData): Promise<{ error?: string
         entityId: person.id,
         entityName: person.name,
         isPublic: true,
-      }
+      },
     });
   }
 
@@ -138,17 +149,21 @@ export async function updatePerson(formData: FormData) {
       id: { not: personId }, // Исключаем самого себя
       OR: [
         { nameLower: nameLower },
-        { aliases: { some: { nameLower: nameLower } } }
-      ]
+        { aliases: { some: { nameLower: nameLower } } },
+      ],
     },
     include: {
-      aliases: { select: { name: true, nameLower: true } }
-    }
+      aliases: { select: { name: true, nameLower: true } },
+    },
   });
 
   if (existingPerson) {
-    const matchedAlias = existingPerson.aliases.find(a => a.nameLower === nameLower);
-    const matchedName = matchedAlias ? `альтернативное имя «${matchedAlias.name}»` : `имя «${existingPerson.name}»`;
+    const matchedAlias = existingPerson.aliases.find(
+      (a) => a.nameLower === nameLower,
+    );
+    const matchedName = matchedAlias
+      ? `альтернативное имя «${matchedAlias.name}»`
+      : `имя «${existingPerson.name}»`;
 
     return {
       error: `Внимание! Найдено совпадение с актером: ${matchedName}. Проверьте, не дубль ли это.`,
@@ -170,7 +185,9 @@ export async function updatePerson(formData: FormData) {
   };
 
   const genderRaw = str("gender") as Gender | null;
-  const socialLinks = parseSocialLinks(String(formData.get("socialLinks") ?? ""));
+  const socialLinks = parseSocialLinks(
+    String(formData.get("socialLinks") ?? ""),
+  );
 
   // Запоминаем статус ДО обновления
   const oldStatus = await getPersonStatus(personId);
@@ -217,12 +234,14 @@ export async function updatePerson(formData: FormData) {
       entityId: personId,
       entityName: name,
       isPublic: true,
-    }
+    },
   });
 
   // Проверка на "позеленение"
+  let isJustCompleted = false;
   const newStatus = await getPersonStatus(personId);
   if (oldStatus !== "green" && newStatus === "green") {
+    isJustCompleted = true;
     await prisma.adminLog.create({
       data: {
         userId: CURRENT_USER_ID,
@@ -231,21 +250,15 @@ export async function updatePerson(formData: FormData) {
         entityId: personId,
         entityName: name,
         isPublic: true,
-      }
+      },
     });
   }
-
-  const fromDrama = formData.get("fromDrama");
 
   revalidatePath(`/admin/people/${personId}`);
   revalidatePath("/admin/people");
   revalidatePath(`/people/${personId}`);
 
-  if (fromDrama) {
-    redirect(`/admin/dramas/${fromDrama}`);
-  }
-
-  return { success: true };
+  return { success: true, isJustCompleted };
 }
 
 export async function deletePerson(formData: FormData) {
@@ -261,12 +274,15 @@ export async function deletePerson(formData: FormData) {
     return { error: "Нельзя удалить. Сначала удалите его роли из дорам." };
   }
 
-  const person = await prisma.person.findUnique({ where: { id: personId }, select: { name: true } });
+  const person = await prisma.person.findUnique({
+    where: { id: personId },
+    select: { name: true },
+  });
 
   // Мягкое удаление
   await prisma.person.update({
     where: { id: personId },
-    data: { deletedAt: new Date() }
+    data: { deletedAt: new Date() },
   });
 
   // Логирование
@@ -279,7 +295,7 @@ export async function deletePerson(formData: FormData) {
         entityId: personId,
         entityName: person.name,
         isPublic: true,
-      }
+      },
     });
   }
 
@@ -291,10 +307,16 @@ export async function updatePersonAliases(formData: FormData) {
   await requireModerator();
 
   const personId = Number(formData.get("personId"));
-  if (!Number.isInteger(personId) || personId <= 0) return { error: "Неверный ID" };
+  if (!Number.isInteger(personId) || personId <= 0)
+    return { error: "Неверный ID" };
 
   const aliasesRaw = String(formData.get("aliases") ?? "").trim();
-  const aliasNames = aliasesRaw ? aliasesRaw.split(/\n/).map((s) => s.trim()).filter(Boolean) : [];
+  const aliasNames = aliasesRaw
+    ? aliasesRaw
+        .split(/\n/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
 
   // Запоминаем статус ДО
   const oldStatus = await getPersonStatus(personId);
@@ -316,7 +338,10 @@ export async function updatePersonAliases(formData: FormData) {
   // Проверка на "позеленение"
   const newStatus = await getPersonStatus(personId);
   if (oldStatus !== "green" && newStatus === "green") {
-    const person = await prisma.person.findUnique({ where: { id: personId }, select: { name: true } });
+    const person = await prisma.person.findUnique({
+      where: { id: personId },
+      select: { name: true },
+    });
     await prisma.adminLog.create({
       data: {
         userId: CURRENT_USER_ID,
@@ -325,7 +350,7 @@ export async function updatePersonAliases(formData: FormData) {
         entityId: personId,
         entityName: person?.name || "Без имени",
         isPublic: true,
-      }
+      },
     });
   }
 
@@ -333,7 +358,14 @@ export async function updatePersonAliases(formData: FormData) {
   revalidatePath(`/people/${personId}`);
 
   await prisma.adminLog.create({
-    data: { userId: CURRENT_USER_ID, action: "PERSON_ALIASES_UPDATED", entityType: "person", entityId: personId, entityName: "Обновлены имена", isPublic: false }
+    data: {
+      userId: CURRENT_USER_ID,
+      action: "PERSON_ALIASES_UPDATED",
+      entityType: "person",
+      entityId: personId,
+      entityName: "Обновлены имена",
+      isPublic: false,
+    },
   });
 
   return { success: true };

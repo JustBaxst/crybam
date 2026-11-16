@@ -47,7 +47,7 @@ export async function createCharacter(formData: FormData) {
       entityId: character.id,
       entityName: character.name,
       isPublic: true,
-    }
+    },
   });
 
   // Проверка: если сразу создали зелёного
@@ -61,7 +61,7 @@ export async function createCharacter(formData: FormData) {
         entityId: character.id,
         entityName: character.name,
         isPublic: true,
-      }
+      },
     });
   }
 
@@ -111,12 +111,14 @@ export async function updateCharacter(formData: FormData) {
       entityId: characterId,
       entityName: name,
       isPublic: true,
-    }
+    },
   });
 
   // Проверка на "позеленение"
+  let isJustCompleted = false;
   const newStatus = await getCharacterStatus(characterId);
   if (oldStatus !== "green" && newStatus === "green") {
+    isJustCompleted = true;
     await prisma.adminLog.create({
       data: {
         userId: CURRENT_USER_ID,
@@ -125,7 +127,7 @@ export async function updateCharacter(formData: FormData) {
         entityId: characterId,
         entityName: name,
         isPublic: true,
-      }
+      },
     });
   }
 
@@ -138,12 +140,7 @@ export async function updateCharacter(formData: FormData) {
   revalidatePath(`/admin/characters/${characterId}`);
   if (character) revalidatePath(`/admin/dramas/${character.dramaId}`);
 
-  const fromDrama = formData.get("fromDrama");
-
-  if (fromDrama) {
-    redirect(`/admin/dramas/${fromDrama}`);
-  }
-  return { success: true };
+  return { success: true, isJustCompleted };
 }
 
 export async function addCharacterRelation(formData: FormData) {
@@ -160,8 +157,14 @@ export async function addCharacterRelation(formData: FormData) {
   if (!relation) return { error: "Укажите название связи (например, 'отец')" };
 
   const [fromChar, toChar] = await Promise.all([
-    prisma.character.findUnique({ where: { id: fromId }, select: { dramaId: true } }),
-    prisma.character.findUnique({ where: { id: toId }, select: { dramaId: true } }),
+    prisma.character.findUnique({
+      where: { id: fromId },
+      select: { dramaId: true },
+    }),
+    prisma.character.findUnique({
+      where: { id: toId },
+      select: { dramaId: true },
+    }),
   ]);
 
   if (!fromChar || !toChar) return { error: "Персонаж не найден" };
@@ -174,7 +177,7 @@ export async function addCharacterRelation(formData: FormData) {
       data: { fromId, toId, relationType, relation },
     });
   } catch (e: any) {
-    if (e.code === 'P2002') return { error: "Такая связь уже существует" };
+    if (e.code === "P2002") return { error: "Такая связь уже существует" };
     return { error: "Ошибка при сохранении" };
   }
 
@@ -182,7 +185,14 @@ export async function addCharacterRelation(formData: FormData) {
   revalidatePath(`/admin/characters/${toId}`);
 
   await prisma.adminLog.create({
-    data: { userId: CURRENT_USER_ID, action: "CHARACTER_RELATION_ADDED", entityType: "character", entityId: fromId, entityName: relation, isPublic: false }
+    data: {
+      userId: CURRENT_USER_ID,
+      action: "CHARACTER_RELATION_ADDED",
+      entityType: "character",
+      entityId: fromId,
+      entityName: relation,
+      isPublic: false,
+    },
   });
   return { success: true };
 }
@@ -200,7 +210,14 @@ export async function deleteCharacterRelation(formData: FormData) {
   revalidatePath(`/admin/characters/${characterId}`);
 
   await prisma.adminLog.create({
-    data: { userId: CURRENT_USER_ID, action: "CHARACTER_RELATION_REMOVED", entityType: "character", entityId: characterId, entityName: "Связь удалена", isPublic: false }
+    data: {
+      userId: CURRENT_USER_ID,
+      action: "CHARACTER_RELATION_REMOVED",
+      entityType: "character",
+      entityId: characterId,
+      entityName: "Связь удалена",
+      isPublic: false,
+    },
   });
   return { success: true };
 }
@@ -214,7 +231,12 @@ export async function updateCharacterAliases(formData: FormData) {
   }
 
   const aliasesRaw = String(formData.get("aliases") ?? "").trim();
-  const aliasNames = aliasesRaw ? aliasesRaw.split(/\n/).map((s) => s.trim()).filter(Boolean) : [];
+  const aliasNames = aliasesRaw
+    ? aliasesRaw
+        .split(/\n/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
 
   // Запоминаем статус ДО (так как алиасы — критический фактор)
   const oldStatus = await getCharacterStatus(characterId);
@@ -236,7 +258,10 @@ export async function updateCharacterAliases(formData: FormData) {
   // Проверка на "позеленение"
   const newStatus = await getCharacterStatus(characterId);
   if (oldStatus !== "green" && newStatus === "green") {
-    const character = await prisma.character.findUnique({ where: { id: characterId }, select: { name: true } });
+    const character = await prisma.character.findUnique({
+      where: { id: characterId },
+      select: { name: true },
+    });
     await prisma.adminLog.create({
       data: {
         userId: CURRENT_USER_ID,
@@ -245,14 +270,21 @@ export async function updateCharacterAliases(formData: FormData) {
         entityId: characterId,
         entityName: character?.name || "Без имени",
         isPublic: true,
-      }
+      },
     });
   }
 
   revalidatePath(`/admin/characters/${characterId}`);
 
   await prisma.adminLog.create({
-    data: { userId: CURRENT_USER_ID, action: "CHARACTER_ALIASES_UPDATED", entityType: "character", entityId: characterId, entityName: "Обновлены имена", isPublic: false }
+    data: {
+      userId: CURRENT_USER_ID,
+      action: "CHARACTER_ALIASES_UPDATED",
+      entityType: "character",
+      entityId: characterId,
+      entityName: "Обновлены имена",
+      isPublic: false,
+    },
   });
 
   return { success: true };
@@ -273,13 +305,13 @@ export async function deleteCharacter(formData: FormData) {
 
   const character = await prisma.character.findUnique({
     where: { id: characterId },
-    select: { name: true }
+    select: { name: true },
   });
 
   // Мягкое удаление
   await prisma.character.update({
     where: { id: characterId },
-    data: { deletedAt: new Date() }
+    data: { deletedAt: new Date() },
   });
 
   // Логирование
@@ -292,7 +324,7 @@ export async function deleteCharacter(formData: FormData) {
         entityId: characterId,
         entityName: character.name,
         isPublic: true,
-      }
+      },
     });
   }
 
