@@ -61,13 +61,17 @@ export function StatusDropdown({
   const progress = entry?.progress || 0;
   const totalEpisodes = episodes || 0;
 
-  // Показываем прогресс для этих статусов
   const isTrackable = ["watching", "rewatching", "on_hold", "dropped"].includes(
     entry?.status || "",
   );
 
   const btnResetCls =
     "outline-none focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0";
+
+  // Общие стили для пунктов выпадающего меню
+  const itemCls = `group flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-accent/10 hover:text-accent rounded-lg transition-colors cursor-pointer data-[highlighted]:bg-accent/10 data-[highlighted]:text-accent ${btnResetCls}`;
+  const iconCls =
+    "w-4 h-4 text-muted transition-colors group-hover:text-accent group-data-[highlighted]:text-accent";
 
   return (
     <div className="flex flex-col gap-2 w-full">
@@ -100,15 +104,19 @@ export function StatusDropdown({
               align="start"
               className="w-(--radix-dropdown-menu-trigger-width) rounded-xl border border-border bg-surface shadow-xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200 mt-1 p-1"
             >
-              {Object.entries(DRAMA_STATUSES).map(([value, config]) => (
-                <DropdownMenu.Item
-                  key={value}
-                  onSelect={() => setStatus(value)}
-                  className={`flex items-center px-3 py-2 text-sm text-foreground hover:bg-foreground/5 rounded-lg transition-colors cursor-pointer data-highlighted:bg-foreground/5 ${btnResetCls}`}
-                >
-                  {config.label}
-                </DropdownMenu.Item>
-              ))}
+              {Object.entries(DRAMA_STATUSES).map(([value, config]) => {
+                const Icon = config.Icon;
+                return (
+                  <DropdownMenu.Item
+                    key={value}
+                    onSelect={() => setStatus(value)}
+                    className={itemCls}
+                  >
+                    <Icon className={iconCls} />
+                    {config.label}
+                  </DropdownMenu.Item>
+                );
+              })}
             </DropdownMenu.Content>
           </DropdownMenu.Portal>
         </DropdownMenu.Root>
@@ -133,23 +141,27 @@ export function StatusDropdown({
               align="start"
               className="w-(--radix-dropdown-menu-trigger-width) rounded-xl border border-border bg-surface shadow-xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200 mt-1 p-1"
             >
-              {Object.entries(DRAMA_STATUSES).map(([value, config]) => (
-                <DropdownMenu.Item
-                  key={value}
-                  onSelect={() => setStatus(value)}
-                  className={`flex items-center px-3 py-2 text-sm text-foreground hover:bg-foreground/5 rounded-lg transition-colors cursor-pointer data-highlighted:bg-foreground/5 ${btnResetCls}`}
-                >
-                  {config.label}
-                </DropdownMenu.Item>
-              ))}
+              {Object.entries(DRAMA_STATUSES).map(([value, config]) => {
+                const Icon = config.Icon;
+                return (
+                  <DropdownMenu.Item
+                    key={value}
+                    onSelect={() => setStatus(value)}
+                    className={itemCls}
+                  >
+                    <Icon className={iconCls} />
+                    {config.label}
+                  </DropdownMenu.Item>
+                );
+              })}
 
               <DropdownMenu.Separator className="h-px bg-border my-1 mx-2" />
 
               <DropdownMenu.Item
                 onSelect={handleRemove}
-                className={`flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer data-highlighted:bg-red-500/10 ${btnResetCls}`}
+                className={`group flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer data-highlighted:bg-red-500/10 ${btnResetCls}`}
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-4 h-4 text-red-400" />
                 Удалить из списка
               </DropdownMenu.Item>
             </DropdownMenu.Content>
@@ -157,7 +169,6 @@ export function StatusDropdown({
         </DropdownMenu.Root>
       )}
 
-      {/* Блок прогресса (Показываем для Смотрю, Пересматриваю, Отложено, Брошено) */}
       {isTrackable && totalEpisodes > 0 && (
         <div className="flex items-center justify-between px-1 text-sm text-muted mt-1">
           <span className="font-medium">
@@ -168,7 +179,6 @@ export function StatusDropdown({
               onClick={handleDecrement}
               disabled={isPending || progress <= 0}
               className={`w-7 h-7 rounded-full bg-surface border border-border text-muted flex items-center justify-center hover:bg-foreground/5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed ${btnResetCls}`}
-              title="Убрать серию"
             >
               <Minus className="w-4 h-4" />
             </button>
@@ -176,7 +186,6 @@ export function StatusDropdown({
               onClick={handleIncrement}
               disabled={isPending || progress >= totalEpisodes}
               className={`w-7 h-7 rounded-full bg-accent/10 text-accent flex items-center justify-center hover:bg-accent/20 transition-colors disabled:opacity-50 ${btnResetCls}`}
-              title="Отметить просмотренную серию"
             >
               <Plus className="w-4 h-4" />
             </button>

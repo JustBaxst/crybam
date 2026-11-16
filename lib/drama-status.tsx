@@ -1,9 +1,9 @@
 import {
   Play,
   Clock,
-  CheckCircle,
-  PauseCircle,
-  XCircle,
+  Check,
+  Pause,
+  X,
   RotateCcw,
   LucideIcon,
 } from "lucide-react";
@@ -23,9 +23,9 @@ export const DRAMA_STATUSES: Record<
   watching: { label: "Смотрю", Icon: Play },
   rewatching: { label: "Пересматриваю", Icon: RotateCcw },
   planned: { label: "В планах", Icon: Clock },
-  watched: { label: "Просмотрено", Icon: CheckCircle },
-  on_hold: { label: "Отложено", Icon: PauseCircle },
-  dropped: { label: "Брошено", Icon: XCircle },
+  watched: { label: "Просмотрено", Icon: Check }, // Чистая галочка
+  on_hold: { label: "Отложено", Icon: Pause },
+  dropped: { label: "Брошено", Icon: X },
 };
 
 export function getStatusLabel(status: string | null | undefined): string {
