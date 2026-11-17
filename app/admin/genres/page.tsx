@@ -2,22 +2,32 @@ import { prisma } from "@/lib/prisma";
 import { AdminBreadcrumbs } from "@/components/AdminBreadcrumbs";
 import { TagsClientPage } from "./TagsClientPage";
 
-export default async function AdminGenresPage() {
-  // Запрашиваем все три сущности, скрывая удаленные
+type SearchParams = Promise<{ q?: string }>;
+
+export default async function AdminGenresPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const { q } = await searchParams;
+  const query = (q ?? "").trim();
+
+  const searchCondition = query ? { name: { contains: query } } : {};
+
   const genres = await prisma.genre.findMany({
-    where: { deletedAt: null },
+    where: { deletedAt: null, ...searchCondition },
     orderBy: { name: "asc" },
     include: { _count: { select: { dramas: true } } },
   });
 
   const moods = await prisma.mood.findMany({
-    where: { deletedAt: null },
+    where: { deletedAt: null, ...searchCondition },
     orderBy: { name: "asc" },
     include: { _count: { select: { dramas: true } } },
   });
 
   const themes = await prisma.dramaTheme.findMany({
-    where: { deletedAt: null },
+    where: { deletedAt: null, ...searchCondition },
     orderBy: { name: "asc" },
     include: { _count: { select: { dramas: true } } },
   });

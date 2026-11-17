@@ -10,75 +10,82 @@ type TaxonomyType = "genre" | "mood" | "theme";
  * Создание нового элемента справочника.
  * @dontDuplicate Не писать отдельные экшены для жанров, настроений и тем.
  */
-export async function createTaxonomyItem(type: TaxonomyType, name: string) {
-  const cleanName = name.trim();
-  if (!cleanName) return { error: "Название не может быть пустым" };
+export async function createTaxonomyItems(
+  type: TaxonomyType,
+  namesRaw: string,
+) {
+  const names = namesRaw
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (names.length === 0) return { error: "Введите хотя бы одно название" };
+
+  let createdCount = 0;
+  let restoredCount = 0;
 
   try {
-    if (type === "genre") {
-      const existing = await prisma.genre.findUnique({
-        where: { name: cleanName },
-      });
+    for (const name of names) {
+      // Нормализация: первая буква заглавная
+      const cleanName = name[0].toUpperCase() + name.slice(1);
+
+      let existing = null;
+      if (type === "genre")
+        existing = await prisma.genre.findUnique({
+          where: { name: cleanName },
+        });
+      else if (type === "mood")
+        existing = await prisma.mood.findUnique({ where: { name: cleanName } });
+      else if (type === "theme")
+        existing = await prisma.dramaTheme.findUnique({
+          where: { name: cleanName },
+        });
+
       if (existing) {
         if (existing.deletedAt) {
-          await prisma.genre.update({
-            where: { id: existing.id },
-            data: { deletedAt: null },
-          });
-        } else {
-          return { error: "Такой жанр уже существует" };
+          // Восстанавливаем
+          if (type === "genre")
+            await prisma.genre.update({
+              where: { id: existing.id },
+              data: { deletedAt: null },
+            });
+          else if (type === "mood")
+            await prisma.mood.update({
+              where: { id: existing.id },
+              data: { deletedAt: null },
+            });
+          else if (type === "theme")
+            await prisma.dramaTheme.update({
+              where: { id: existing.id },
+              data: { deletedAt: null },
+            });
+          restoredCount++;
         }
       } else {
-        await prisma.genre.create({ data: { name: cleanName } });
-      }
-    } else if (type === "mood") {
-      const existing = await prisma.mood.findUnique({
-        where: { name: cleanName },
-      });
-      if (existing) {
-        if (existing.deletedAt) {
-          await prisma.mood.update({
-            where: { id: existing.id },
-            data: { deletedAt: null },
-          });
-        } else {
-          return { error: "Такое настроение уже существует" };
-        }
-      } else {
-        await prisma.mood.create({ data: { name: cleanName } });
-      }
-    } else if (type === "theme") {
-      const existing = await prisma.dramaTheme.findUnique({
-        where: { name: cleanName },
-      });
-      if (existing) {
-        if (existing.deletedAt) {
-          await prisma.dramaTheme.update({
-            where: { id: existing.id },
-            data: { deletedAt: null },
-          });
-        } else {
-          return { error: "Такая тема уже существует" };
-        }
-      } else {
-        await prisma.dramaTheme.create({ data: { name: cleanName } });
+        // Создаем
+        if (type === "genre")
+          await prisma.genre.create({ data: { name: cleanName } });
+        else if (type === "mood")
+          await prisma.mood.create({ data: { name: cleanName } });
+        else if (type === "theme")
+          await prisma.dramaTheme.create({ data: { name: cleanName } });
+        createdCount++;
       }
     }
 
     await prisma.adminLog.create({
       data: {
         userId: CURRENT_USER_ID,
-        action: `${type.toUpperCase()}_CREATED`,
+        action: `${type.toUpperCase()}_CREATED_BATCH`,
         entityType: type,
         entityId: 0,
-        entityName: cleanName,
+        entityName: `Создано: ${createdCount}, Восстановлено: ${restoredCount}`,
         isPublic: false,
       },
     });
 
     revalidatePath("/admin/genres");
     revalidatePath("/dramas");
-    return { success: true };
+    return { success: true, created: createdCount, restored: restoredCount };
   } catch (e) {
     return { error: "Ошибка при создании: " + String(e) };
   }
