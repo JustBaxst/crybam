@@ -284,7 +284,7 @@ export async function updateGenres(formData: FormData) {
     const normalized = name[0].toUpperCase() + name.slice(1);
     const g = await prisma.genre.upsert({
       where: { name: normalized },
-      update: {},
+      update: { deletedAt: null },
       create: { name: normalized },
     });
     newGenreIds.push(g.id);
@@ -1042,7 +1042,7 @@ export async function updateMoods(formData: FormData) {
     const normalized = name[0].toUpperCase() + name.slice(1);
     const m = await prisma.mood.upsert({
       where: { name: normalized },
-      update: {},
+      update: { deletedAt: null },
       create: { name: normalized },
     });
     newMoodIds.push(m.id);
@@ -1118,7 +1118,7 @@ export async function updateThemes(formData: FormData) {
   for (const name of newThemeNames) {
     const m = await prisma.dramaTheme.upsert({
       where: { name },
-      update: {},
+      update: { deletedAt: null },
       create: { name },
     });
     newThemeIds.push(m.id);

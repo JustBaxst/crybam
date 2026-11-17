@@ -146,6 +146,7 @@ model DramaTheme {
   id     Int              @id @default(autoincrement())
   name   String           @unique
   dramas DramaThemeLink[]
+  deletedAt DateTime?
 }
 
 model DramaThemeLink {
@@ -164,6 +165,7 @@ model Mood {
   id     Int             @id @default(autoincrement())
   name   String          @unique
   dramas DramaMoodLink[]
+  deletedAt DateTime?
 }
 
 model DramaMoodLink {

@@ -2,10 +2,26 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import {
-  Star, Calendar, MapPin, Film, Clock, PlayCircle, Eye,
-  BookOpen, Video, ChevronRight, Crown, Languages, Tv,
-  Info, Tag, FaceSlightlySmilingPlus, User, Clapperboard, Users, Star as StarIcon,
-
+  Star,
+  Calendar,
+  MapPin,
+  Film,
+  Clock,
+  PlayCircle,
+  Eye,
+  BookOpen,
+  Video,
+  ChevronRight,
+  Crown,
+  Languages,
+  Tv,
+  Info,
+  Tag,
+  FaceSlightlySmilingPlus,
+  User,
+  Clapperboard,
+  Users,
+  Star as StarIcon,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { CURRENT_USER_ID } from "@/lib/current-user";
@@ -21,7 +37,12 @@ import { TagsPopover } from "@/components/drama/TagsPopover";
 import { CryTagSelector } from "@/components/drama/CryTagSelector";
 import { CryTagStats } from "@/components/drama/CryTagStats";
 import { MoreItemsPopover } from "@/components/drama/MoreItemsPopover";
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
 import { getCreditRoleLabel } from "@/lib/credit-roles";
 
 type Params = Promise<{ id: string }>;
@@ -29,7 +50,7 @@ type SearchParams = Promise<{ from?: string }>;
 
 export default async function DramaPage({
   params,
-  searchParams
+  searchParams,
 }: {
   params: Params;
   searchParams: SearchParams;
@@ -46,7 +67,10 @@ export default async function DramaPage({
       titles: { orderBy: { isPrimary: "desc" } },
       platforms: { include: { platform: true } },
       studios: { include: { studio: true } },
-      genres: { include: { genre: true } },
+      genres: {
+        where: { genre: { deletedAt: null } },
+        include: { genre: true },
+      },
       credits: {
         where: { person: { deletedAt: null } },
         include: { person: true, character: true },
@@ -54,7 +78,7 @@ export default async function DramaPage({
       },
       soundtrack: { orderBy: { id: "asc" } },
       nominations: { include: { nomination: true } },
-      moods: { include: { mood: true } }
+      moods: { where: { mood: { deletedAt: null } }, include: { mood: true } },
     },
   });
 
@@ -68,7 +92,11 @@ export default async function DramaPage({
   const altTitles = drama.titles.filter((t) => !t.isPrimary);
   const genres = drama.genres.map((g) => g.genre.name);
 
-  const importanceOrder: Record<string, number> = { lead: 0, support: 1, guest: 2 };
+  const importanceOrder: Record<string, number> = {
+    lead: 0,
+    support: 1,
+    guest: 2,
+  };
   const actors = drama.credits
     .filter((c) => c.roleType === "actor")
     .sort((a, b) => {
@@ -81,7 +109,9 @@ export default async function DramaPage({
 
   // Группировка актеров
   const leadActors = actors.filter((a) => a.importance === "lead");
-  const supportActors = actors.filter((a) => a.importance === "support" || !a.importance);
+  const supportActors = actors.filter(
+    (a) => a.importance === "support" || !a.importance,
+  );
   const guestActors = actors.filter((a) => a.importance === "guest");
 
   // Группировка съемочной группы по ролям
@@ -95,23 +125,35 @@ export default async function DramaPage({
   const processList = (arr: string[], limit = 2) => {
     return {
       visible: arr.slice(0, limit),
-      hidden: arr.slice(limit)
+      hidden: arr.slice(limit),
     };
   };
 
-  const platformsData = processList(drama.platforms.map(p => p.platform.name));
-  const studiosData = processList(drama.studios.map(s => s.studio.name));
+  const platformsData = processList(
+    drama.platforms.map((p) => p.platform.name),
+  );
+  const studiosData = processList(drama.studios.map((s) => s.studio.name));
   const dubbingData = processList(
     drama.dubbingStudios
-      ? drama.dubbingStudios.split(",").map(s => s.trim()).filter(Boolean)
-      : []
+      ? drama.dubbingStudios
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [],
   );
 
   // ─── ЛОГИКА ДАТ (ПУНКТ 3) ───
   const formatAired = (from: Date | null, to: Date | null) => {
     if (!from && !to) return null;
-    const optFull: Intl.DateTimeFormatOptions = { day: "numeric", month: "short", year: "numeric" };
-    const optShort: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
+    const optFull: Intl.DateTimeFormatOptions = {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    };
+    const optShort: Intl.DateTimeFormatOptions = {
+      day: "numeric",
+      month: "short",
+    };
 
     // Хелпер для очистки от " г."
     const cleanDate = (d: Date, opts: Intl.DateTimeFormatOptions) => {
@@ -146,27 +188,32 @@ export default async function DramaPage({
 
   // Данные для тегов
   const dramaThemes = await prisma.dramaThemeLink.findMany({
-    where: { dramaId: id },
-    include: { theme: true }
+    where: { dramaId: id, theme: { deletedAt: null } },
+    include: { theme: true },
   });
-  const themesList = dramaThemes.map(t => t.theme.name);
+  const themesList = dramaThemes.map((t) => t.theme.name);
   const totalTags = genres.length + themesList.length + drama.moods.length;
   const hiddenTagsCount = Math.max(0, totalTags - 3);
 
   // Данные для CryTag
   const cryTagStatsRaw = await prisma.userDramaEntry.groupBy({
-    by: ['cryTag'],
+    by: ["cryTag"],
     where: { dramaId: id, cryTag: { not: null } },
-    _count: { cryTag: true }
+    _count: { cryTag: true },
   });
-  const cryTagStats = cryTagStatsRaw.map(s => ({ cryTag: s.cryTag as string, count: s._count.cryTag }));
+  const cryTagStats = cryTagStatsRaw.map((s) => ({
+    cryTag: s.cryTag as string,
+    count: s._count.cryTag,
+  }));
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
-
       {/* ─── ХЛЕБНЫЕ КРОШКИ ─── */}
       <div className="flex items-center gap-2 text-sm text-muted mb-6">
-        <Link href={from === "library" ? "/library" : "/dramas"} className="hover:text-foreground transition-colors">
+        <Link
+          href={from === "library" ? "/library" : "/dramas"}
+          className="hover:text-foreground transition-colors"
+        >
           {from === "library" ? "Библиотека" : "Каталог"}
         </Link>
         <ChevronRight className="w-4 h-4 opacity-50" />
@@ -183,7 +230,6 @@ export default async function DramaPage({
 
       {/* ─── HERO-ЗОНА (ИДЕАЛЬНАЯ 3-КОЛОНОЧНАЯ СЕТКА) ─── */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-10">
-
         {/* Колонка 1: Постер и Статус */}
         <div className="lg:col-span-1 flex flex-col gap-4">
           <div className="relative aspect-2/3 rounded-2xl overflow-hidden border border-border bg-accent-soft flex items-center justify-center text-6xl shadow-lg">
@@ -200,7 +246,11 @@ export default async function DramaPage({
               <Film className="w-12 h-12 text-muted" />
             )}
           </div>
-          <StatusDropdown dramaId={drama.id} entry={entry} episodes={drama.episodes} />
+          <StatusDropdown
+            dramaId={drama.id}
+            entry={entry}
+            episodes={drama.episodes}
+          />
         </div>
 
         {/* Колонка 2: О дораме (занимает 2 части из 4) */}
@@ -211,15 +261,18 @@ export default async function DramaPage({
 
           {/* ─── УМНАЯ СЕТКА (ПУНКТ 4) ─── */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-
             {/* Левая колонка: Основные факты */}
             <div className="space-y-1.5 text-sm">
               {drama.country && (
                 <div className="flex items-start gap-2">
                   <MapPin className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1">
-                    <span className="text-muted/70 whitespace-nowrap">Страна:</span>
-                    <span className="text-foreground font-medium">{drama.country}</span>
+                    <span className="text-muted/70 whitespace-nowrap">
+                      Страна:
+                    </span>
+                    <span className="text-foreground font-medium">
+                      {drama.country}
+                    </span>
                   </div>
                 </div>
               )}
@@ -227,8 +280,12 @@ export default async function DramaPage({
                 <div className="flex items-start gap-2">
                   <Calendar className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1">
-                    <span className="text-muted/70 whitespace-nowrap">Год:</span>
-                    <span className="text-foreground font-medium">{drama.year}</span>
+                    <span className="text-muted/70 whitespace-nowrap">
+                      Год:
+                    </span>
+                    <span className="text-foreground font-medium">
+                      {drama.year}
+                    </span>
                   </div>
                 </div>
               )}
@@ -236,8 +293,12 @@ export default async function DramaPage({
                 <div className="flex items-start gap-2">
                   <Video className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1">
-                    <span className="text-muted/70 whitespace-nowrap">Сезонов:</span>
-                    <span className="text-foreground font-medium">{drama.seasons}</span>
+                    <span className="text-muted/70 whitespace-nowrap">
+                      Сезонов:
+                    </span>
+                    <span className="text-foreground font-medium">
+                      {drama.seasons}
+                    </span>
                   </div>
                 </div>
               )}
@@ -245,8 +306,12 @@ export default async function DramaPage({
                 <div className="flex items-start gap-2">
                   <Film className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1">
-                    <span className="text-muted/70 whitespace-nowrap">Серий:</span>
-                    <span className="text-foreground font-medium">{drama.episodes}</span>
+                    <span className="text-muted/70 whitespace-nowrap">
+                      Серий:
+                    </span>
+                    <span className="text-foreground font-medium">
+                      {drama.episodes}
+                    </span>
                   </div>
                 </div>
               )}
@@ -254,8 +319,12 @@ export default async function DramaPage({
                 <div className="flex items-start gap-2">
                   <Clock className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1">
-                    <span className="text-muted/70 whitespace-nowrap">Длительность:</span>
-                    <span className="text-foreground font-medium">~{drama.episodeDuration} мин</span>
+                    <span className="text-muted/70 whitespace-nowrap">
+                      Длительность:
+                    </span>
+                    <span className="text-foreground font-medium">
+                      ~{drama.episodeDuration} мин
+                    </span>
                   </div>
                 </div>
               )}
@@ -268,7 +337,9 @@ export default async function DramaPage({
                   <Calendar className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <div className="flex flex-col gap-0.5">
                     <span className="text-muted/70 text-[11px]">Эфир:</span>
-                    <span className="text-foreground font-medium leading-snug">{airedText}</span>
+                    <span className="text-foreground font-medium leading-snug">
+                      {airedText}
+                    </span>
                   </div>
                 </div>
               )}
@@ -281,7 +352,10 @@ export default async function DramaPage({
                     <span className="text-foreground font-medium leading-snug flex flex-wrap items-center gap-x-1.5">
                       {platformsData.visible.join(", ")}
                       {platformsData.hidden.length > 0 && (
-                        <MoreItemsPopover hiddenItems={platformsData.hidden} title="Все каналы" />
+                        <MoreItemsPopover
+                          hiddenItems={platformsData.hidden}
+                          title="Все каналы"
+                        />
                       )}
                     </span>
                   </div>
@@ -292,11 +366,16 @@ export default async function DramaPage({
                 <div className="flex items-start gap-2">
                   <Video className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-muted/70 text-[11px]">Производство:</span>
+                    <span className="text-muted/70 text-[11px]">
+                      Производство:
+                    </span>
                     <span className="text-foreground font-medium leading-snug flex flex-wrap items-center gap-x-1.5">
                       {studiosData.visible.join(", ")}
                       {studiosData.hidden.length > 0 && (
-                        <MoreItemsPopover hiddenItems={studiosData.hidden} title="Все студии" />
+                        <MoreItemsPopover
+                          hiddenItems={studiosData.hidden}
+                          title="Все студии"
+                        />
                       )}
                     </span>
                   </div>
@@ -311,14 +390,15 @@ export default async function DramaPage({
                     <span className="text-foreground font-medium leading-snug flex flex-wrap items-center gap-x-1.5">
                       {dubbingData.visible.join(", ")}
                       {dubbingData.hidden.length > 0 && (
-                        <MoreItemsPopover hiddenItems={dubbingData.hidden} title="Вся озвучка" />
+                        <MoreItemsPopover
+                          hiddenItems={dubbingData.hidden}
+                          title="Вся озвучка"
+                        />
                       )}
                     </span>
                   </div>
                 </div>
               )}
-
-
 
               {/* Жанры */}
               <div className="flex items-start gap-2 pt-1">
@@ -327,14 +407,17 @@ export default async function DramaPage({
                   <span className="text-muted/70 text-[11px]">Жанры:</span>
                   <div className="flex flex-wrap gap-1.5">
                     {genres.slice(0, 3).map((g) => (
-                      <span key={g} className="bg-accent/10 text-accent border border-accent/20 rounded-full px-2 py-0.5 text-[10px] font-medium">
+                      <span
+                        key={g}
+                        className="bg-accent/10 text-accent border border-accent/20 rounded-full px-2 py-0.5 text-[10px] font-medium"
+                      >
                         {g}
                       </span>
                     ))}
                     <TagsPopover
-                      genres={drama.genres.map(g => g.genre)}
+                      genres={drama.genres.map((g) => g.genre)}
                       themes={themesList}
-                      moods={drama.moods.map(m => m.mood.name)}
+                      moods={drama.moods.map((m) => m.mood.name)}
                       hiddenCount={hiddenTagsCount}
                     />
                   </div>
@@ -346,7 +429,6 @@ export default async function DramaPage({
 
         {/* Колонка 3: Оценки и Эмоции (занимает 1 часть из 4) */}
         <div className="lg:col-span-1 bg-surface/20 p-5 rounded-2xl border border-border/50 flex flex-col gap-4">
-
           <div>
             <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <StarIcon className="w-3.5 h-3.5 text-accent" /> Оценка и Рейтинги
@@ -358,17 +440,29 @@ export default async function DramaPage({
 
           <div className="grid grid-cols-2 gap-1.5">
             {externalRatings.map((r) => {
-              const shortName = r.name === "Кинопоиск" ? "KP" : r.name === "MyDramaList" ? "MDL" : r.name;
+              const shortName =
+                r.name === "Кинопоиск"
+                  ? "KP"
+                  : r.name === "MyDramaList"
+                    ? "MDL"
+                    : r.name;
               return (
                 <div
                   key={r.name}
-                  className={`flex items-center justify-center gap-1.5 border rounded-md px-2 py-1.5 text-[11px] ${r.isAccent
-                    ? "bg-accent/10 border-accent/30 text-accent font-bold"
-                    : "bg-surface border-border text-foreground"
-                    }`}
+                  className={`flex items-center justify-center gap-1.5 border rounded-md px-2 py-1.5 text-[11px] ${
+                    r.isAccent
+                      ? "bg-accent/10 border-accent/30 text-accent font-bold"
+                      : "bg-surface border-border text-foreground"
+                  }`}
                 >
-                  <span className={r.isAccent ? "text-accent/70" : "text-muted"}>{shortName}</span>
-                  <span className={`tabular-nums ${r.isAccent ? "text-accent" : "font-semibold"}`}>
+                  <span
+                    className={r.isAccent ? "text-accent/70" : "text-muted"}
+                  >
+                    {shortName}
+                  </span>
+                  <span
+                    className={`tabular-nums ${r.isAccent ? "text-accent" : "font-semibold"}`}
+                  >
                     {r.value?.toFixed(1) || "—"}
                   </span>
                 </div>
@@ -378,7 +472,8 @@ export default async function DramaPage({
 
           <div>
             <h3 className="text-xs font-semibold text-muted uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <FaceSlightlySmilingPlus className="w-3.5 h-3.5 text-accent" />Эмоции и настроение
+              <FaceSlightlySmilingPlus className="w-3.5 h-3.5 text-accent" />
+              Эмоции и настроение
             </h3>
             <CryTagSelector dramaId={drama.id} initialTag={entry?.cryTag} />
 
@@ -386,7 +481,6 @@ export default async function DramaPage({
 
             <CryTagStats stats={cryTagStats} />
           </div>
-
         </div>
       </div>
 
@@ -417,12 +511,16 @@ export default async function DramaPage({
           {entry ? (
             <div className="rounded-2xl border border-accent/20 bg-accent/5 p-6 space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold flex items-center gap-2 text-accent">Запись создана</h2>
+                <h2 className="text-lg font-semibold flex items-center gap-2 text-accent">
+                  Запись создана
+                </h2>
                 <EditEntryButton dramaId={drama.id} entry={entry} />
               </div>
 
               <div className="flex items-center gap-3 flex-wrap">
-                {isCryTag(entry.cryTag) && <CryBadge tag={entry.cryTag} size="md" />}
+                {isCryTag(entry.cryTag) && (
+                  <CryBadge tag={entry.cryTag} size="md" />
+                )}
                 {entry.isFavorite && (
                   <span className="inline-flex items-center gap-1 text-sm px-3 py-1.5 rounded-full border border-yellow-400/40 bg-yellow-400/10 text-yellow-400 font-medium">
                     <Crown className="w-4 h-4" /> Особое место
@@ -432,55 +530,81 @@ export default async function DramaPage({
 
               {entry.impression && (
                 <div>
-                  <p className="text-sm font-medium text-muted mb-2">Впечатление</p>
-                  <p className="text-base text-foreground leading-relaxed">{entry.impression}</p>
+                  <p className="text-sm font-medium text-muted mb-2">
+                    Впечатление
+                  </p>
+                  <p className="text-base text-foreground leading-relaxed">
+                    {entry.impression}
+                  </p>
                 </div>
               )}
 
               {entry.review && (
                 <div>
                   <p className="text-sm font-medium text-muted mb-2">Отзыв</p>
-                  <div className="text-base text-foreground leading-relaxed whitespace-pre-wrap">{entry.review}</div>
+                  <div className="text-base text-foreground leading-relaxed whitespace-pre-wrap">
+                    {entry.review}
+                  </div>
                 </div>
               )}
 
               {entry.quote && (
                 <div>
                   <p className="text-sm font-medium text-muted mb-2 flex items-center gap-1.5">
-                    <Crown className="w-4 h-4 text-yellow-400" /> Особое место в сердце
+                    <Crown className="w-4 h-4 text-yellow-400" /> Особое место в
+                    сердце
                   </p>
                   <div className="rounded-xl border border-border bg-surface p-5 border-l-4 border-l-yellow-400/70">
-                    <p className="text-base italic leading-relaxed text-muted">«{entry.quote}»</p>
+                    <p className="text-base italic leading-relaxed text-muted">
+                      «{entry.quote}»
+                    </p>
                   </div>
                 </div>
               )}
 
               <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted pt-4 border-t border-accent/20">
                 {entry.startedAt && (
-                  <span className="flex items-center gap-1.5"><PlayCircle className="w-4 h-4 text-accent" /> Начал: {new Date(entry.startedAt).toLocaleDateString("ru-RU")}</span>
+                  <span className="flex items-center gap-1.5">
+                    <PlayCircle className="w-4 h-4 text-accent" /> Начал:{" "}
+                    {new Date(entry.startedAt).toLocaleDateString("ru-RU")}
+                  </span>
                 )}
                 {entry.watchedAt && (
-                  <span className="flex items-center gap-1.5"><Eye className="w-4 h-4 text-accent" /> Досмотрел: {new Date(entry.watchedAt).toLocaleDateString("ru-RU")}</span>
+                  <span className="flex items-center gap-1.5">
+                    <Eye className="w-4 h-4 text-accent" /> Досмотрел:{" "}
+                    {new Date(entry.watchedAt).toLocaleDateString("ru-RU")}
+                  </span>
                 )}
                 {entry.rewatchCount > 0 && (
-                  <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-accent" /> Пересмотров: {entry.rewatchCount}</span>
+                  <span className="flex items-center gap-1.5">
+                    <Clock className="w-4 h-4 text-accent" /> Пересмотров:{" "}
+                    {entry.rewatchCount}
+                  </span>
                 )}
               </div>
             </div>
           ) : (
             <div className="text-center py-10 border border-dashed border-border rounded-2xl">
-              <p className="text-muted mb-4">Вы еще не добавили эту дораму в свой дневник.</p>
+              <p className="text-muted mb-4">
+                Вы еще не добавили эту дораму в свой дневник.
+              </p>
             </div>
           )}
         </TabsContent>
 
         {/* 2. В РОЛЯХ И СОЗДАТЕЛИ */}
         <TabsContent value="cast">
-          <Accordion type="multiple" defaultValue={["lead", "support", "guest", "crew"]} className="w-full">
-
+          <Accordion
+            type="multiple"
+            defaultValue={["lead", "support", "guest", "crew"]}
+            className="w-full"
+          >
             {/* АКТЁРЫ: ГЛАВНАЯ */}
             {leadActors.length > 0 && (
-              <AccordionItem value="lead" className="bg-surface/20 border border-border/50 rounded-2xl mb-4 overflow-hidden">
+              <AccordionItem
+                value="lead"
+                className="bg-surface/20 border border-border/50 rounded-2xl mb-4 overflow-hidden"
+              >
                 <AccordionTrigger className="px-6 py-4 hover:bg-surface/30 transition-colors">
                   <div className="flex items-center gap-2 text-lg font-semibold">
                     <Users className="w-5 h-5 text-accent" /> Главные роли
@@ -489,8 +613,14 @@ export default async function DramaPage({
                 <AccordionContent className="px-6 pb-6 pt-2">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {leadActors.map((a) => (
-                      <div key={a.id} className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 border-l-yellow-400/70">
-                        <Link href={`/people/${a.person.id}`} className="shrink-0">
+                      <div
+                        key={a.id}
+                        className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 border-l-yellow-400/70"
+                      >
+                        <Link
+                          href={`/people/${a.person.id}`}
+                          className="shrink-0"
+                        >
                           <div className="relative w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden">
                             {a.person.photoUrl ? (
                               <Image
@@ -507,11 +637,25 @@ export default async function DramaPage({
                           </div>
                         </Link>
                         <div className="min-w-0 flex-1">
-                          <Link href={`/people/${a.person.id}`} className="font-semibold text-foreground hover:text-accent transition-colors">{a.person.name}</Link>
+                          <Link
+                            href={`/people/${a.person.id}`}
+                            className="font-semibold text-foreground hover:text-accent transition-colors"
+                          >
+                            {a.person.name}
+                          </Link>
                           {a.character?.name && (
-                            <Link href={`/characters/${a.character.id}`} className="block text-sm text-accent mt-0.5 hover:underline">→ {a.character.name}</Link>
+                            <Link
+                              href={`/characters/${a.character.id}`}
+                              className="block text-sm text-accent mt-0.5 hover:underline"
+                            >
+                              → {a.character.name}
+                            </Link>
                           )}
-                          {a.character?.description && <p className="text-xs text-muted mt-1 line-clamp-2">{a.character.description}</p>}
+                          {a.character?.description && (
+                            <p className="text-xs text-muted mt-1 line-clamp-2">
+                              {a.character.description}
+                            </p>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -522,17 +666,27 @@ export default async function DramaPage({
 
             {/* АКТЁРЫ: ВТОРОСТЕПЕННЫЕ */}
             {supportActors.length > 0 && (
-              <AccordionItem value="support" className="bg-surface/20 border border-border/50 rounded-2xl mb-4 overflow-hidden">
+              <AccordionItem
+                value="support"
+                className="bg-surface/20 border border-border/50 rounded-2xl mb-4 overflow-hidden"
+              >
                 <AccordionTrigger className="px-6 py-4 hover:bg-surface/30 transition-colors">
                   <div className="flex items-center gap-2 text-lg font-semibold">
-                    <Users className="w-5 h-5 text-accent" /> Второстепенные роли
+                    <Users className="w-5 h-5 text-accent" /> Второстепенные
+                    роли
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-6 pb-6 pt-2">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {supportActors.map((a) => (
-                      <div key={a.id} className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 border-l-accent/50">
-                        <Link href={`/people/${a.person.id}`} className="shrink-0">
+                      <div
+                        key={a.id}
+                        className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 border-l-accent/50"
+                      >
+                        <Link
+                          href={`/people/${a.person.id}`}
+                          className="shrink-0"
+                        >
                           <div className="relative w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden">
                             {a.person.photoUrl ? (
                               <Image
@@ -549,11 +703,25 @@ export default async function DramaPage({
                           </div>
                         </Link>
                         <div className="min-w-0 flex-1">
-                          <Link href={`/people/${a.person.id}`} className="font-semibold text-foreground hover:text-accent transition-colors">{a.person.name}</Link>
+                          <Link
+                            href={`/people/${a.person.id}`}
+                            className="font-semibold text-foreground hover:text-accent transition-colors"
+                          >
+                            {a.person.name}
+                          </Link>
                           {a.character?.name && (
-                            <Link href={`/characters/${a.character.id}`} className="block text-sm text-accent mt-0.5 hover:underline">→ {a.character.name}</Link>
+                            <Link
+                              href={`/characters/${a.character.id}`}
+                              className="block text-sm text-accent mt-0.5 hover:underline"
+                            >
+                              → {a.character.name}
+                            </Link>
                           )}
-                          {a.character?.description && <p className="text-xs text-muted mt-1 line-clamp-2">{a.character.description}</p>}
+                          {a.character?.description && (
+                            <p className="text-xs text-muted mt-1 line-clamp-2">
+                              {a.character.description}
+                            </p>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -564,7 +732,10 @@ export default async function DramaPage({
 
             {/* АКТЁРЫ: ЭПИЗОДЫ */}
             {guestActors.length > 0 && (
-              <AccordionItem value="guest" className="bg-surface/20 border border-border/50 rounded-2xl mb-4 overflow-hidden">
+              <AccordionItem
+                value="guest"
+                className="bg-surface/20 border border-border/50 rounded-2xl mb-4 overflow-hidden"
+              >
                 <AccordionTrigger className="px-6 py-4 hover:bg-surface/30 transition-colors">
                   <div className="flex items-center gap-2 text-lg font-semibold">
                     <Users className="w-5 h-5 text-accent" /> Эпизодические роли
@@ -573,8 +744,14 @@ export default async function DramaPage({
                 <AccordionContent className="px-6 pb-6 pt-2">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {guestActors.map((a) => (
-                      <div key={a.id} className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 border-l-border">
-                        <Link href={`/people/${a.person.id}`} className="shrink-0">
+                      <div
+                        key={a.id}
+                        className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 border-l-border"
+                      >
+                        <Link
+                          href={`/people/${a.person.id}`}
+                          className="shrink-0"
+                        >
                           <div className="relative w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden">
                             {a.person.photoUrl ? (
                               <Image
@@ -591,11 +768,25 @@ export default async function DramaPage({
                           </div>
                         </Link>
                         <div className="min-w-0 flex-1">
-                          <Link href={`/people/${a.person.id}`} className="font-semibold text-foreground hover:text-accent transition-colors">{a.person.name}</Link>
+                          <Link
+                            href={`/people/${a.person.id}`}
+                            className="font-semibold text-foreground hover:text-accent transition-colors"
+                          >
+                            {a.person.name}
+                          </Link>
                           {a.character?.name && (
-                            <Link href={`/characters/${a.character.id}`} className="block text-sm text-accent mt-0.5 hover:underline">→ {a.character.name}</Link>
+                            <Link
+                              href={`/characters/${a.character.id}`}
+                              className="block text-sm text-accent mt-0.5 hover:underline"
+                            >
+                              → {a.character.name}
+                            </Link>
                           )}
-                          {a.character?.description && <p className="text-xs text-muted mt-1 line-clamp-2">{a.character.description}</p>}
+                          {a.character?.description && (
+                            <p className="text-xs text-muted mt-1 line-clamp-2">
+                              {a.character.description}
+                            </p>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -606,20 +797,29 @@ export default async function DramaPage({
 
             {/* СЪЕМОЧНАЯ ГРУППА */}
             {Object.keys(crewByRole).length > 0 && (
-              <AccordionItem value="crew" className="bg-surface/20 border border-border/50 rounded-2xl mb-4 overflow-hidden">
+              <AccordionItem
+                value="crew"
+                className="bg-surface/20 border border-border/50 rounded-2xl mb-4 overflow-hidden"
+              >
                 <AccordionTrigger className="px-6 py-4 hover:bg-surface/30 transition-colors">
                   <div className="flex items-center gap-2 text-lg font-semibold">
-                    <Clapperboard className="w-5 h-5 text-accent" /> Съёмочная группа
+                    <Clapperboard className="w-5 h-5 text-accent" /> Съёмочная
+                    группа
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-6 pb-6 pt-2">
                   <div className="flex flex-col gap-6">
                     {Object.entries(crewByRole).map(([role, people]) => (
                       <div key={role}>
-                        <h4 className="text-sm font-bold text-muted uppercase tracking-wider mb-3">{getCreditRoleLabel(role)}</h4>
+                        <h4 className="text-sm font-bold text-muted uppercase tracking-wider mb-3">
+                          {getCreditRoleLabel(role)}
+                        </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {people.map((c) => (
-                            <div key={c.id} className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 border-l-blue-400/50">
+                            <div
+                              key={c.id}
+                              className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 border-l-4 border-l-blue-400/50"
+                            >
                               <div className="relative w-14 h-20 rounded-lg bg-accent-soft/50 flex items-center justify-center overflow-hidden">
                                 {c.person.photoUrl ? (
                                   <Image
@@ -635,9 +835,20 @@ export default async function DramaPage({
                                 )}
                               </div>
                               <div className="min-w-0 flex-1">
-                                <Link href={`/people/${c.person.id}`} className="font-semibold text-foreground hover:text-accent transition-colors">{c.person.name}</Link>
-                                <p className="text-sm mt-0.5 text-blue-400 font-medium">{getCreditRoleLabel(role)}</p>
-                                {c.note && <p className="text-xs text-muted mt-1">{c.note}</p>}
+                                <Link
+                                  href={`/people/${c.person.id}`}
+                                  className="font-semibold text-foreground hover:text-accent transition-colors"
+                                >
+                                  {c.person.name}
+                                </Link>
+                                <p className="text-sm mt-0.5 text-blue-400 font-medium">
+                                  {getCreditRoleLabel(role)}
+                                </p>
+                                {c.note && (
+                                  <p className="text-xs text-muted mt-1">
+                                    {c.note}
+                                  </p>
+                                )}
                               </div>
                             </div>
                           ))}
@@ -648,7 +859,6 @@ export default async function DramaPage({
                 </AccordionContent>
               </AccordionItem>
             )}
-
           </Accordion>
         </TabsContent>
 
@@ -663,7 +873,9 @@ export default async function DramaPage({
         <TabsContent value="soundtrack">
           {drama.soundtrack.length > 0 ? (
             <div className="flex flex-col gap-2">
-              {drama.soundtrack.map((s) => <SoundtrackPlayer key={s.id} track={s} />)}
+              {drama.soundtrack.map((s) => (
+                <SoundtrackPlayer key={s.id} track={s} />
+              ))}
             </div>
           ) : (
             <p className="text-muted italic">Саундтрек пока не добавлен.</p>
@@ -676,7 +888,6 @@ export default async function DramaPage({
             Раздел отзывов в разработке.
           </div>
         </TabsContent>
-
       </Tabs>
     </div>
   );

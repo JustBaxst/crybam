@@ -398,7 +398,7 @@ export async function getAdminOverviewData() {
   });
 
   const [genresCount, nominationsCount] = await Promise.all([
-    prisma.genre.count(),
+    prisma.genre.count({ where: { deletedAt: null } }),
     prisma.nomination.count(),
   ]);
 

@@ -131,8 +131,12 @@ export default async function DramasCatalogPage({
     where: { deletedAt: null },
     orderBy: { name: "asc" },
   });
-  const allMoods = await prisma.mood.findMany({ orderBy: { name: "asc" } });
+  const allMoods = await prisma.mood.findMany({
+    where: { deletedAt: null },
+    orderBy: { name: "asc" },
+  });
   const allThemes = await prisma.dramaTheme.findMany({
+    where: { deletedAt: null },
     orderBy: { name: "asc" },
   });
   const allCountriesRaw = await prisma.drama.findMany({
