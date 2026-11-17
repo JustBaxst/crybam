@@ -134,3 +134,61 @@ export async function deleteTaxonomyItem(type: TaxonomyType, id: number) {
     return { error: "Ошибка при удалении: " + String(e) };
   }
 }
+
+/**
+ * Обновление названия элемента справочника.
+ */
+export async function updateTaxonomyItem(
+  type: TaxonomyType,
+  id: number,
+  newName: string,
+) {
+  const cleanName = newName.trim();
+  if (!cleanName) return { error: "Название не может быть пустым" };
+
+  try {
+    // Проверка на дубликат (если меняем на имя, которое уже есть у другого элемента)
+    let existing = null;
+    if (type === "genre")
+      existing = await prisma.genre.findUnique({ where: { name: cleanName } });
+    else if (type === "mood")
+      existing = await prisma.mood.findUnique({ where: { name: cleanName } });
+    else if (type === "theme")
+      existing = await prisma.dramaTheme.findUnique({
+        where: { name: cleanName },
+      });
+
+    if (existing && existing.id !== id) {
+      return { error: "Элемент с таким названием уже существует" };
+    }
+
+    // Обновляем
+    if (type === "genre") {
+      await prisma.genre.update({ where: { id }, data: { name: cleanName } });
+    } else if (type === "mood") {
+      await prisma.mood.update({ where: { id }, data: { name: cleanName } });
+    } else if (type === "theme") {
+      await prisma.dramaTheme.update({
+        where: { id },
+        data: { name: cleanName },
+      });
+    }
+
+    await prisma.adminLog.create({
+      data: {
+        userId: CURRENT_USER_ID,
+        action: `${type.toUpperCase()}_UPDATED`,
+        entityType: type,
+        entityId: id,
+        entityName: cleanName,
+        isPublic: false,
+      },
+    });
+
+    revalidatePath("/admin/genres");
+    revalidatePath("/dramas");
+    return { success: true };
+  } catch (e) {
+    return { error: "Ошибка при обновлении: " + String(e) };
+  }
+}

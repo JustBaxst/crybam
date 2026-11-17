@@ -12,12 +12,19 @@ import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 
 export function ActionDropdown({
   editHref,
+  onEditClick,
   onDeleteClick,
 }: {
-  editHref: string;
+  editHref?: string;
+  onEditClick?: () => void;
   onDeleteClick: () => void;
 }) {
   const router = useRouter();
+
+  const handleEdit = () => {
+    if (onEditClick) onEditClick();
+    else if (editHref) router.push(editHref);
+  };
 
   return (
     <DropdownMenu>
@@ -31,15 +38,16 @@ export function ActionDropdown({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-40">
-        <DropdownMenuItem
-          onClick={() => router.push(editHref)}
-          className="cursor-pointer"
-        >
-          <Pencil className="w-4 h-4 text-muted mr-2" />
-          Редактировать
-        </DropdownMenuItem>
-
-        <DropdownMenuSeparator />
+        {/* Показываем кнопку, только если есть куда вести или что открывать */}
+        {(onEditClick || editHref) && (
+          <>
+            <DropdownMenuItem onClick={handleEdit} className="cursor-pointer">
+              <Pencil className="w-4 h-4 text-muted mr-2" />
+              Редактировать
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
 
         <DropdownMenuItem
           onClick={onDeleteClick}

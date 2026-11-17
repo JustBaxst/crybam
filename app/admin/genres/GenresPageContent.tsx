@@ -10,7 +10,11 @@ import {
   AccordionContent,
 } from "@/components/ui/accordion";
 import { Plus, Trash2, Tag, Smile, Hash, X, Save } from "lucide-react";
-import { createTaxonomyItems, deleteTaxonomyItem } from "./actions";
+import {
+  createTaxonomyItems,
+  deleteTaxonomyItem,
+  updateTaxonomyItem,
+} from "./actions";
 import { AdminSearchBar } from "@/components/AdminSearchBar";
 import { FormInput, FormSelect } from "@/components/ui/form-elements";
 import { ActionDropdown } from "@/components/admin/ActionDropdown";
@@ -21,23 +25,39 @@ type Item = { id: number; name: string; _count: { dramas: number } };
 type TaxonomyType = "genre" | "mood" | "theme";
 
 // ─── МОДАЛКА ДОБАВЛЕНИЯ ───
-function AddTaxonomyModal({ onClose }: { onClose: () => void }) {
+function TaxonomyModal({
+  mode,
+  initialType = "genre",
+  initialName = "",
+  itemId,
+  onClose,
+}: {
+  mode: "create" | "edit";
+  initialType?: TaxonomyType;
+  initialName?: string;
+  itemId?: number;
+  onClose: () => void;
+}) {
   useLockBodyScroll();
   const [isPending, startTransition] = useTransition();
-  const [type, setType] = useState<TaxonomyType>("genre");
-  const [names, setNames] = useState("");
+  const [type, setType] = useState<TaxonomyType>(initialType);
+  const [names, setNames] = useState(initialName);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!names.trim()) return;
 
     startTransition(async () => {
-      const res = await createTaxonomyItems(type, names);
+      let res;
+      if (mode === "create") {
+        res = await createTaxonomyItems(type, names);
+      } else {
+        res = await updateTaxonomyItem(type, itemId!, names);
+      }
+
       if (res.error) toast.error(res.error);
       else {
-        toast.success(
-          `Добавлено: ${res.created}, восстановлено: ${res.restored}`,
-        );
+        toast.success(mode === "create" ? `Добавлено` : "Обновлено");
         onClose();
       }
     });
@@ -50,7 +70,9 @@ function AddTaxonomyModal({ onClose }: { onClose: () => void }) {
         className="w-full max-w-lg rounded-2xl border border-border bg-surface shadow-2xl"
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <h2 className="text-lg font-semibold">Добавить в справочник</h2>
+          <h2 className="text-lg font-semibold">
+            {mode === "create" ? "Добавить в справочник" : "Редактировать"}
+          </h2>
           <button
             type="button"
             onClick={onClose}
@@ -62,11 +84,12 @@ function AddTaxonomyModal({ onClose }: { onClose: () => void }) {
         <div className="p-6 space-y-4">
           <div>
             <label className="block text-xs font-medium text-muted mb-1.5">
-              Куда добавляем?
+              Тип справочника
             </label>
             <FormSelect
               value={type}
               onChange={(e) => setType(e.target.value as TaxonomyType)}
+              disabled={mode === "edit"} // При редактировании нельзя поменять тип
             >
               <option value="genre">Жанры</option>
               <option value="mood">Настроения</option>
@@ -75,12 +98,14 @@ function AddTaxonomyModal({ onClose }: { onClose: () => void }) {
           </div>
           <div>
             <label className="block text-xs font-medium text-muted mb-1.5">
-              Названия (через запятую)
+              {mode === "create" ? "Названия (через запятую)" : "Название"}
             </label>
             <FormInput
               value={names}
               onChange={(e) => setNames(e.target.value)}
-              placeholder="Романтика, Комедия, Драма..."
+              placeholder={
+                mode === "create" ? "Романтика, Комедия..." : "Название"
+              }
               autoFocus
             />
           </div>
@@ -124,6 +149,11 @@ export function GenresPageContent({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const searchParams = useSearchParams();
+  const [editItem, setEditItem] = useState<{
+    type: TaxonomyType;
+    id: number;
+    name: string;
+  } | null>(null);
 
   const handleDelete = (
     type: TaxonomyType,
@@ -207,7 +237,9 @@ export function GenresPageContent({
                   {/* Используем ActionDropdown для стиля, как в других таблицах */}
                   <div className="flex justify-end">
                     <ActionDropdown
-                      editHref="#"
+                      onEditClick={() =>
+                        setEditItem({ type, id: item.id, name: item.name })
+                      }
                       onDeleteClick={() =>
                         handleDelete(
                           type,
@@ -216,7 +248,6 @@ export function GenresPageContent({
                           item._count.dramas,
                         )
                       }
-                      hideEdit // ← Скажу ниже, почему эту опцию надо добавить
                     />
                   </div>
                 </td>
@@ -348,7 +379,17 @@ export function GenresPageContent({
       </Accordion>
 
       {isModalOpen && (
-        <AddTaxonomyModal onClose={() => setIsModalOpen(false)} />
+        <TaxonomyModal mode="create" onClose={() => setIsModalOpen(false)} />
+      )}
+
+      {editItem && (
+        <TaxonomyModal
+          mode="edit"
+          initialType={editItem.type}
+          initialName={editItem.name}
+          itemId={editItem.id}
+          onClose={() => setEditItem(null)}
+        />
       )}
     </>
   );
