@@ -1,19 +1,20 @@
 import { prisma } from "@/lib/prisma";
 import { AdminBreadcrumbs } from "@/components/AdminBreadcrumbs";
-import { TagsClientPage } from "./TagsClientPage";
+import { GenresPageContent } from "./GenresPageContent";
 
-type SearchParams = Promise<{ q?: string }>;
+type SearchParams = Promise<{ q?: string; filter?: string }>;
 
 export default async function AdminGenresPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const { q } = await searchParams;
+  const { q, filter } = await searchParams;
   const query = (q ?? "").trim();
 
   const searchCondition = query ? { name: { contains: query } } : {};
 
+  // Запрашиваем все три сущности сразу с учетом поиска
   const genres = await prisma.genre.findMany({
     where: { deletedAt: null, ...searchCondition },
     orderBy: { name: "asc" },
@@ -32,18 +33,19 @@ export default async function AdminGenresPage({
     include: { _count: { select: { dramas: true } } },
   });
 
+  const totalCount = genres.length + moods.length + themes.length;
+
   return (
-    <div className="max-w-5xl mx-auto px-6 py-10">
-      <AdminBreadcrumbs items={[{ label: "Жанры и теги" }]} />
+    <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col gap-6">
+      <AdminBreadcrumbs items={[{ label: "Справочники" }]} />
 
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold">Справочники</h1>
-        <p className="text-sm text-muted mt-1">
-          Управление трехслойной системой тегов: жанры, настроения и темы.
-        </p>
-      </div>
-
-      <TagsClientPage genres={genres} moods={moods} themes={themes} />
+      <GenresPageContent
+        genres={genres}
+        moods={moods}
+        themes={themes}
+        totalCount={totalCount}
+        currentFilter={filter || ""}
+      />
     </div>
   );
 }
