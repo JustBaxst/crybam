@@ -86,6 +86,12 @@ client: yes
 export TvmazeImportModal: (props: { onClose: () => void; onSelect: (data: any) => void }) => JSX.Element
 client: yes
 
+### TagsClientPage.tsx
+
+Клиентская часть страницы справочников (табы, поиск, инлайн-создание, удаление).
+Путь: `app/admin/genres/TagsClientPage.tsx`
+client: yes
+
 ### AttentionBlock.tsx
 
 Блок внимания на дашборде (красный/желтый/зеленый) на основе статистики заполненности.
@@ -451,6 +457,12 @@ CRUD актеров.
 CRUD персонажей.
 Экшены: createCharacter, updateCharacter, deleteCharacter, addCharacterRelation, deleteCharacterRelation, updateCharacterAliases.
 
+### app/admin/genres/actions.ts
+
+Управление трехслойными справочниками (жанры, настроения, темы).
+Экшены: createTaxonomyItem, deleteTaxonomyItem.
+Особенности: мягкое удаление (deletedAt), восстановление при повторном создании, логирование в AdminLog.
+
 ### app/people/[id]/actions.ts
 
 Избранные актеры.
@@ -473,6 +485,7 @@ CRUD персонажей.
 - `/library` (Библиотека) -> `app/library/page.tsx`
 - `/favorites/actors` (Любимые актеры) -> `app/favorites/actors/page.tsx`
 - `/admin/dramas/[id]`, `/admin/people/[id]`, `/admin/characters/[id]` — Bento-дашборды сущностей (постер слева, факты справа, блоки с кнопками «Редактировать», открывающими модалки).
+- `/admin/genres` (Справочники) -> `app/admin/genres/page.tsx`
 - `/favorites/characters` (Любимые персонажи) -> `app/favorites/characters/page.tsx`
 
 ## Prisma Schema
