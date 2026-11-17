@@ -70,7 +70,7 @@ export default async function AdminOverviewPage() {
               label: pluralize(stats.genres, ["Жанр", "Жанра", "Жанров"]),
               value: stats.genres,
               icon: Tag,
-              href: "/admin/dramas",
+              href: "/admin/genres",
               weeklyGrowth: 0,
             }, // Жанры пока 0
           ].map((s, i) => (
