@@ -15,7 +15,7 @@ export function TaxonomyEditor({
   fieldName,
   action,
   prefix = "",
-  onClose,
+  onCloseAction,
 }: {
   dramaId: number;
   title: string;
@@ -24,7 +24,7 @@ export function TaxonomyEditor({
   fieldName: "genre" | "mood" | "theme";
   action: (formData: FormData) => Promise<any>;
   prefix?: string;
-  onClose: () => void;
+  onCloseAction: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -77,7 +77,7 @@ export function TaxonomyEditor({
             icon: <Sparkles className="w-4 h-4" />,
           });
         }
-        onClose();
+        onCloseAction();
       }
     });
   };
@@ -88,7 +88,7 @@ export function TaxonomyEditor({
   return (
     <Modal
       isOpen={true}
-      onCloseAction={onClose}
+      onCloseAction={onCloseAction}
       title={title}
       isDirty={isDirty}
       isPending={isPending}

@@ -42,7 +42,7 @@ export function TaxonomyEditButton({
           fieldName={fieldName}
           action={action}
           prefix={prefix}
-          onClose={() => setOpen(false)}
+          onCloseAction={() => setOpen(false)}
         />
       )}
     </>
