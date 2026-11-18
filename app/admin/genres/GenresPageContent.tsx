@@ -139,9 +139,20 @@ function TaxonomyModal({
         >
           <FormInput
             value={names}
-            onChange={(e) => setNames(e.target.value)}
+            onChange={(e) => {
+              let val = e.target.value;
+              // Если выбран тип "Темы", на лету меняем пробелы на подчеркивания
+              if (type === "theme") {
+                val = val.replace(/(?<!,\s*)\s+/g, "_").replace(/#/g, "");
+              }
+              setNames(val);
+            }}
             placeholder={
-              mode === "create" ? "Романтика, Комедия..." : "Название"
+              type === "theme"
+                ? "месть, любовный_треугольник"
+                : mode === "create"
+                  ? "Романтика, Комедия..."
+                  : "Название"
             }
             autoFocus
             maxLength={50}
