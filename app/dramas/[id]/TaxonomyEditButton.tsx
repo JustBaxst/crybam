@@ -2,16 +2,24 @@
 
 import { useState } from "react";
 import { Pencil } from "lucide-react";
-import { GenresEditor } from "./GenresEditor";
+import { TaxonomyEditor } from "./TaxonomyEditor";
 
-export function GenresEditButton({
+export function TaxonomyEditButton({
   dramaId,
-  allGenres,
-  linkedGenreIds,
+  title,
+  allItems,
+  linkedIds,
+  fieldName,
+  action,
+  prefix,
 }: {
   dramaId: number;
-  allGenres: { id: number; name: string }[];
-  linkedGenreIds: number[];
+  title: string;
+  allItems: { id: number; name: string }[];
+  linkedIds: number[];
+  fieldName: "genre" | "mood" | "theme";
+  action: (formData: FormData) => Promise<any>;
+  prefix?: string;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -26,10 +34,14 @@ export function GenresEditButton({
       </button>
 
       {open && (
-        <GenresEditor
+        <TaxonomyEditor
           dramaId={dramaId}
-          allGenres={allGenres}
-          linkedGenreIds={linkedGenreIds}
+          title={title}
+          allItems={allItems}
+          linkedIds={linkedIds}
+          fieldName={fieldName}
+          action={action}
+          prefix={prefix}
           onClose={() => setOpen(false)}
         />
       )}

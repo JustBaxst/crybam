@@ -19,9 +19,12 @@ import {
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { EditDramaButton } from "../../../dramas/[id]/EditDramaButton";
-import { GenresEditButton } from "../../../dramas/[id]/GenresEditButton";
-import { MoodsEditButton } from "../../../dramas/[id]/MoodsEditButton";
-import { ThemesEditButton } from "../../../dramas/[id]/ThemesEditButton";
+import { TaxonomyEditButton } from "@/app/dramas/[id]/TaxonomyEditButton";
+import {
+  updateGenres,
+  updateMoods,
+  updateThemes,
+} from "@/app/dramas/[id]/actions";
 import { CreditsEditButton } from "../../../dramas/[id]/CreditsEditButton";
 import { DeleteDramaButton } from "../DeleteDramaButton";
 import { TitlesEditButton } from "@/app/dramas/[id]/TitlesEditButton";
@@ -246,10 +249,13 @@ export default async function AdminDramaEditPage({
             <h2 className="text-sm font-medium text-muted uppercase tracking-wide flex items-center gap-2">
               <TagIcon className="w-4 h-4" /> Жанры
             </h2>
-            <GenresEditButton
+            <TaxonomyEditButton
               dramaId={drama.id}
-              allGenres={allGenres}
-              linkedGenreIds={linkedGenreIds}
+              title="Жанры"
+              allItems={allGenres}
+              linkedIds={linkedGenreIds}
+              fieldName="genre"
+              action={updateGenres}
             />
           </div>
           {genres.length === 0 ? (
@@ -276,10 +282,13 @@ export default async function AdminDramaEditPage({
             <h2 className="text-sm font-medium text-muted uppercase tracking-wide flex items-center gap-2">
               <Smile className="w-4 h-4" /> Настроения
             </h2>
-            <MoodsEditButton
+            <TaxonomyEditButton
               dramaId={drama.id}
-              allMoods={allMoods}
-              linkedMoodIds={linkedMoodIds}
+              title="Настроения"
+              allItems={allMoods}
+              linkedIds={linkedMoodIds}
+              fieldName="mood"
+              action={updateMoods}
             />
           </div>
           {drama.moods.length === 0 ? (
@@ -306,10 +315,14 @@ export default async function AdminDramaEditPage({
             <h2 className="text-sm font-medium text-muted uppercase tracking-wide flex items-center gap-2">
               <Hash className="w-4 h-4" /> Темы
             </h2>
-            <ThemesEditButton
+            <TaxonomyEditButton
               dramaId={drama.id}
-              allThemes={allThemes}
-              linkedThemeIds={linkedThemeIds}
+              title="Темы"
+              allItems={allThemes}
+              linkedIds={linkedThemeIds}
+              fieldName="theme"
+              action={updateThemes}
+              prefix="#"
             />
           </div>
           {drama.themes.length === 0 ? (
