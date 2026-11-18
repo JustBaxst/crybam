@@ -209,17 +209,20 @@ export function GenresPageContent({
     }
 
     return (
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-125">
+      <div className="overflow-x-auto w-full">
+        <table className="w-full table-fixed">
           <thead>
             <tr className="border-b border-border bg-background/50">
-              <th className="text-left px-4 py-3 text-xs font-medium text-muted uppercase tracking-wide">
+              {/* Занимает 50% ширины (левая половина) */}
+              <th className="text-left px-4 py-3 text-xs font-medium text-muted uppercase tracking-wide w-[50%]">
                 Название
               </th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-muted uppercase tracking-wide">
+              {/* Занимает 30% ширины (сдвигается к центру) */}
+              <th className="text-left px-4 py-3 text-xs font-medium text-muted uppercase tracking-wide w-[30%]">
                 Использований
               </th>
-              <th className="text-right px-4 py-3 text-xs font-medium text-muted uppercase tracking-wide">
+              {/* Занимает 20% ширины (остается справа) */}
+              <th className="text-right px-4 py-3 text-xs font-medium text-muted uppercase tracking-wide w-[20%]">
                 Действия
               </th>
             </tr>
