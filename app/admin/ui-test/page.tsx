@@ -91,14 +91,23 @@ export default function UiTestPage() {
       {/* Модалка с формой */}
       <Modal
         isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={() => {
+          setModalOpen(false);
+          setShowErrors(false); // ← Сбрасываем ошибки при закрытии
+        }}
         title="Редактирование дорамы"
         icon={<Pencil className="w-5 h-5" />}
         isDirty={isDirty}
         isPending={isPending}
         footer={
           <>
-            <Button variant="outline" onClick={() => setModalOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setModalOpen(false);
+                setShowErrors(false); // ← Сбрасываем ошибки при отмене
+              }}
+            >
               Отмена
             </Button>
             <Button onClick={handleSave} disabled={isPending}>
