@@ -9,6 +9,28 @@ export Button: (props: ButtonProps) => JSX.Element
 client: no
 Добавлен `cursor-pointer` и исправлен ховер для outline.
 
+### modal.tsx
+
+Универсальная обертка для модальных окон (Формы, редакторы, инфо-блоки).
+export Modal: (props: { isOpen, onCloseAction, title, icon?, children, footer?, variant?, isDirty?, isPending?, maxWidth? }) => JSX.Element
+client: yes
+Особенности: Поддерживает режимы `center` (по центру) и `drawer` (выезжающая панель). Защищает от закрытия при несохраненных данных (`isDirty`). Блокирует скролл страницы. Использует `ConfirmDialog` для предупреждений.
+Не дублировать: не верстать оверлей и шапку вручную в формах.
+
+### confirm-dialog.tsx
+
+Универсальное окно подтверждения (удаление, несохраненные данные).
+export ConfirmDialog: (props: { isOpen, onCloseAction, onConfirmAction, title, description, confirmText?, variant?, isPending? }) => JSX.Element
+client: yes
+Особенности: Использует `Modal` внутри. Поддерживает стили `danger` (красное) и `warning` (желтое).
+
+### select.tsx
+
+Кастомный выпадающий список на базе DropdownMenu.
+export Select: (props: { value, onChange, options, placeholder?, className?, disabled? }) => JSX.Element
+client: yes
+Особенности: Стилизован под Bento. Имеет `z-[150]`, чтобы открываться поверх модалок.
+
 ### dropdown-menu.tsx
 
 Обертка над Radix UI. Не импортировать Radix напрямую!
@@ -80,16 +102,18 @@ export ActionDropdown: (props: { editHref: string; onDeleteClick: () => void; ed
 client: yes
 Не дублировать: отдельные меню для Drama/Person/Character.
 
+Обновлен: Добавлен пропс `onEditClick` для открытия модалок редактирования вместо перехода по ссылке.
+
 ### TvmazeImportModal.tsx
 
 Модалка для импорта данных из TVmaze (визуал с фейковыми данными, ждет API).
 export TvmazeImportModal: (props: { onClose: () => void; onSelect: (data: any) => void }) => JSX.Element
 client: yes
 
-### TagsClientPage.tsx
+### GenresPageContent.tsx
 
-Клиентская часть страницы справочников (табы, поиск, инлайн-создание, удаление).
-Путь: `app/admin/genres/TagsClientPage.tsx`
+Клиентская часть страницы тегов. Содержит аккордеон с таблицами, поиск, фильтры и модалки создания/редактирования.
+Путь: `app/admin/genres/GenresPageContent.tsx`
 client: yes
 
 ### AttentionBlock.tsx
@@ -440,6 +464,12 @@ export EntryData: type
 - `rateDrama` — ставит оценку и пересчитывает средний `ratingCrybam` и `crybamVotes`.
 - `saveCryTag` — сохраняет эмоцию.
 
+### app/admin/genres/actions.ts
+
+Управление трехслойными справочниками (жанры, настроения, темы).
+Экшены: createTaxonomyItems, updateTaxonomyItem, deleteTaxonomyItem.
+Особенности: Поддерживает мягкое удаление (`deletedAt`). Восстанавливает удаленные элементы при повторном создании. Валидация длины (2-50 символов).
+
 ### app/admin/actions.ts
 
 CRUD дорам, аналитика.
@@ -485,7 +515,7 @@ CRUD персонажей.
 - `/library` (Библиотека) -> `app/library/page.tsx`
 - `/favorites/actors` (Любимые актеры) -> `app/favorites/actors/page.tsx`
 - `/admin/dramas/[id]`, `/admin/people/[id]`, `/admin/characters/[id]` — Bento-дашборды сущностей (постер слева, факты справа, блоки с кнопками «Редактировать», открывающими модалки).
-- `/admin/genres` (Справочники) -> `app/admin/genres/page.tsx`
+- `/admin/genres` (Теги/Справочники) -> `app/admin/genres/page.tsx`
 - `/favorites/characters` (Любимые персонажи) -> `app/favorites/characters/page.tsx`
 
 ## Prisma Schema
@@ -493,6 +523,8 @@ CRUD персонажей.
 ### Модели БД (новые)
 
 - **`UserEpisodeView`** — история просмотров серий. Используется для точного построения тепловой карты (heatmap) и статистики. Поля: `userId`, `dramaId`, `count` (сколько серий), `viewedAt` (дата). Связи с `User` и `Drama`.
+
+- **`Genre`, `Mood`, `DramaTheme`** — добавлено поле `createdAt` для подсчета статистики прироста и `deletedAt` для мягкого удаления.
 
 ## Планы на будущее (в разработке)
 
