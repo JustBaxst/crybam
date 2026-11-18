@@ -37,7 +37,7 @@ export function Select({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-60 overflow-y-auto p-1"
+        className="w-(--radix-dropdown-menu-trigger-width) max-h-60 overflow-y-auto p-1 z-150"
         align="start"
       >
         {options.map((opt) => (

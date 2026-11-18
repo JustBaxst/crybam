@@ -68,8 +68,28 @@ export function Modal({
 
   return (
     <>
-      <div className={wrapperClasses} onClick={attemptClose}>
-        <div className={containerClasses} onClick={(e) => e.stopPropagation()}>
+      <div className={wrapperClasses}>
+        {/* Отдельный слой для фона. Клик срабатывает только если начали и закончили на нем */}
+        <div
+          className="absolute inset-0"
+          onMouseDown={(e) => {
+            // Проверяем, что клик был именно по фону, а не по контенту
+            if (e.target === e.currentTarget) {
+              (e.currentTarget as HTMLElement).dataset.mousedown = "true";
+            }
+          }}
+          onMouseUp={(e) => {
+            if (
+              e.target === e.currentTarget &&
+              (e.currentTarget as HTMLElement).dataset.mousedown === "true"
+            ) {
+              attemptClose();
+            }
+            (e.currentTarget as HTMLElement).dataset.mousedown = "false";
+          }}
+        />
+
+        <div className={`relative ${containerClasses}`}>
           <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
             <h2 className="text-lg font-semibold flex items-center gap-2">
               {icon && <span className="text-accent">{icon}</span>}
