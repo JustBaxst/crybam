@@ -17,7 +17,7 @@ const navItems = [
   { href: "/admin/dramas", label: "Дорамы", Icon: Film },
   { href: "/admin/people", label: "Актёры", Icon: Users },
   { href: "/admin/characters", label: "Персонажи", Icon: UserCircle },
-  { href: "/admin/genres", label: "Жанры", Icon: Tag },
+  { href: "/admin/genres", label: "Теги", Icon: Tag },
   { href: "/admin/chronicle", label: "Хроника", Icon: HistoryIcon },
 ];
 

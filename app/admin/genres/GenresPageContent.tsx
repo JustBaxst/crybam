@@ -88,7 +88,7 @@ function TaxonomyModal({
     <Modal
       isOpen={true}
       onCloseAction={onClose}
-      title={mode === "create" ? "Добавить в справочник" : "Редактировать"}
+      title={mode === "create" ? "Добавить теги" : "Редактировать теги"}
       icon={
         mode === "create" ? (
           <Plus className="w-5 h-5" />
@@ -120,7 +120,7 @@ function TaxonomyModal({
       }
     >
       <div className="space-y-4">
-        <FormField label="Тип справочника">
+        <FormField label="Категория тега">
           <Select
             value={type}
             onChangeAction={(val) => setType(val as TaxonomyType)}
@@ -315,7 +315,7 @@ export function GenresPageContent({
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            Справочники
+            Теги
             <span className="text-sm font-normal text-muted bg-surface px-2 py-0.5 rounded-full border border-border">
               {totalCount}
             </span>

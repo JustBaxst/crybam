@@ -43,7 +43,7 @@ export default async function AdminGenresPage({
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col gap-6">
-      <AdminBreadcrumbs items={[{ label: "Справочники" }]} />
+      <AdminBreadcrumbs items={[{ label: "Теги" }]} />
 
       <GenresPageContent
         genres={genres}
