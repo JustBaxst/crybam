@@ -57,8 +57,14 @@ export function TaxonomyEditor({
     });
 
     // Добавляем новые
+    // Добавляем новые
     if (newItemsText.trim()) {
-      formData.set(`new${title}`, newItemsText); // например, newGenres
+      const fieldMap = {
+        genre: "newGenres",
+        mood: "newMoods",
+        theme: "newThemes",
+      };
+      formData.set(fieldMap[fieldName], newItemsText);
     }
 
     startTransition(async () => {
