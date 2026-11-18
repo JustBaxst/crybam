@@ -25,8 +25,16 @@ export async function createTaxonomyItems(
 
   try {
     for (const name of names) {
-      // Нормализация: первая буква заглавная
+      // Нормализация и валидация
       const cleanName = name[0].toUpperCase() + name.slice(1);
+      if (cleanName.length < 2)
+        return {
+          error: `Название «${cleanName}» слишком короткое (минимум 2 символа)`,
+        };
+      if (cleanName.length > 50)
+        return {
+          error: `Название «${cleanName}» слишком длинное (максимум 50 символов)`,
+        };
 
       let existing = null;
       if (type === "genre")
@@ -42,7 +50,6 @@ export async function createTaxonomyItems(
 
       if (existing) {
         if (existing.deletedAt) {
-          // Восстанавливаем
           if (type === "genre")
             await prisma.genre.update({
               where: { id: existing.id },
@@ -61,7 +68,6 @@ export async function createTaxonomyItems(
           restoredCount++;
         }
       } else {
-        // Создаем
         if (type === "genre")
           await prisma.genre.create({ data: { name: cleanName } });
         else if (type === "mood")
@@ -145,9 +151,12 @@ export async function updateTaxonomyItem(
 ) {
   const cleanName = newName.trim();
   if (!cleanName) return { error: "Название не может быть пустым" };
+  if (cleanName.length < 2)
+    return { error: "Название должно быть не короче 2 символов" };
+  if (cleanName.length > 50)
+    return { error: "Название должно быть не длиннее 50 символов" };
 
   try {
-    // Проверка на дубликат (если меняем на имя, которое уже есть у другого элемента)
     let existing = null;
     if (type === "genre")
       existing = await prisma.genre.findUnique({ where: { name: cleanName } });
@@ -162,7 +171,6 @@ export async function updateTaxonomyItem(
       return { error: "Элемент с таким названием уже существует" };
     }
 
-    // Обновляем
     if (type === "genre") {
       await prisma.genre.update({ where: { id }, data: { name: cleanName } });
     } else if (type === "mood") {

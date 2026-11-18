@@ -10,8 +10,8 @@ import { Button } from "./button";
  */
 export function ConfirmDialog({
   isOpen,
-  onClose,
-  onConfirm,
+  onCloseAction,
+  onConfirmAction,
   title,
   description,
   confirmText = "Подтвердить",
@@ -19,8 +19,8 @@ export function ConfirmDialog({
   isPending = false,
 }: {
   isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
+  onCloseAction: () => void;
+  onConfirmAction: () => void;
   title: string;
   description: string;
   confirmText?: string;
@@ -32,7 +32,7 @@ export function ConfirmDialog({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={onCloseAction}
       title={title}
       variant="center"
       isPending={isPending}
@@ -42,7 +42,7 @@ export function ConfirmDialog({
           <Button
             type="button"
             variant="outline"
-            onClick={onClose}
+            onClick={onCloseAction}
             disabled={isPending}
           >
             Отмена
@@ -50,7 +50,7 @@ export function ConfirmDialog({
           <Button
             type="button"
             variant={isDanger ? "destructive" : "default"}
-            onClick={onConfirm}
+            onClick={onConfirmAction}
             disabled={isPending}
           >
             {isPending ? "Загрузка..." : confirmText}

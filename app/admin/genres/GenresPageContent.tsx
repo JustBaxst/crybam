@@ -9,22 +9,25 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
-import { Plus, Trash2, Tag, Smile, Hash, X, Save } from "lucide-react";
+import { Plus, Trash2, Tag, Smile, Hash, AlertCircle } from "lucide-react";
 import {
   createTaxonomyItems,
   deleteTaxonomyItem,
   updateTaxonomyItem,
 } from "./actions";
 import { AdminSearchBar } from "@/components/AdminSearchBar";
-import { FormInput, FormSelect } from "@/components/ui/form-elements";
+import { FormField, FormInput } from "@/components/ui/form-elements";
 import { ActionDropdown } from "@/components/admin/ActionDropdown";
-import { useLockBodyScroll } from "@/lib/use-lock-body-scroll";
+import { Modal } from "@/components/ui/modal";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Select } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 type Item = { id: number; name: string; _count: { dramas: number } };
 type TaxonomyType = "genre" | "mood" | "theme";
 
-// ─── МОДАЛКА ДОБАВЛЕНИЯ ───
+// ─── МОДАЛКА ДОБАВЛЕНИЯ / РЕДАКТИРОВАНИЯ ───
 function TaxonomyModal({
   mode,
   initialType = "genre",
@@ -38,14 +41,26 @@ function TaxonomyModal({
   itemId?: number;
   onClose: () => void;
 }) {
-  useLockBodyScroll();
   const [isPending, startTransition] = useTransition();
   const [type, setType] = useState<TaxonomyType>(initialType);
   const [names, setNames] = useState(initialName);
+  const [error, setError] = useState<string | null>(null);
+
+  // Считаем, изменил ли пользователь данные (для защиты от закрытия)
+  const isDirty = names !== initialName || (mode === "create" && names !== "");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!names.trim()) return;
+    setError(null);
+
+    if (!names.trim()) {
+      setError("Введите хотя бы одно название");
+      return;
+    }
+    if (mode === "edit" && names.trim().length < 2) {
+      setError("Название должно быть не короче 2 символов");
+      return;
+    }
 
     startTransition(async () => {
       let res;
@@ -55,8 +70,9 @@ function TaxonomyModal({
         res = await updateTaxonomyItem(type, itemId!, names);
       }
 
-      if (res.error) toast.error(res.error);
-      else {
+      if (res.error) {
+        setError(res.error);
+      } else {
         toast.success(mode === "create" ? `Добавлено` : "Обновлено");
         onClose();
       }
@@ -64,71 +80,76 @@ function TaxonomyModal({
   };
 
   return (
-    <div className="fixed inset-0 z-100 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-lg rounded-2xl border border-border bg-surface shadow-2xl"
-      >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <h2 className="text-lg font-semibold">
-            {mode === "create" ? "Добавить в справочник" : "Редактировать"}
-          </h2>
-          <button
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      title={mode === "create" ? "Добавить в справочник" : "Редактировать"}
+      icon={
+        mode === "create" ? (
+          <Plus className="w-5 h-5" />
+        ) : (
+          <Tag className="w-5 h-5" />
+        )
+      }
+      isDirty={isDirty}
+      isPending={isPending}
+      maxWidth="max-w-lg"
+      footer={
+        <>
+          <Button
             type="button"
+            variant="outline"
             onClick={onClose}
-            className="w-8 h-8 rounded-lg border border-border hover:border-accent/40 flex items-center justify-center transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-        <div className="p-6 space-y-4">
-          <div>
-            <label className="block text-xs font-medium text-muted mb-1.5">
-              Тип справочника
-            </label>
-            <FormSelect
-              value={type}
-              onChange={(e) => setType(e.target.value as TaxonomyType)}
-              disabled={mode === "edit"} // При редактировании нельзя поменять тип
-            >
-              <option value="genre">Жанры</option>
-              <option value="mood">Настроения</option>
-              <option value="theme">Темы</option>
-            </FormSelect>
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-muted mb-1.5">
-              {mode === "create" ? "Названия (через запятую)" : "Название"}
-            </label>
-            <FormInput
-              value={names}
-              onChange={(e) => setNames(e.target.value)}
-              placeholder={
-                mode === "create" ? "Романтика, Комедия..." : "Название"
-              }
-              autoFocus
-            />
-          </div>
-        </div>
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 rounded-lg border border-border text-sm hover:border-accent/40 transition-colors"
+            disabled={isPending}
           >
             Отмена
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
+            onClick={handleSubmit}
             disabled={isPending || !names.trim()}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-opacity"
           >
-            <Save className="w-4 h-4" />
             {isPending ? "Сохранение..." : "Сохранить"}
-          </button>
-        </div>
-      </form>
-    </div>
+          </Button>
+        </>
+      }
+    >
+      <div className="space-y-4">
+        <FormField label="Тип справочника">
+          <Select
+            value={type}
+            onChangeAction={(val) => setType(val as TaxonomyType)}
+            options={[
+              { value: "genre", label: "Жанры" },
+              { value: "mood", label: "Настроения" },
+              { value: "theme", label: "Темы" },
+            ]}
+            disabled={mode === "edit"} // При редактировании нельзя поменять тип
+          />
+        </FormField>
+
+        <FormField
+          label={mode === "create" ? "Названия (через запятую)" : "Название"}
+          required
+        >
+          <FormInput
+            value={names}
+            onChange={(e) => setNames(e.target.value)}
+            placeholder={
+              mode === "create" ? "Романтика, Комедия..." : "Название"
+            }
+            autoFocus
+            maxLength={50}
+            className={error ? "border-danger focus:border-danger" : ""}
+          />
+          {error && (
+            <p className="text-danger text-xs mt-1 flex items-center gap-1">
+              <AlertCircle className="w-3 h-3" /> {error}
+            </p>
+          )}
+        </FormField>
+      </div>
+    </Modal>
   );
 }
 
@@ -147,35 +168,29 @@ export function GenresPageContent({
   currentFilter: string;
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
-  const searchParams = useSearchParams();
   const [editItem, setEditItem] = useState<{
     type: TaxonomyType;
     id: number;
     name: string;
   } | null>(null);
+  const [deleteItem, setDeleteItem] = useState<{
+    type: TaxonomyType;
+    id: number;
+    name: string;
+    count: number;
+  } | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const searchParams = useSearchParams();
 
-  const handleDelete = (
-    type: TaxonomyType,
-    id: number,
-    name: string,
-    count: number,
-  ) => {
-    if (count > 0) {
-      if (
-        !confirm(
-          `«${name}» используется в ${count} дорамах. Удалить его из общего списка?`,
-        )
-      )
-        return;
-    } else {
-      if (!confirm(`Удалить «${name}»?`)) return;
-    }
-
+  const handleDelete = () => {
+    if (!deleteItem) return;
     startTransition(async () => {
-      const res = await deleteTaxonomyItem(type, id);
+      const res = await deleteTaxonomyItem(deleteItem.type, deleteItem.id);
       if (res.error) toast.error(res.error);
-      else toast.success("Удалено");
+      else {
+        toast.success("Удалено");
+        setDeleteItem(null);
+      }
     });
   };
 
@@ -234,19 +249,18 @@ export function GenresPageContent({
                   )}
                 </td>
                 <td className="px-4 py-3 text-right">
-                  {/* Используем ActionDropdown для стиля, как в других таблицах */}
                   <div className="flex justify-end">
                     <ActionDropdown
                       onEditClick={() =>
                         setEditItem({ type, id: item.id, name: item.name })
                       }
                       onDeleteClick={() =>
-                        handleDelete(
+                        setDeleteItem({
                           type,
-                          item.id,
-                          item.name,
-                          item._count.dramas,
-                        )
+                          id: item.id,
+                          name: item.name,
+                          count: item._count.dramas,
+                        })
                       }
                     />
                   </div>
@@ -261,7 +275,6 @@ export function GenresPageContent({
 
   return (
     <>
-      {/* ВЕРХНИЙ РЯД */}
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
@@ -279,7 +292,6 @@ export function GenresPageContent({
         </button>
       </div>
 
-      {/* ПОИСК И ЧИПСЫ */}
       <div className="flex flex-col gap-3">
         <div className="w-full max-w-2xl">
           <AdminSearchBar placeholder="Поиск по названиям..." />
@@ -314,7 +326,6 @@ export function GenresPageContent({
         </div>
       </div>
 
-      {/* АККОРДЕОН С ТАБЛИЦАМИ */}
       <Accordion
         type="multiple"
         defaultValue={["genre", "mood", "theme"]}
@@ -378,6 +389,7 @@ export function GenresPageContent({
         )}
       </Accordion>
 
+      {/* Модалки */}
       {isModalOpen && (
         <TaxonomyModal mode="create" onClose={() => setIsModalOpen(false)} />
       )}
@@ -389,6 +401,22 @@ export function GenresPageContent({
           initialName={editItem.name}
           itemId={editItem.id}
           onClose={() => setEditItem(null)}
+        />
+      )}
+
+      {deleteItem && (
+        <ConfirmDialog
+          isOpen={true}
+          onCloseAction={() => setDeleteItem(null)}
+          onConfirmAction={handleDelete}
+          title={`Удалить ${deleteItem.type === "genre" ? "жанр" : deleteItem.type === "mood" ? "настроение" : "тему"}?`}
+          description={
+            deleteItem.count > 0
+              ? `«${deleteItem.name}» используется в ${deleteItem.count} дорамах. Он исчезнет из фильтров, но останется в самих дорамах.`
+              : `Вы уверены, что хотите удалить «${deleteItem.name}»?`
+          }
+          confirmText="Удалить"
+          isPending={isPending}
         />
       )}
     </>

@@ -10,22 +10,24 @@ import { ChevronDown, Check } from "lucide-react";
 
 export function Select({
   value,
-  onChange,
+  onChangeAction,
   options,
   placeholder = "Выберите...",
   className = "",
+  disabled = false,
 }: {
   value: string;
-  onChange: (val: string) => void;
+  onChangeAction: (val: string) => void;
   options: { value: string; label: string }[];
   placeholder?: string;
   className?: string;
+  disabled?: boolean;
 }) {
   const selected = options.find((o) => o.value === value);
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild disabled={disabled}>
         <button
           type="button"
           className={`w-full flex items-center justify-between px-3 py-2 rounded-lg border border-border bg-background hover:bg-surface/50 focus:border-accent outline-none transition-colors text-sm text-left cursor-pointer ${className}`}
@@ -43,7 +45,7 @@ export function Select({
         {options.map((opt) => (
           <DropdownMenuItem
             key={opt.value}
-            onClick={() => onChange(opt.value)}
+            onClick={() => onChangeAction(opt.value)}
             className="flex items-center justify-between cursor-pointer"
           >
             {opt.label}
