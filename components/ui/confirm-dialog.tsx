@@ -32,7 +32,7 @@ export function ConfirmDialog({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onCloseAction}
+      onCloseAction={onCloseAction}
       title={title}
       variant="center"
       isPending={isPending}

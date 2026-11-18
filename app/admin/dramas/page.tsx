@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Plus, Star, Film } from "lucide-react";
+import { Plus, Star, Film, X } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { AdminSearchBar } from "@/components/AdminSearchBar";
 import { MobileSearchButton } from "@/components/MobileSearchButton";
@@ -10,59 +10,83 @@ import { StatusDot } from "@/components/admin/StatusDot";
 import { AliasBadge } from "@/components/admin/AliasBadge";
 import { DramaActions } from "./DramaActions";
 
-type SearchParams = Promise<{ q?: string; filter?: string }>;
+type SearchParams = Promise<{
+  q?: string;
+  filter?: string;
+  genre?: string;
+  mood?: string;
+  theme?: string;
+}>;
 
 export default async function AdminDramasPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const { q, filter } = await searchParams;
+  const { q, filter, genre, mood, theme } = await searchParams;
   const query = (q ?? "").trim();
   const currentFilter = filter || "";
 
   const searchCondition = getDramaSearchWhere(query);
 
   const filterCondition =
-    currentFilter === "no_genres" ? { genres: { none: {} } } :
-      currentFilter === "no_credits" ? { credits: { none: {} } } :
-        currentFilter === "no_poster" ? { posterUrl: null } :
-          currentFilter === "green" ? {
-            AND: [
-              { titles: { some: { isPrimary: false } } }, // Есть альт. названия
-              { posterUrl: { not: null } },
-              { synopsis: { not: null } },
-              { genres: { some: {} } },
-              { credits: { some: {} } }
-            ]
-          } :
-            currentFilter === "red" ? {
-              // 🔴 Красный: нет альтернативных названий
-              titles: { none: { isPrimary: false } }
-            } :
-              currentFilter === "yellow" ? {
-                // 🟡 Желтый: есть альт. названия, но не хватает чего-то ещё
+    currentFilter === "no_genres"
+      ? { genres: { none: {} } }
+      : currentFilter === "no_credits"
+        ? { credits: { none: {} } }
+        : currentFilter === "no_poster"
+          ? { posterUrl: null }
+          : currentFilter === "green"
+            ? {
                 AND: [
-                  { titles: { some: { isPrimary: false } } },
-                  {
-                    OR: [
-                      { posterUrl: null },
-                      { synopsis: null },
-                      { genres: { none: {} } },
-                      { credits: { none: {} } }
-                    ]
+                  { titles: { some: { isPrimary: false } } }, // Есть альт. названия
+                  { posterUrl: { not: null } },
+                  { synopsis: { not: null } },
+                  { genres: { some: {} } },
+                  { credits: { some: {} } },
+                ],
+              }
+            : currentFilter === "red"
+              ? {
+                  // 🔴 Красный: нет альтернативных названий
+                  titles: { none: { isPrimary: false } },
+                }
+              : currentFilter === "yellow"
+                ? {
+                    // 🟡 Желтый: есть альт. названия, но не хватает чего-то ещё
+                    AND: [
+                      { titles: { some: { isPrimary: false } } },
+                      {
+                        OR: [
+                          { posterUrl: null },
+                          { synopsis: null },
+                          { genres: { none: {} } },
+                          { credits: { none: {} } },
+                        ],
+                      },
+                    ],
                   }
-                ]
-              } :
-                undefined;
+                : undefined;
 
-  const whereConditions = [searchCondition, filterCondition].filter(Boolean) as any[];
+  // Фильтры по тегам (при переходе из справочника)
+  const tagConditions: any[] = [];
+  if (genre)
+    tagConditions.push({ genres: { some: { genreId: Number(genre) } } });
+  if (mood) tagConditions.push({ moods: { some: { mood: { name: mood } } } });
+  if (theme)
+    tagConditions.push({ themes: { some: { theme: { name: theme } } } });
+
+  const whereConditions = [
+    searchCondition,
+    filterCondition,
+    ...tagConditions,
+  ].filter(Boolean) as any[];
 
   // ОПТИМИЗИРОВАННЫЙ ЗАПРОС
   const dramas = await prisma.drama.findMany({
     where: {
       deletedAt: null,
-      ...(whereConditions.length > 0 ? { AND: whereConditions } : {})
+      ...(whereConditions.length > 0 ? { AND: whereConditions } : {}),
     },
     include: {
       titles: true,
@@ -71,12 +95,12 @@ export default async function AdminDramasPage({
       },
       genres: {
         include: { genre: true },
-        take: 5 // Берем только 5 для тултипа
+        take: 5, // Берем только 5 для тултипа
       },
       credits: {
         where: { person: { deletedAt: null } },
         include: { person: true },
-        take: 8 // Берем только 8 для тултипа
+        take: 8, // Берем только 8 для тултипа
       },
     },
     orderBy: [{ year: "desc" }, { title: "asc" }],
@@ -84,7 +108,6 @@ export default async function AdminDramasPage({
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col gap-6">
-
       {/* ВЕРХНИЙ РЯД */}
       <div className="flex items-center justify-between gap-4">
         <div>
@@ -111,8 +134,29 @@ export default async function AdminDramasPage({
       {/* НИЖНИЙ РЯД */}
       <div className="flex flex-col gap-3">
         <div className="w-full max-w-2xl">
-          <AdminSearchBar placeholder="Поиск по названиям..." showGlobalSearch />
+          <AdminSearchBar
+            placeholder="Поиск по названиям..."
+            showGlobalSearch
+          />
         </div>
+
+        {/* Плашка активного фильтра из справочника */}
+        {(genre || mood || theme) && (
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-sm text-muted">Активный фильтр:</span>
+            <Link
+              href="/admin/dramas"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-accent/10 text-accent border border-accent/20 text-xs font-medium hover:bg-accent/20 transition-colors"
+            >
+              {genre
+                ? `Жанр ID: ${genre}`
+                : mood
+                  ? `Настроение: ${mood}`
+                  : `Тема: #${theme}`}
+              <X className="w-3 h-3" />
+            </Link>
+          </div>
+        )}
 
         {/* Чипсы */}
         <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap pb-1 [&::-webkit-scrollbar]:hidden">
@@ -130,10 +174,11 @@ export default async function AdminDramasPage({
               <Link
                 key={f.key}
                 href={`/admin/dramas?${params.toString()}`}
-                className={`px-3 py-1 rounded-full text-xs transition-colors shrink-0 border-none ${isActive
-                  ? "bg-accent text-white"
-                  : "bg-transparent text-muted hover:bg-surface hover:text-foreground"
-                  }`}
+                className={`px-3 py-1 rounded-full text-xs transition-colors shrink-0 border-none ${
+                  isActive
+                    ? "bg-accent text-white"
+                    : "bg-transparent text-muted hover:bg-surface hover:text-foreground"
+                }`}
               >
                 {f.label}
               </Link>
@@ -188,7 +233,11 @@ export default async function AdminDramasPage({
                         <StatusDot
                           items={[
                             // Если нет альт. названий — это критично (красный)
-                            { label: "Альт. названия", isFilled: d.titles.length > 1, isCritical: true },
+                            {
+                              label: "Альт. названия",
+                              isFilled: d.titles.length > 1,
+                              isCritical: true,
+                            },
                             { label: "Постер", isFilled: !!d.posterUrl },
                             { label: "Жанры", isFilled: d._count.genres > 0 },
                             { label: "Актеры", isFilled: d._count.credits > 0 },
@@ -210,14 +259,19 @@ export default async function AdminDramasPage({
                           )}
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm font-semibold truncate">{d.title}</p>
+                          <p className="text-sm font-semibold truncate">
+                            {d.title}
+                          </p>
                           <div className="text-xs text-muted flex items-center gap-1 mt-0.5">
                             {d.ratingCrybam != null && d.ratingCrybam > 0 ? (
                               <>
                                 <Star className="w-3 h-3 fill-current text-accent" />
-                                <span className="text-accent font-semibold">{d.ratingCrybam.toFixed(1)}</span>
+                                <span className="text-accent font-semibold">
+                                  {d.ratingCrybam.toFixed(1)}
+                                </span>
                               </>
-                            ) : d.ratingKinopoisk != null && d.ratingKinopoisk > 0 ? (
+                            ) : d.ratingKinopoisk != null &&
+                              d.ratingKinopoisk > 0 ? (
                               <>
                                 <Star className="w-3 h-3 fill-current text-yellow-400" />
                                 <span>{d.ratingKinopoisk}</span>
@@ -240,7 +294,11 @@ export default async function AdminDramasPage({
 
                     {/* КОЛОНКА 2: Алиасы */}
                     <td className="px-4 py-3">
-                      <AliasBadge aliases={d.titles.filter(t => !t.isPrimary).map(t => t.title)} />
+                      <AliasBadge
+                        aliases={d.titles
+                          .filter((t) => !t.isPrimary)
+                          .map((t) => t.title)}
+                      />
                     </td>
 
                     {/* КОЛОНКА 3: Ключевые факты */}

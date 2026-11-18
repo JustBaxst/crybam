@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { Tooltip } from "@/components/Tooltip";
 import { useSearchParams } from "next/navigation";
 import {
   Accordion,
@@ -24,7 +25,11 @@ import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-type Item = { id: number; name: string; _count: { dramas: number } };
+type Item = {
+  id: number;
+  name: string;
+  dramas: { drama: { id: number; title: string } }[];
+};
 type TaxonomyType = "genre" | "mood" | "theme";
 
 // ─── МОДАЛКА ДОБАВЛЕНИЯ / РЕДАКТИРОВАНИЯ ───
@@ -82,7 +87,7 @@ function TaxonomyModal({
   return (
     <Modal
       isOpen={true}
-      onClose={onClose}
+      onCloseAction={onClose}
       title={mode === "create" ? "Добавить в справочник" : "Редактировать"}
       icon={
         mode === "create" ? (
@@ -240,10 +245,39 @@ export function GenresPageContent({
                   </div>
                 </td>
                 <td className="px-4 py-3 text-sm text-muted">
-                  {item._count.dramas > 0 ? (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-surface border border-border text-xs">
-                      {item._count.dramas} дорам
-                    </span>
+                  {item.dramas.length > 0 ? (
+                    <Tooltip
+                      content={
+                        <div className="max-w-xs">
+                          <div className="font-semibold mb-1.5 text-[11px] uppercase tracking-wide text-muted">
+                            Дорамы с этим тегом:
+                          </div>
+                          <div className="flex flex-col gap-1 max-h-40 overflow-y-auto pr-2">
+                            {item.dramas.map((d) => (
+                              <div
+                                key={d.drama.id}
+                                className="text-sm text-foreground truncate"
+                              >
+                                {d.drama.title}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      }
+                    >
+                      <Link
+                        href={
+                          type === "genre"
+                            ? `/admin/dramas?genre=${item.id}`
+                            : type === "mood"
+                              ? `/admin/dramas?mood=${item.name}`
+                              : `/admin/dramas?theme=${item.name}`
+                        }
+                        className="inline-flex items-center px-2 py-0.5 rounded-full bg-surface border border-border text-xs hover:border-accent/40 hover:text-accent transition-colors cursor-pointer"
+                      >
+                        {item.dramas.length} дорам
+                      </Link>
+                    </Tooltip>
                   ) : (
                     "—"
                   )}
@@ -259,7 +293,7 @@ export function GenresPageContent({
                           type,
                           id: item.id,
                           name: item.name,
-                          count: item._count.dramas,
+                          count: item.dramas.length,
                         })
                       }
                     />

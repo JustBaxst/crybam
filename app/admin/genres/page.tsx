@@ -18,19 +18,25 @@ export default async function AdminGenresPage({
   const genres = await prisma.genre.findMany({
     where: { deletedAt: null, ...searchCondition },
     orderBy: { name: "asc" },
-    include: { _count: { select: { dramas: true } } },
+    include: {
+      dramas: { select: { drama: { select: { id: true, title: true } } } },
+    },
   });
 
   const moods = await prisma.mood.findMany({
     where: { deletedAt: null, ...searchCondition },
     orderBy: { name: "asc" },
-    include: { _count: { select: { dramas: true } } },
+    include: {
+      dramas: { select: { drama: { select: { id: true, title: true } } } },
+    },
   });
 
   const themes = await prisma.dramaTheme.findMany({
     where: { deletedAt: null, ...searchCondition },
     orderBy: { name: "asc" },
-    include: { _count: { select: { dramas: true } } },
+    include: {
+      dramas: { select: { drama: { select: { id: true, title: true } } } },
+    },
   });
 
   const totalCount = genres.length + moods.length + themes.length;

@@ -7,7 +7,7 @@ import { ConfirmDialog } from "./confirm-dialog";
 
 export function Modal({
   isOpen,
-  onClose,
+  onCloseAction,
   title,
   icon,
   children,
@@ -18,15 +18,15 @@ export function Modal({
   maxWidth = "max-w-3xl",
 }: {
   isOpen: boolean;
-  onClose: () => void;
+  onCloseAction: () => void;
   title: string;
-  icon?: ReactNode; // ← Добавили иконку
+  icon?: ReactNode;
   children: ReactNode;
-  footer?: ReactNode;
+  footer?: ReactNode | ((attemptClose: () => void) => ReactNode);
   variant?: "center" | "drawer";
   isDirty?: boolean;
   isPending?: boolean;
-  maxWidth?: string; // ← Гибкая ширина
+  maxWidth?: string;
 }) {
   useLockBodyScroll(isOpen);
   const [showConfirmClose, setShowConfirmClose] = useState(false);
@@ -35,13 +35,13 @@ export function Modal({
     if (isDirty && !isPending) {
       setShowConfirmClose(true);
     } else {
-      onClose();
+      onCloseAction();
     }
   };
 
   const forceClose = () => {
     setShowConfirmClose(false);
-    onClose();
+    onCloseAction();
   };
 
   useEffect(() => {
@@ -109,7 +109,7 @@ export function Modal({
 
           {footer && (
             <div className="px-6 py-4 border-t border-border shrink-0 flex items-center justify-end gap-3 bg-surface rounded-b-2xl">
-              {footer}
+              {typeof footer === "function" ? footer(attemptClose) : footer}
             </div>
           )}
         </div>
@@ -118,8 +118,8 @@ export function Modal({
       {/* Вложенное окно подтверждения */}
       <ConfirmDialog
         isOpen={showConfirmClose}
-        onClose={() => setShowConfirmClose(false)}
-        onConfirm={forceClose}
+        onCloseAction={() => setShowConfirmClose(false)}
+        onConfirmAction={forceClose}
         title="Несохраненные изменения"
         description="Вы изменили данные в форме, но не сохранили их. Вы уверены, что хотите закрыть окно?"
         confirmText="Выйти без сохранения"
