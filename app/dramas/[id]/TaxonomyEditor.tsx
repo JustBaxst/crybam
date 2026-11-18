@@ -152,7 +152,14 @@ export function TaxonomyEditor({
         >
           <FormInput
             value={newItemsText}
-            onChange={(e) => setNewItemsText(e.target.value)}
+            onChange={(e) => {
+              let val = e.target.value;
+              // Если это темы, на лету меняем пробелы на подчеркивания (кроме пробелов после запятой)
+              if (fieldName === "theme") {
+                val = val.replace(/(?<!,\s*)\s+/g, "_").replace(/#/g, "");
+              }
+              setNewItemsText(val);
+            }}
             placeholder="Введите через запятую..."
           />
         </FormField>

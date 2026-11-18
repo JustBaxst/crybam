@@ -25,8 +25,14 @@ export async function createTaxonomyItems(
 
   try {
     for (const name of names) {
-      // Нормализация и валидация
-      const cleanName = name[0].toUpperCase() + name.slice(1);
+      // Нормализация: первая буква заглавная
+      let cleanName = name[0].toUpperCase() + name.slice(1);
+
+      // Если это тема — убираем решетки и меняем пробелы на подчеркивания
+      if (type === "theme") {
+        cleanName = cleanName.replace(/#/g, "").replace(/\s+/g, "_");
+      }
+
       if (cleanName.length < 2)
         return {
           error: `Название «${cleanName}» слишком короткое (минимум 2 символа)`,
@@ -149,7 +155,13 @@ export async function updateTaxonomyItem(
   id: number,
   newName: string,
 ) {
-  const cleanName = newName.trim();
+  let cleanName = newName.trim();
+
+  // Если это тема — убираем решетки и меняем пробелы на подчеркивания
+  if (type === "theme") {
+    cleanName = cleanName.replace(/#/g, "").replace(/\s+/g, "_");
+  }
+
   if (!cleanName) return { error: "Название не может быть пустым" };
   if (cleanName.length < 2)
     return { error: "Название должно быть не короче 2 символов" };

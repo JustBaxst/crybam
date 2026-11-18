@@ -1115,11 +1115,14 @@ export async function updateThemes(formData: FormData) {
     : [];
 
   const newThemeIds: number[] = [];
-  for (const name of newThemeNames) {
+  for (const rawName of newThemeNames) {
+    // Заменяем пробелы на подчеркивание и убираем решетки, если пользователь их ввел
+    const safeName = rawName.trim().replace(/#/g, "").replace(/\s+/g, "_");
+
     const m = await prisma.dramaTheme.upsert({
-      where: { name },
+      where: { name: safeName },
       update: { deletedAt: null },
-      create: { name },
+      create: { name: safeName },
     });
     newThemeIds.push(m.id);
   }
