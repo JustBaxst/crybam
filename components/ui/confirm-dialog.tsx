@@ -1,30 +1,34 @@
 "use client";
 
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Trash2 } from "lucide-react";
 import { Modal } from "./modal";
 import { Button } from "./button";
 
 /**
- * Универсальное окно подтверждения (для удаления и опасных действий).
+ * Универсальное окно подтверждения (удаление, несохраненные данные).
  * @dontDuplicate Не использовать нативный confirm().
  */
 export function ConfirmDialog({
   isOpen,
   onClose,
   onConfirm,
-  title = "Подтверждение",
+  title,
   description,
-  confirmText = "Удалить",
+  confirmText = "Подтвердить",
+  variant = "danger", // danger | warning
   isPending = false,
 }: {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  title?: string;
+  title: string;
   description: string;
   confirmText?: string;
+  variant?: "danger" | "warning";
   isPending?: boolean;
 }) {
+  const isDanger = variant === "danger";
+
   return (
     <Modal
       isOpen={isOpen}
@@ -32,6 +36,7 @@ export function ConfirmDialog({
       title={title}
       variant="center"
       isPending={isPending}
+      maxWidth="max-w-md" // Делаем окно компактным
       footer={
         <>
           <Button
@@ -44,22 +49,28 @@ export function ConfirmDialog({
           </Button>
           <Button
             type="button"
-            variant="destructive"
+            variant={isDanger ? "destructive" : "default"}
             onClick={onConfirm}
             disabled={isPending}
           >
-            {isPending ? "Удаление..." : confirmText}
+            {isPending ? "Загрузка..." : confirmText}
           </Button>
         </>
       }
     >
-      <div className="flex flex-col items-center text-center gap-4 py-4">
-        <div className="w-12 h-12 rounded-full bg-danger/10 flex items-center justify-center text-danger">
-          <AlertTriangle className="w-6 h-6" />
+      <div className="flex flex-col items-center text-center gap-4 py-2">
+        <div
+          className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${
+            isDanger ? "bg-danger/10 text-danger" : "bg-warning/10 text-warning"
+          }`}
+        >
+          {isDanger ? (
+            <Trash2 className="w-6 h-6" />
+          ) : (
+            <AlertTriangle className="w-6 h-6" />
+          )}
         </div>
-        <p className="text-muted text-sm leading-relaxed max-w-xs mx-auto">
-          {description}
-        </p>
+        <p className="text-muted text-sm leading-relaxed">{description}</p>
       </div>
     </Modal>
   );
