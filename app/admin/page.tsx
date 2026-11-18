@@ -67,12 +67,16 @@ export default async function AdminOverviewPage() {
               weeklyGrowth: stats.characters.weeklyGrowth,
             },
             {
-              label: pluralize(stats.genres, ["Жанр", "Жанра", "Жанров"]),
-              value: stats.genres,
+              label: pluralize(stats.taxonomies.total, [
+                "Тег",
+                "Тега",
+                "Тегов",
+              ]),
+              value: stats.taxonomies.total,
               icon: Tag,
               href: "/admin/genres",
-              weeklyGrowth: 0,
-            }, // Жанры пока 0
+              weeklyGrowth: stats.taxonomies.weeklyGrowth,
+            },
           ].map((s, i) => (
             <Link
               key={i}

@@ -397,10 +397,31 @@ export async function getAdminOverviewData() {
     include: { user: { select: { name: true, avatarUrl: true } } },
   });
 
-  const [genresCount, nominationsCount] = await Promise.all([
-    prisma.genre.count({ where: { deletedAt: null } }),
-    prisma.nomination.count(),
+  const weekAgoForTags = new Date();
+  weekAgoForTags.setDate(weekAgoForTags.getDate() - 7);
+
+  const [genresCount, moodsCount, themesCount, nominationsCount] =
+    await Promise.all([
+      prisma.genre.count({ where: { deletedAt: null } }),
+      prisma.mood.count({ where: { deletedAt: null } }),
+      prisma.dramaTheme.count({ where: { deletedAt: null } }),
+      prisma.nomination.count(),
+    ]);
+
+  const [genresGrowth, moodsGrowth, themesGrowth] = await Promise.all([
+    prisma.genre.count({
+      where: { deletedAt: null, createdAt: { gte: weekAgoForTags } },
+    }),
+    prisma.mood.count({
+      where: { deletedAt: null, createdAt: { gte: weekAgoForTags } },
+    }),
+    prisma.dramaTheme.count({
+      where: { deletedAt: null, createdAt: { gte: weekAgoForTags } },
+    }),
   ]);
+
+  const taxonomiesTotal = genresCount + moodsCount + themesCount;
+  const taxonomiesGrowth = genresGrowth + moodsGrowth + themesGrowth;
 
   // Считаем прирост за 7 дней
   const weekAgo = new Date();
@@ -441,7 +462,10 @@ export async function getAdminOverviewData() {
         red: cRed,
         weeklyGrowth: characterGrowth,
       },
-      genres: genresCount,
+      taxonomies: {
+        total: taxonomiesTotal,
+        weeklyGrowth: taxonomiesGrowth,
+      },
       nominations: nominationsCount,
     },
     heatmapActivities,

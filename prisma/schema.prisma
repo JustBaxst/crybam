@@ -147,6 +147,7 @@ model DramaTheme {
   name   String           @unique
   dramas DramaThemeLink[]
   deletedAt DateTime?
+  createdAt DateTime         @default(now())
 }
 
 model DramaThemeLink {
@@ -166,6 +167,7 @@ model Mood {
   name   String          @unique
   dramas DramaMoodLink[]
   deletedAt DateTime?
+  createdAt DateTime        @default(now())
 }
 
 model DramaMoodLink {
@@ -360,6 +362,7 @@ model Genre {
   name   String       @unique
   dramas DramaGenre[]
   deletedAt DateTime?
+  createdAt DateTime     @default(now())
 }
 
 model DramaGenre {
