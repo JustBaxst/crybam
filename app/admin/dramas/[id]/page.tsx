@@ -16,6 +16,7 @@ import {
   Smile,
   Hash,
   User,
+  Pencil,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { EditDramaButton } from "../../../dramas/[id]/EditDramaButton";
@@ -27,7 +28,8 @@ import {
 } from "@/app/dramas/[id]/actions";
 import { CreditsEditButton } from "../../../dramas/[id]/CreditsEditButton";
 import { DeleteDramaButton } from "../DeleteDramaButton";
-import { TitlesEditButton } from "@/app/dramas/[id]/TitlesEditButton";
+import { updateTitles } from "@/app/dramas/[id]/actions";
+import { AliasEditButton } from "@/components/AliasEditButton";
 import { SoundtracksEditButton } from "@/app/dramas/[id]/SoundtracksEditButton";
 import { AdminBreadcrumbs } from "@/components/AdminBreadcrumbs";
 
@@ -120,11 +122,19 @@ export default async function AdminDramaEditPage({
       <div className="flex items-start justify-between gap-4 mb-8 flex-wrap mt-2">
         <div className="min-w-0 flex items-center gap-4 flex-wrap">
           <h1 className="text-2xl font-bold leading-tight">{drama.title}</h1>
-          <TitlesEditButton
-            dramaId={drama.id}
-            currentTitles={drama.titles
+          <AliasEditButton
+            buttonText="Другие названия"
+            icon={<Pencil className="w-3 h-3" />}
+            title="Альтернативные названия"
+            description="Каждое новое название пиши с новой строки (Enter). Запятые внутри названия сохраняются."
+            placeholder={"It's Okay to Not Be Okay\n사이코지만 괜찮아"}
+            entityId={drama.id}
+            idField="dramaId"
+            fieldName="titles"
+            currentAliases={drama.titles
               .filter((t) => !t.isPrimary)
               .map((t) => t.title)}
+            action={updateTitles}
           />
         </div>
         <div className="flex items-center gap-2 shrink-0">

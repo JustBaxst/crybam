@@ -10,11 +10,13 @@ import {
   Briefcase,
   User,
   Film,
+  Edit,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { DeleteCharacterButton } from "./DeleteCharacterButton";
 import { CharacterRelations } from "./CharacterRelations";
-import { CharacterAliasEditButton } from "../CharacterAliasEditButton";
+import { updateCharacterAliases } from "../actions";
+import { AliasEditButton } from "@/components/AliasEditButton";
 import { AdminBreadcrumbs } from "@/components/AdminBreadcrumbs";
 import { EditCharacterButton } from "../EditCharacterButton";
 
@@ -102,9 +104,17 @@ export default async function EditCharacterPage({
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-4 flex-wrap">
             <h1 className="text-2xl font-bold">{character.name}</h1>
-            <CharacterAliasEditButton
-              characterId={character.id}
+            <AliasEditButton
+              buttonText="Другие имена"
+              icon={<Edit className="w-4 h-4" />}
+              title="Другие имена персонажа"
+              description="Добавляй сюда разные варианты написания (транслитерации), чтобы поиск находил персонажа."
+              placeholder={"Ё Джин Гу\nЁ Чжин-гу\nYeo Jin-goo"}
+              entityId={character.id}
+              idField="characterId"
+              fieldName="aliases"
               currentAliases={character.aliases.map((a) => a.name)}
+              action={updateCharacterAliases}
             />
           </div>
           <p className="text-sm text-muted">

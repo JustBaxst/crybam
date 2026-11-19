@@ -12,15 +12,17 @@ import {
   Film,
   FileText,
   Share2,
+  Edit,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { DeletePersonButton } from "../DeletePersonButton";
-import { PersonAliasEditButton } from "../PersonAliasEditButton";
+import { updatePersonAliases } from "../actions";
 import { AdminBreadcrumbs } from "@/components/AdminBreadcrumbs";
 import { EditPersonButton } from "../EditPersonButton";
 import { SocialLinks } from "@/components/people/SocialLinks";
 import Image from "next/image";
 import { Tooltip } from "@/components/Tooltip";
+import { AliasEditButton } from "@/components/AliasEditButton";
 
 type Params = Promise<{ id: string }>;
 
@@ -62,9 +64,18 @@ export default async function EditPersonPage({ params }: { params: Params }) {
       <div className="flex items-start justify-between gap-4 mb-8 flex-wrap mt-2">
         <div className="flex items-center gap-4 flex-wrap min-w-0">
           <h1 className="text-2xl font-bold">{person.name}</h1>
-          <PersonAliasEditButton
-            personId={person.id}
+          <AliasEditButton
+            buttonText="Другие имена"
+            icon={<Edit className="w-4 h-4" />} // Тут можно использовать Edit вместо Pencil
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border hover:border-accent/40 transition-colors text-sm text-muted hover:text-foreground" // Если нужен другой стиль кнопки
+            title="Другие имена"
+            description="Каждое новое имя пиши с новой строки (Enter). Запятые внутри имени сохраняются."
+            placeholder={"Kim Soo Hyun\nКим Су Хён\n김수현"}
+            entityId={person.id}
+            idField="personId"
+            fieldName="aliases"
             currentAliases={person.aliases.map((a) => a.name)}
+            action={updatePersonAliases}
           />
         </div>
         <div className="flex items-center gap-2 shrink-0">

@@ -2,41 +2,52 @@
 
 import { useState, useTransition } from "react";
 import { Save, FileText, AlertCircle } from "lucide-react";
-import { updateTitles } from "./actions";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { FormField, FormTextarea } from "@/components/ui/form-elements";
 import { toast } from "sonner";
 
-export function TitlesEditor({
-  dramaId,
-  currentTitles,
+export function AliasEditor({
+  title,
+  description,
+  placeholder,
+  entityId,
+  idField,
+  fieldName,
+  currentAliases,
+  action,
   onCloseAction,
 }: {
-  dramaId: number;
-  currentTitles: string[];
+  title: string;
+  description: string;
+  placeholder: string;
+  entityId: number;
+  idField: "dramaId" | "personId" | "characterId";
+  fieldName: "titles" | "aliases";
+  currentAliases: string[];
+  action: (formData: FormData) => Promise<any>;
   onCloseAction: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [text, setText] = useState(currentTitles.join("\n"));
+  const [text, setText] = useState(currentAliases.join("\n"));
 
   // Проверяем, изменил ли пользователь данные
-  const isDirty = text !== currentTitles.join("\n");
+  const isDirty = text !== currentAliases.join("\n");
 
   const handleSubmit = () => {
     setError(null);
 
     const formData = new FormData();
-    formData.set("dramaId", String(dramaId));
-    formData.set("titles", text);
+    formData.set(idField, String(entityId));
+    formData.set(fieldName, text);
 
     startTransition(async () => {
-      const result = await updateTitles(formData);
+      const result = await action(formData);
       if (result?.error) {
         setError(result.error);
       } else {
-        toast.success("Названия обновлены");
+        toast.success("Успешно обновлено");
         onCloseAction();
       }
     });
@@ -46,7 +57,7 @@ export function TitlesEditor({
     <Modal
       isOpen={true}
       onCloseAction={onCloseAction}
-      title="Альтернативные названия"
+      title={title}
       icon={<FileText className="w-5 h-5" />}
       isDirty={isDirty}
       isPending={isPending}
@@ -70,14 +81,14 @@ export function TitlesEditor({
     >
       <div className="space-y-4">
         <FormField
-          label="Названия (каждое с новой строки)"
-          description="Каждое новое название пиши с новой строки (Enter). Запятые внутри названия сохраняются."
+          label="Значения (каждое с новой строки)"
+          description={description}
         >
           <FormTextarea
             value={text}
             onChange={(e) => setText(e.target.value)}
             rows={6}
-            placeholder={"It's Okay to Not Be Okay\n사이코지만 괜찮아"}
+            placeholder={placeholder}
             autoFocus
           />
         </FormField>
