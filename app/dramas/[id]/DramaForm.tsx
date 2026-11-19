@@ -165,7 +165,6 @@ export function DramaForm({
           <FormInput
             type="text"
             name="title"
-            required
             autoFocus={!isEdit}
             defaultValue={initialData?.title || importData?.title || ""}
             placeholder="Псих, но всё в порядке"
@@ -186,7 +185,7 @@ export function DramaForm({
           <FormField label="Страна">
             <Select
               value={country}
-              onChangeAction={(val) => {
+              onChange={(val) => {
                 setCountry(val);
                 setIsDirty(true);
               }}
@@ -251,7 +250,7 @@ export function DramaForm({
             <FormField label="Статус выхода">
               <Select
                 value={airStatus}
-                onChangeAction={(val) => {
+                onChange={(val) => {
                   setAirStatus(val);
                   setIsDirty(true);
                 }}
@@ -265,7 +264,7 @@ export function DramaForm({
             <FormField label="Метка плача">
               <Select
                 value={curatorCryTag}
-                onChangeAction={(val) => {
+                onChange={(val) => {
                   setCuratorCryTag(val);
                   setIsDirty(true);
                 }}
@@ -303,7 +302,7 @@ export function DramaForm({
             placeholder="Kinolibrary, AniLibria"
           />
         </FormField>
-        <FormField label="Платформы (через запятую)">
+        <FormField label="Платформы" description="Через запятую">
           <FormInput
             type="text"
             name="platforms"
@@ -311,7 +310,7 @@ export function DramaForm({
             placeholder="Netflix, Viki"
           />
         </FormField>
-        <FormField label="Производство (через запятую)">
+        <FormField label="Производство" description="Через запятую">
           <FormInput
             type="text"
             name="studios"

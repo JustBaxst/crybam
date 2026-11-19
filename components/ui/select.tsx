@@ -10,14 +10,14 @@ import { ChevronDown, Check } from "lucide-react";
 
 export function Select({
   value,
-  onChangeAction,
+  onChange,
   options,
   placeholder = "Выберите...",
   className = "",
   disabled = false,
 }: {
   value: string;
-  onChangeAction: (val: string) => void;
+  onChange: (val: string) => void; // ← Вернули onChange
   options: { value: string; label: string }[];
   placeholder?: string;
   className?: string;
@@ -45,7 +45,7 @@ export function Select({
         {options.map((opt) => (
           <DropdownMenuItem
             key={opt.value}
-            onClick={() => onChangeAction(opt.value)}
+            onClick={() => onChange(opt.value)} // ← Вернули onChange
             className="flex items-center justify-between cursor-pointer"
           >
             {opt.label}

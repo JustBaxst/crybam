@@ -124,7 +124,7 @@ export function EditEntryForm({
             <FormField label="Статус">
               <Select
                 value={status}
-                onChangeAction={(val) => {
+                onChange={(val) => {
                   setStatus(val);
                   setIsDirty(true);
                 }}
@@ -150,7 +150,7 @@ export function EditEntryForm({
             <FormField label="Эмоция">
               <Select
                 value={cryTag}
-                onChangeAction={(val) => {
+                onChange={(val) => {
                   setCryTag(val);
                   setIsDirty(true);
                 }}

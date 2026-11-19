@@ -99,12 +99,14 @@ function TaxonomyModal({
       isDirty={isDirty}
       isPending={isPending}
       maxWidth="max-w-lg"
-      footer={
+      footer={(
+        close, // ← Превращаем в функцию, принимающую close
+      ) => (
         <>
           <Button
             type="button"
             variant="outline"
-            onClick={onClose}
+            onClick={close} // ← Используем close вместо onClose
             disabled={isPending}
           >
             Отмена
@@ -117,13 +119,13 @@ function TaxonomyModal({
             {isPending ? "Сохранение..." : "Сохранить"}
           </Button>
         </>
-      }
+      )}
     >
       <div className="space-y-4">
         <FormField label="Категория тега">
           <Select
             value={type}
-            onChangeAction={(val) => setType(val as TaxonomyType)}
+            onChange={(val) => setType(val as TaxonomyType)}
             options={[
               { value: "genre", label: "Жанры" },
               { value: "mood", label: "Настроения" },
