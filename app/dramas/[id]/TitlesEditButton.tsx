@@ -15,12 +15,20 @@ export function TitlesEditButton({
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border text-xs text-muted hover:border-accent/40 hover:text-foreground">
+      <button
+        onClick={() => setOpen(true)}
+        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border text-xs text-muted hover:border-accent/40 hover:text-foreground transition-colors"
+      >
         <Pencil className="w-3 h-3" />
         Другие названия
       </button>
+
       {open && (
-        <TitlesEditor dramaId={dramaId} currentTitles={currentTitles} onClose={() => setOpen(false)} />
+        <TitlesEditor
+          dramaId={dramaId}
+          currentTitles={currentTitles}
+          onCloseAction={() => setOpen(false)}
+        />
       )}
     </>
   );
