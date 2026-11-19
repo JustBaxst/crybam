@@ -207,26 +207,6 @@ export async function updateDrama(formData: FormData) {
     }
   }
 
-  // Обновляем темы
-  const themesRaw = String(formData.get("themes") ?? "").trim();
-  await prisma.dramaThemeLink.deleteMany({ where: { dramaId } });
-  if (themesRaw) {
-    const names = themesRaw
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-    for (const name of names) {
-      const theme = await prisma.dramaTheme.upsert({
-        where: { name },
-        update: {},
-        create: { name },
-      });
-      await prisma.dramaThemeLink.create({
-        data: { dramaId, themeId: theme.id },
-      });
-    }
-  }
-
   const newStatus = await getDramaStatus(dramaId);
   let isJustCompleted = false;
 

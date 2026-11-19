@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { Pencil } from "lucide-react";
-import { EditDramaForm } from "./EditDramaForm";
+import { DramaForm } from "./DramaForm";
+import { updateDrama } from "./actions";
 
 type DramaData = {
   title: string;
@@ -46,9 +47,10 @@ export function EditDramaButton({
       </button>
 
       {open && (
-        <EditDramaForm
+        <DramaForm
           dramaId={dramaId}
-          drama={drama}
+          initialData={drama}
+          action={updateDrama}
           onCloseAction={() => setOpen(false)}
         />
       )}
