@@ -125,7 +125,7 @@ function TaxonomyModal({
         <FormField label="Категория тега">
           <Select
             value={type}
-            onChange={(val) => setType(val as TaxonomyType)}
+            onChangeAction={(val) => setType(val as TaxonomyType)}
             options={[
               { value: "genre", label: "Жанры" },
               { value: "mood", label: "Настроения" },

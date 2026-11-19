@@ -190,7 +190,7 @@ export function DramaForm({
           <FormField label="Страна" required>
             <Select
               value={country}
-              onChange={(val) => {
+              onChangeAction={(val) => {
                 setCountry(val);
                 setIsDirty(true);
               }}
@@ -255,7 +255,7 @@ export function DramaForm({
             <FormField label="Статус выхода">
               <Select
                 value={airStatus}
-                onChange={(val) => {
+                onChangeAction={(val) => {
                   setAirStatus(val);
                   setIsDirty(true);
                 }}
@@ -269,7 +269,7 @@ export function DramaForm({
             <FormField label="Метка плача">
               <Select
                 value={curatorCryTag}
-                onChange={(val) => {
+                onChangeAction={(val) => {
                   setCuratorCryTag(val);
                   setIsDirty(true);
                 }}
