@@ -5,7 +5,6 @@ import { Pencil } from "lucide-react";
 import { EditEntryForm } from "./EditEntryForm";
 import type { EntryData } from "@/lib/types";
 
-
 export function EditEntryButton({
   dramaId,
   entry,
@@ -29,7 +28,7 @@ export function EditEntryButton({
         <EditEntryForm
           dramaId={dramaId}
           entry={entry}
-          onClose={() => setOpen(false)}
+          onCloseAction={() => setOpen(false)}
         />
       )}
     </>

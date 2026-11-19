@@ -30,6 +30,17 @@ export async function updateEntry(formData: FormData) {
   const progress = progressRaw === "" ? null : Number(progressRaw);
   const rewatchCount = rewatchRaw === "" ? 0 : Number(rewatchRaw);
 
+  // Валидация
+  if (rating !== null && (rating < 0 || rating > 10)) {
+    return { error: "Рейтинг должен быть от 0 до 10" };
+  }
+  if (progress !== null && progress < 0) {
+    return { error: "Прогресс не может быть отрицательным" };
+  }
+  if (rewatchCount < 0) {
+    return { error: "Количество пересмотров не может быть отрицательным" };
+  }
+
   const startedAt = startedAtRaw ? new Date(startedAtRaw) : null;
   const watchedAt = watchedAtRaw ? new Date(watchedAtRaw) : null;
 

@@ -2,46 +2,78 @@
 
 import { useState, useTransition } from "react";
 import {
-  X,
   Save,
   Star,
   MessageCircle,
   Calendar,
   Lock,
+  Pencil,
+  AlertCircle,
 } from "lucide-react";
 import { updateEntry } from "./actions";
 import { FormSection } from "@/components/FormSection";
-import { useLockBodyScroll } from "@/lib/use-lock-body-scroll";
 import type { EntryData } from "@/lib/types";
 import { CRY_TAGS, type CryTag } from "@/lib/cry-tags";
 import { DRAMA_STATUSES, type DramaStatus } from "@/lib/drama-status";
-
+import { Modal } from "@/components/ui/modal";
+import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
+import {
+  FormField,
+  FormInput,
+  FormTextarea,
+} from "@/components/ui/form-elements";
 
 export function EditEntryForm({
   dramaId,
   entry,
-  onClose,
+  onCloseAction,
 }: {
   dramaId: number;
   entry: EntryData | null;
-  onClose: () => void;
+  onCloseAction: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
 
-  useLockBodyScroll();
+  // Стейты для кастомных селектов
+  const [status, setStatus] = useState<string>(entry?.status ?? "planned");
+  const [cryTag, setCryTag] = useState<string>(entry?.cryTag ?? "");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
+
     const formData = new FormData(e.currentTarget);
     formData.set("dramaId", String(dramaId));
+
+    // Синхронизируем значения селектов
+    formData.set("status", status);
+    formData.set("cryTag", cryTag);
+
+    // Клиентская валидация
+    const ratingRaw = String(formData.get("rating") ?? "").trim();
+    if (ratingRaw) {
+      const rating = Number(ratingRaw);
+      if (rating < 0 || rating > 10) {
+        setError("Рейтинг должен быть от 0 до 10");
+        return;
+      }
+    }
+
+    const progressRaw = String(formData.get("progress") ?? "").trim();
+    if (progressRaw && Number(progressRaw) < 0) {
+      setError("Прогресс не может быть отрицательным");
+      return;
+    }
 
     startTransition(async () => {
       const result = await updateEntry(formData);
       if (result?.error) {
         setError(result.error);
       } else {
-        onClose();
+        onCloseAction();
       }
     });
   };
@@ -49,237 +81,205 @@ export function EditEntryForm({
   const formatDateForInput = (d: Date | null) =>
     d ? new Date(d).toISOString().slice(0, 10) : "";
 
-  const inputCls =
-    "w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors text-sm";
-  const labelCls = "block text-xs font-medium text-muted mb-1.5";
-
   return (
-    <div className="fixed inset-0 z-100 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl border border-border bg-surface shadow-2xl"
-      >
-        {/* Шапка модалки */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
-          <div>
-            <h2 className="text-lg font-semibold">
-              {entry ? "Редактировать запись" : "Добавить в дневник"}
-            </h2>
-            <p className="text-xs text-muted mt-0.5">
-              Твои личные данные о дораме
-            </p>
-          </div>
-          <button
+    <Modal
+      isOpen={true}
+      onCloseAction={onCloseAction}
+      title={entry ? "Редактировать запись" : "Добавить в дневник"}
+      icon={<Pencil className="w-5 h-5" />}
+      isDirty={isDirty}
+      isPending={isPending}
+      maxWidth="max-w-3xl"
+      footer={(close) => (
+        <>
+          <Button
             type="button"
-            onClick={onClose}
-            className="w-8 h-8 rounded-lg border border-border hover:border-accent/40 flex items-center justify-center transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Тело формы — скроллится только оно */}
-        <div className="p-6 space-y-8 overflow-y-auto flex-1">
-          {/* ─── СТАТУС И ОЦЕНКА ─── */}
-          <FormSection
-            Icon={Star}
-            title="Статус и оценка"
-            description="Что это для тебя сейчас"
-          >
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className={labelCls}>Статус</label>
-                <select
-                  name="status"
-                  defaultValue={entry?.status ?? "planned"}
-                  className={inputCls}
-                >
-                  {(Object.entries(DRAMA_STATUSES) as [DramaStatus, { label: string }][]).map(([value, config]) => (
-                    <option key={value} value={value}>{config.label}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className={labelCls}>Рейтинг (1–10)</label>
-                <input
-                  type="number"
-                  name="rating"
-                  step="0.1"
-                  min="0"
-                  max="10"
-                  defaultValue={entry?.rating ?? ""}
-                  placeholder="8.5"
-                  className={inputCls}
-                />
-              </div>
-              <div>
-                <label className={labelCls}>Эмоция</label>
-                <select
-                  name="cryTag"
-                  defaultValue={entry?.cryTag ?? ""}
-                  className={inputCls}
-                >
-                  <option value="">— не выбрано —</option>
-                  {(Object.keys(CRY_TAGS) as CryTag[]).map((key) => (
-                    <option key={key} value={key}>
-                      {CRY_TAGS[key].label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </FormSection>
-
-          {/* ─── ВПЕЧАТЛЕНИЯ ─── */}
-          <FormSection
-            Icon={MessageCircle}
-            title="Впечатления"
-            description="Что осталось в памяти"
-          >
-            <div>
-              <label className={labelCls}>Впечатление (короткое)</label>
-              <input
-                type="text"
-                name="impression"
-                defaultValue={entry?.impression ?? ""}
-                placeholder="Пара слов: «Идеальная героиня»"
-                className={inputCls}
-              />
-            </div>
-
-            <div>
-              <label className={labelCls}>Отзыв</label>
-              <textarea
-                name="review"
-                defaultValue={entry?.review ?? ""}
-                rows={6}
-                placeholder="Полный отзыв..."
-                className={`${inputCls} resize-y`}
-              />
-            </div>
-
-            <div>
-              <label className={labelCls}>
-                Цитата для «Особого места»
-              </label>
-              <textarea
-                name="quote"
-                defaultValue={entry?.quote ?? ""}
-                rows={2}
-                placeholder="Любимая фраза из дорамы"
-                className={`${inputCls} resize-y`}
-              />
-            </div>
-          </FormSection>
-
-          {/* ─── ДАТЫ И ПЕРЕСМОТРЫ ─── */}
-          <FormSection
-            Icon={Calendar}
-            title="Даты и прогресс"
-            description="Когда смотрел и сколько раз"
-          >
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={labelCls}>Начал смотреть</label>
-                <input
-                  type="date"
-                  name="startedAt"
-                  defaultValue={formatDateForInput(entry?.startedAt ?? null)}
-                  className={inputCls}
-                />
-              </div>
-              <div>
-                <label className={labelCls}>Досмотрел</label>
-                <input
-                  type="date"
-                  name="watchedAt"
-                  defaultValue={formatDateForInput(entry?.watchedAt ?? null)}
-                  className={inputCls}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={labelCls}>Прогресс (серия)</label>
-                <input
-                  type="number"
-                  name="progress"
-                  min="0"
-                  defaultValue={entry?.progress ?? ""}
-                  placeholder="на какой серии остановился"
-                  className={inputCls}
-                />
-              </div>
-              <div>
-                <label className={labelCls}>Пересмотров</label>
-                <input
-                  type="number"
-                  name="rewatchCount"
-                  min="0"
-                  defaultValue={entry?.rewatchCount ?? 0}
-                  className={inputCls}
-                />
-              </div>
-            </div>
-          </FormSection>
-
-          {/* ─── ПРИВАТНОЕ ─── */}
-          <FormSection
-            Icon={Lock}
-            title="Личные заметки"
-            description="Видно только тебе"
-          >
-            <label className="flex items-center gap-3 p-3 rounded-lg border border-border bg-background cursor-pointer hover:border-accent/40 transition-colors mb-2">
-              <input
-                type="checkbox"
-                name="isFavorite"
-                defaultChecked={entry?.isFavorite ?? false}
-                className="w-4 h-4 accent-accent"
-              />
-              <div>
-                <p className="text-sm font-medium">Добавить в «Особое место»</p>
-                <p className="text-xs text-muted">Дорама появится в твоем «Зале славы»</p>
-              </div>
-            </label>
-            <div>
-              <label className={labelCls}>Заметки</label>
-              <textarea
-                name="notes"
-                defaultValue={entry?.notes ?? ""}
-                rows={3}
-                placeholder="Только для тебя"
-                className={`${inputCls} resize-y`}
-              />
-            </div>
-          </FormSection>
-
-          {error && (
-            <p className="text-sm text-red-400 border border-red-500/30 bg-red-500/10 rounded-lg px-3 py-2">
-              {error}
-            </p>
-          )}
-        </div>
-
-        {/* Футер модалки */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border shrink-0">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 rounded-lg border border-border text-sm hover:border-accent/40 transition-colors"
+            variant="outline"
+            onClick={close}
+            disabled={isPending}
           >
             Отмена
-          </button>
-          <button
-            type="submit"
-            disabled={isPending}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
-          >
-            <Save className="w-4 h-4" />
+          </Button>
+          {/* Кнопка привязана к форме через form="entry-form" */}
+          <Button type="submit" form="entry-form" disabled={isPending}>
+            <Save className="w-4 h-4 mr-2" />
             {isPending ? "Сохранение..." : "Сохранить"}
-          </button>
-        </div>
+          </Button>
+        </>
+      )}
+    >
+      <form
+        id="entry-form"
+        onSubmit={handleSubmit}
+        onChange={() => setIsDirty(true)}
+        className="space-y-8"
+      >
+        {/* ─── СТАТУС И ОЦЕНКА ─── */}
+        <FormSection
+          Icon={Star}
+          title="Статус и оценка"
+          description="Что это для тебя сейчас"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <FormField label="Статус">
+              <Select
+                value={status}
+                onChangeAction={(val) => {
+                  setStatus(val);
+                  setIsDirty(true);
+                }}
+                options={Object.entries(DRAMA_STATUSES).map(
+                  ([value, config]) => ({
+                    value,
+                    label: config.label,
+                  }),
+                )}
+              />
+            </FormField>
+            <FormField label="Рейтинг (1–10)">
+              <FormInput
+                type="number"
+                name="rating"
+                step="0.1"
+                min="0"
+                max="10"
+                defaultValue={entry?.rating ?? ""}
+                placeholder="8.5"
+              />
+            </FormField>
+            <FormField label="Эмоция">
+              <Select
+                value={cryTag}
+                onChangeAction={(val) => {
+                  setCryTag(val);
+                  setIsDirty(true);
+                }}
+                options={[
+                  { value: "", label: "— не выбрано —" },
+                  ...(Object.keys(CRY_TAGS) as CryTag[]).map((key) => ({
+                    value: key,
+                    label: CRY_TAGS[key].label,
+                  })),
+                ]}
+              />
+            </FormField>
+          </div>
+        </FormSection>
+
+        {/* ─── ВПЕЧАТЛЕНИЯ ─── */}
+        <FormSection
+          Icon={MessageCircle}
+          title="Впечатления"
+          description="Что осталось в памяти"
+        >
+          <FormField label="Впечатление (короткое)">
+            <FormInput
+              type="text"
+              name="impression"
+              defaultValue={entry?.impression ?? ""}
+              placeholder="Пара слов: «Идеальная героиня»"
+            />
+          </FormField>
+
+          <FormField label="Отзыв">
+            <FormTextarea
+              name="review"
+              defaultValue={entry?.review ?? ""}
+              rows={6}
+              placeholder="Полный отзыв..."
+            />
+          </FormField>
+
+          <FormField label="Цитата для «Особого места»">
+            <FormTextarea
+              name="quote"
+              defaultValue={entry?.quote ?? ""}
+              rows={2}
+              placeholder="Любимая фраза из дорамы"
+            />
+          </FormField>
+        </FormSection>
+
+        {/* ─── ДАТЫ И ПЕРЕСМОТРЫ ─── */}
+        <FormSection
+          Icon={Calendar}
+          title="Даты и прогресс"
+          description="Когда смотрел и сколько раз"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField label="Начал смотреть">
+              <FormInput
+                type="date"
+                name="startedAt"
+                defaultValue={formatDateForInput(entry?.startedAt ?? null)}
+              />
+            </FormField>
+            <FormField label="Досмотрел">
+              <FormInput
+                type="date"
+                name="watchedAt"
+                defaultValue={formatDateForInput(entry?.watchedAt ?? null)}
+              />
+            </FormField>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField label="Прогресс (серия)">
+              <FormInput
+                type="number"
+                name="progress"
+                min="0"
+                defaultValue={entry?.progress ?? ""}
+                placeholder="на какой серии остановился"
+              />
+            </FormField>
+            <FormField label="Пересмотров">
+              <FormInput
+                type="number"
+                name="rewatchCount"
+                min="0"
+                defaultValue={entry?.rewatchCount ?? 0}
+              />
+            </FormField>
+          </div>
+        </FormSection>
+
+        {/* ─── ПРИВАТНОЕ ─── */}
+        <FormSection
+          Icon={Lock}
+          title="Личные заметки"
+          description="Видно только тебе"
+        >
+          <label className="flex items-center gap-3 p-3 rounded-lg border border-border bg-background cursor-pointer hover:border-accent/40 transition-colors mb-4">
+            <input
+              type="checkbox"
+              name="isFavorite"
+              defaultChecked={entry?.isFavorite ?? false}
+              className="w-4 h-4 accent-accent"
+            />
+            <div>
+              <p className="text-sm font-medium">Добавить в «Особое место»</p>
+              <p className="text-xs text-muted">
+                Дорама появится в твоем «Зале славы»
+              </p>
+            </div>
+          </label>
+          <FormField label="Заметки">
+            <FormTextarea
+              name="notes"
+              defaultValue={entry?.notes ?? ""}
+              rows={3}
+              placeholder="Только для тебя"
+            />
+          </FormField>
+        </FormSection>
+
+        {error && (
+          <div className="text-sm text-danger border border-danger/30 bg-danger/10 rounded-lg px-3 py-2 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" /> {error}
+          </div>
+        )}
       </form>
-    </div>
+    </Modal>
   );
 }
