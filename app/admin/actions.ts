@@ -40,6 +40,11 @@ export async function createDrama(
 
   const year = num("year");
   const country = str("country");
+
+  // Новая защита от дублей
+  if (!year) return { error: "Год обязателен" };
+  if (!country) return { error: "Страна обязательна" };
+
   const normalizedTitle = normalizeTitle(title);
 
   // Ищем дубликат по основному названию ИЛИ по любому альтернативному названию

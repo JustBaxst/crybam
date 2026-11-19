@@ -140,14 +140,19 @@ export async function updateDrama(formData: FormData) {
   const title = str("title");
   if (!title) return { error: "Название обязательно" };
 
+  const year = num("year");
+  const country = str("country");
+  if (!year) return { error: "Год обязателен" };
+  if (!country) return { error: "Страна обязательна" };
+
   try {
     await prisma.drama.update({
       where: { id: dramaId },
       data: {
         title,
         titleLower: normalizeTitle(title),
-        year: num("year"),
-        country: str("country"),
+        year: year,
+        country: country,
         episodes: num("episodes"),
         seasons: num("seasons"),
         episodeDuration: num("episodeDuration"),

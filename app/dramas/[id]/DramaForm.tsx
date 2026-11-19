@@ -94,9 +94,14 @@ export function DramaForm({
     const title = String(formData.get("title") ?? "").trim();
     if (!title) return setError("Название обязательно");
 
-    const year = Number(formData.get("year"));
-    if (year && (year < 1900 || year > 2100))
+    const yearRaw = String(formData.get("year") ?? "").trim();
+    if (!yearRaw) return setError("Год обязателен для заполнения");
+    const year = Number(yearRaw);
+    if (year < 1900 || year > 2100)
       return setError("Год должен быть от 1900 до 2100");
+
+    const countryVal = String(formData.get("country") ?? "").trim();
+    if (!countryVal) return setError("Выберите страну");
 
     const ratingFields = ["ratingKinopoisk", "ratingMDL", "ratingIMDB"];
     for (const field of ratingFields) {
@@ -172,7 +177,7 @@ export function DramaForm({
         </FormField>
 
         <div className="grid grid-cols-2 gap-4">
-          <FormField label="Год">
+          <FormField label="Год" required>
             <FormInput
               type="number"
               name="year"
@@ -182,7 +187,7 @@ export function DramaForm({
               placeholder="2020"
             />
           </FormField>
-          <FormField label="Страна">
+          <FormField label="Страна" required>
             <Select
               value={country}
               onChange={(val) => {
