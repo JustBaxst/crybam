@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import { Pencil } from "lucide-react";
-import { EditPersonForm } from "./EditPersonForm";
+import { PersonForm } from "./PersonForm";
+import { updatePerson } from "./actions";
 
 export function EditPersonButton({ person }: { person: any }) {
   const [open, setOpen] = useState(false);
@@ -14,7 +15,11 @@ export function EditPersonButton({ person }: { person: any }) {
         <Pencil className="w-3.5 h-3.5" /> Редактировать
       </button>
       {open && (
-        <EditPersonForm person={person} onCloseAction={() => setOpen(false)} />
+        <PersonForm
+          person={person}
+          action={updatePerson}
+          onCloseAction={() => setOpen(false)}
+        />
       )}
     </>
   );
