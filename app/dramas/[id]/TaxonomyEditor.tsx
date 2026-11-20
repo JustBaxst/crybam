@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Save, Sparkles, AlertCircle } from "lucide-react";
+import { Save, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
@@ -57,7 +57,6 @@ export function TaxonomyEditor({
     });
 
     // Добавляем новые
-    // Добавляем новые
     if (newItemsText.trim()) {
       const fieldMap = {
         genre: "newGenres",
@@ -81,9 +80,6 @@ export function TaxonomyEditor({
       }
     });
   };
-
-  // Динамическое имя поля для новых элементов (newGenres, newMoods, newThemes)
-  const newFieldName = `new${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}s`;
 
   return (
     <Modal
