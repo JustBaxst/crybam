@@ -26,7 +26,7 @@ export function Select({
   const selected = options.find((o) => o.value === value);
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild disabled={disabled}>
         <button
           type="button"
