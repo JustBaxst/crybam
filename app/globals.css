@@ -154,8 +154,9 @@ svg.lucide {
   vertical-align: -0.125em;
 }
 
-/* Кастомный скроллбар */
+/* Кастомный скроллбар (для горизонтального и вертикального скролла) */
 .custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
   height: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -166,7 +167,7 @@ svg.lucide {
   border-radius: 10px;
   transition: background 0.2s ease;
 }
-/* Когда карусель в движении (свайп или инерция) */
+/* Когда контейнер в движении (свайп или инерция) */
 .custom-scrollbar.is-scrolling::-webkit-scrollbar-thumb {
   background: var(--accent); /* Акцентный цвет */
 }

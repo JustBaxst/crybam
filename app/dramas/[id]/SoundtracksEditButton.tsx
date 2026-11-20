@@ -15,12 +15,20 @@ export function SoundtracksEditButton({
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border text-xs text-muted hover:border-accent/40 hover:text-foreground">
+      <button
+        onClick={() => setOpen(true)}
+        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-border text-xs text-muted hover:border-accent/40 hover:text-foreground transition-colors"
+      >
         <Pencil className="w-3 h-3" />
         Изменить
       </button>
+
       {open && (
-        <SoundtracksEditor dramaId={dramaId} soundtracks={soundtracks} onClose={() => setOpen(false)} />
+        <SoundtracksEditor
+          dramaId={dramaId}
+          soundtracks={soundtracks}
+          onCloseAction={() => setOpen(false)}
+        />
       )}
     </>
   );
