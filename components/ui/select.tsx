@@ -39,21 +39,23 @@ export function Select({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-(--radix-dropdown-menu-trigger-width) max-h-60 overflow-y-auto p-1 z-150 custom-scrollbar"
+        className="w-(--radix-dropdown-menu-trigger-width) p-0 z-150 overflow-hidden rounded-xl"
         align="start"
       >
-        {options.map((opt) => (
-          <DropdownMenuItem
-            key={opt.value}
-            onClick={() => onChangeAction(opt.value)}
-            className="flex items-center justify-between cursor-pointer"
-          >
-            {opt.label}
-            {value === opt.value && (
-              <Check className="w-3.5 h-3.5 text-accent" />
-            )}
-          </DropdownMenuItem>
-        ))}
+        <div className="max-h-60 overflow-y-auto p-1 custom-scrollbar">
+          {options.map((opt) => (
+            <DropdownMenuItem
+              key={opt.value}
+              onClick={() => onChangeAction(opt.value)}
+              className="flex items-center justify-between cursor-pointer"
+            >
+              {opt.label}
+              {value === opt.value && (
+                <Check className="w-3.5 h-3.5 text-accent" />
+              )}
+            </DropdownMenuItem>
+          ))}
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );
