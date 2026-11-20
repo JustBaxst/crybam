@@ -8,10 +8,9 @@
 - Акцент: `text-accent`, `bg-accent`, `bg-accent/10`.
 - Эмоции: `text-cry-safe`, `text-cry-happy`, `text-cry-sad`.
   ⚠️ НИКОГДА: `bg-zinc-*`, `bg-gray-*`, `text-gray-*`.
-- **Источник правды:** Все цвета и переменные темы объявляются в `app/globals.css` (в блоке `@theme`). ❌ Запрещено использовать хардкод-цвета (например, `bg-purple-500`, `text-green-400`), если для них можно создать семантический токен.
-- Эмоции: `text-cry-safe`, `text-cry-happy`, `text-cry-sad`.
-- Системные статусы: `text-success` (готово), `text-warning` (в процессе/лиды), `text-danger` (ошибки/удаление), `text-info` (пересмотр).
-  ⚠️ НИКОГДА: `bg-zinc-*`, `bg-gray-*`, `text-gray-*`, `bg-green-*`, `text-purple-*`. Используйте только системные токены.
+- **Источник правды:** Все цвета объявляются в `app/globals.css` в блоке `@theme`.
+- **Базовые токены:** `--background`, `--surface`, `--foreground`, `--muted`, `--border`, `--accent`, `--accent-soft`, `--success`, `--warning`, `--danger`, `--info`, `--cry-safe`, `--cry-happy`, `--cry-sad`.
+- **Цветовые схемы (темы):** В `globals.css` предопределены схемы акцента: `rose` (розовый), `amber` (янтарный), `lime` (лаймовый), `emerald` (изумрудный), `cyan` (бирюзовый), `blue` (синий), `pink` (малиновый). Они активируются через `data-accent="название"` на `<html>`.
 
 ## 🧱 Паттерн: Bento-блок
 
@@ -80,6 +79,9 @@
 - Футер: `px-6 py-4 border-t border-border` + кнопки.
 - Блокировка скролла: обязательно `useLockBodyScroll` **на верхнем уровне компонента** (не внутри обработчиков).
 - Ошибка дубля: красный блок с `error` и кнопкой «Открыть её →» (`existingId`).
+- **Обязательно:** использовать универсальный `Modal` из `components/ui/modal.tsx`.
+- ❌ Запрещено: верстать `fixed inset-0` и шапку с крестиком вручную.
+- Для подтверждений (удаление, несохраненные данные) использовать `ConfirmDialog`.
 
 ## 🗃️ Паттерн: Popover (Всплывающее меню)
 
@@ -157,6 +159,7 @@
 - 🎯 **Обязательно:** используем `components/ui/form-elements.tsx` (`FormField`, `FormInput`, `FormSelect`, `FormTextarea`, `FormError`). ❌ Никаких ручных `inputCls` и `labelCls` в формах.
 - Импорт из TVmaze: `TvmazeImportModal` → предпросмотр → выбор полей → заполнение формы. Название и синопсис **не импортируются** (на английском).
 - Заглушки: `[ОБНОВИТЬ ИНДЕКС]` после создания `form-elements.tsx`.
+- **Ошибки:** ❌ Запрещено писать кастомные красные `<div>` или `<p>`. Используйте готовый `FormError` из `form-elements.tsx`.
 
 ## 🔤 Паттерн: Обрезка длинных списков
 

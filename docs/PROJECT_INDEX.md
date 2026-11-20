@@ -14,22 +14,20 @@ client: no
 Универсальная обертка для модальных окон (Формы, редакторы, инфо-блоки).
 export Modal: (props: { isOpen, onCloseAction, title, icon?, children, footer?, variant?, isDirty?, isPending?, maxWidth? }) => JSX.Element
 client: yes
-Особенности: Поддерживает режимы `center` (по центру) и `drawer` (выезжающая панель). Защищает от закрытия при несохраненных данных (`isDirty`). Блокирует скролл страницы. Использует `ConfirmDialog` для предупреждений.
-Не дублировать: не верстать оверлей и шапку вручную в формах.
+Особенности: Защита от закрытия при несохраненных данных (`isDirty`), блокировка скролла (`useLockBodyScroll`).
+@dontDuplicate Не верстать оверлей, шапку и футер вручную в каждой форме.
 
 ### confirm-dialog.tsx
 
-Универсальное окно подтверждения (удаление, несохраненные данные).
+Универсальное окно подтверждения.
 export ConfirmDialog: (props: { isOpen, onCloseAction, onConfirmAction, title, description, confirmText?, variant?, isPending? }) => JSX.Element
 client: yes
-Особенности: Использует `Modal` внутри. Поддерживает стили `danger` (красное) и `warning` (желтое).
 
 ### select.tsx
 
-Кастомный выпадающий список на базе DropdownMenu.
-export Select: (props: { value, onChange, options, placeholder?, className?, disabled? }) => JSX.Element
+Кастомный селект на базе DropdownMenu.
+export Select: (props: { value, onChangeAction, options, placeholder?, className?, disabled? }) => JSX.Element
 client: yes
-Особенности: Стилизован под Bento. Имеет `z-[150]`, чтобы открываться поверх модалок.
 
 ### dropdown-menu.tsx
 
@@ -53,7 +51,7 @@ export FormSelect: (props: React.SelectHTMLAttributes<HTMLSelectElement>) => JSX
 export FormTextarea: (props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) => JSX.Element
 export FormError: (props: { error: string | null; existingId?: number | null; href?: string }) => JSX.Element
 client: no
-Не дублировать: классы инпутов (inputCls) и лейблов (labelCls).
+@dontDuplicate Не писать кастомные ошибки (красные div), использовать FormError
 
 ### cry-tag-display.tsx
 
@@ -299,19 +297,18 @@ client: no
 export PosterImage: (props: { posterUrl: string | null; title: string; year?: number; className?: string }) => JSX.Element
 client: yes
 
-### EditDramaForm.tsx
+### AliasEditor.tsx
 
-Форма редактирования дорамы (модалка). Клиентский компонент.
-Путь: `app/dramas/[id]/EditDramaForm.tsx`
-Особенности: использует `useLockBodyScroll`, `FormSection`. Вызывает экшен `updateDrama`.
+Универсальный редактор альтернативных названий/имен.
+export AliasEditor: (props: { title, description, placeholder, entityId, idField, fieldName, currentAliases, action, onCloseAction }) => JSX.Element
+client: yes
+@dontDuplicate Заменяет TitlesEditor, PersonAliasEditor, CharacterAliasEditor.
 
-### EditPersonForm.tsx
+### AliasEditButton.tsx
 
-Модалка редактирования актера. Путь: `app/admin/people/EditPersonForm.tsx`. Использует `form-elements`.
-
-### EditCharacterForm.tsx
-
-Модалка редактирования персонажа. Путь: `app/admin/characters/EditCharacterForm.tsx`.
+Универсальная кнопка для вызова AliasEditor.
+export AliasEditButton: (props: { buttonText, icon, className?, title, description, placeholder, entityId, idField, fieldName, currentAliases, action }) => JSX.Element
+client: yes
 
 ### EditPersonButton.tsx, EditCharacterButton.tsx
 
@@ -486,12 +483,6 @@ CRUD актеров.
 
 CRUD персонажей.
 Экшены: createCharacter, updateCharacter, deleteCharacter, addCharacterRelation, deleteCharacterRelation, updateCharacterAliases.
-
-### app/admin/genres/actions.ts
-
-Управление трехслойными справочниками (жанры, настроения, темы).
-Экшены: createTaxonomyItem, deleteTaxonomyItem.
-Особенности: мягкое удаление (deletedAt), восстановление при повторном создании, логирование в AdminLog.
 
 ### app/people/[id]/actions.ts
 
