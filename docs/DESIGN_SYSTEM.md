@@ -157,6 +157,7 @@
 - Базовые классы инпутов: `w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors text-sm`.
 - Лейблы: `block text-xs font-medium text-muted mb-1.5`.
 - 🎯 **Обязательно:** используем `components/ui/form-elements.tsx` (`FormField`, `FormInput`, `FormSelect`, `FormTextarea`, `FormError`). ❌ Никаких ручных `inputCls` и `labelCls` в формах.
+- 🎯 **Обязательно:** для выпадающих списков используем `<Select>` из `components/ui/select.tsx`. Нативные `<select>` и `<FormSelect>` устарели и нарушают Bento-дизайн.
 - Импорт из TVmaze: `TvmazeImportModal` → предпросмотр → выбор полей → заполнение формы. Название и синопсис **не импортируются** (на английском).
 - Заглушки: `[ОБНОВИТЬ ИНДЕКС]` после создания `form-elements.tsx`.
 - **Ошибки:** ❌ Запрещено писать кастомные красные `<div>` или `<p>`. Используйте готовый `FormError` из `form-elements.tsx`.

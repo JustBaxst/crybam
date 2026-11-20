@@ -6,11 +6,11 @@ import { FormSection } from "@/components/FormSection";
 import { COUNTRIES } from "@/lib/constants";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
   FormField,
   FormInput,
-  FormSelect,
   FormTextarea,
   FormError,
 } from "@/components/ui/form-elements";
@@ -49,6 +49,17 @@ export function PersonForm({
   const [existingId, setExistingId] = useState<number | null>(null);
   const [isDirty, setIsDirty] = useState(false);
 
+  // Стейты для кастомных селектов
+  const [nationality, setNationality] = useState(person?.nationality ?? "");
+  const [gender, setGender] = useState(person?.gender ?? "");
+  const [bloodType, setBloodType] = useState(person?.bloodType ?? "");
+  const [zodiacWestern, setZodiacWestern] = useState(
+    person?.zodiacWestern ?? "",
+  );
+  const [zodiacChinese, setZodiacChinese] = useState(
+    person?.zodiacChinese ?? "",
+  );
+
   const isEdit = !!person?.id;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -58,6 +69,12 @@ export function PersonForm({
 
     const formData = new FormData(e.currentTarget);
     if (fromDrama) formData.set("fromDrama", fromDrama);
+
+    formData.set("nationality", nationality);
+    formData.set("gender", gender);
+    formData.set("bloodType", bloodType);
+    formData.set("zodiacWestern", zodiacWestern);
+    formData.set("zodiacChinese", zodiacChinese);
 
     startTransition(async () => {
       const result = await action(formData);
@@ -123,17 +140,32 @@ export function PersonForm({
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <FormField label="Национальность">
-            <FormSelect
-              name="nationality"
-              defaultValue={person?.nationality ?? ""}
-            >
-              <option value="">— не указана —</option>
-              {COUNTRIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </FormSelect>
+            <Select
+              value={nationality}
+              onChangeAction={(val) => {
+                setNationality(val);
+                setIsDirty(true);
+              }}
+              options={[
+                { value: "", label: "— не указана —" },
+                ...COUNTRIES.map((c) => ({ value: c, label: c })),
+              ]}
+            />
+          </FormField>
+          <FormField label="Пол">
+            <Select
+              value={gender}
+              onChangeAction={(val) => {
+                setGender(val);
+                setIsDirty(true);
+              }}
+              options={[
+                { value: "", label: "— не указан —" },
+                { value: "male", label: "Мужской" },
+                { value: "female", label: "Женский" },
+                { value: "other", label: "Другой" },
+              ]}
+            />
           </FormField>
           <FormField label="Пол">
             <FormSelect name="gender" defaultValue={person?.gender ?? ""}>
@@ -163,14 +195,20 @@ export function PersonForm({
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <FormField label="Группа крови">
-            <FormSelect name="bloodType" defaultValue={person?.bloodType ?? ""}>
-              <option value="">— нет —</option>
-              {["O(I)", "A(II)", "B(III)", "AB(IV)"].map((z) => (
-                <option key={z} value={z}>
-                  {z}
-                </option>
-              ))}
-            </FormSelect>
+            <Select
+              value={bloodType}
+              onChangeAction={(val) => {
+                setBloodType(val);
+                setIsDirty(true);
+              }}
+              options={[
+                { value: "", label: "— нет —" },
+                ...["O(I)", "A(II)", "B(III)", "AB(IV)"].map((z) => ({
+                  value: z,
+                  label: z,
+                })),
+              ]}
+            />
           </FormField>
           <FormField label="MBTI">
             <FormInput
@@ -182,56 +220,56 @@ export function PersonForm({
             />
           </FormField>
           <FormField label="Западный зодиак">
-            <FormSelect
-              name="zodiacWestern"
-              defaultValue={person?.zodiacWestern ?? ""}
-            >
-              <option value="">— нет —</option>
-              {[
-                "Овен",
-                "Телец",
-                "Близнецы",
-                "Рак",
-                "Лев",
-                "Дева",
-                "Весы",
-                "Скорпион",
-                "Стрелец",
-                "Козерог",
-                "Водолей",
-                "Рыбы",
-              ].map((z) => (
-                <option key={z} value={z}>
-                  {z}
-                </option>
-              ))}
-            </FormSelect>
+            <Select
+              value={zodiacWestern}
+              onChangeAction={(val) => {
+                setZodiacWestern(val);
+                setIsDirty(true);
+              }}
+              options={[
+                { value: "", label: "— нет —" },
+                ...[
+                  "Овен",
+                  "Телец",
+                  "Близнецы",
+                  "Рак",
+                  "Лев",
+                  "Дева",
+                  "Весы",
+                  "Скорпион",
+                  "Стрелец",
+                  "Козерог",
+                  "Водолей",
+                  "Рыбы",
+                ].map((z) => ({ value: z, label: z })),
+              ]}
+            />
           </FormField>
           <FormField label="Китайский зодиак">
-            <FormSelect
-              name="zodiacChinese"
-              defaultValue={person?.zodiacChinese ?? ""}
-            >
-              <option value="">— нет —</option>
-              {[
-                "Крыса",
-                "Бык",
-                "Тигр",
-                "Кролик",
-                "Дракон",
-                "Змея",
-                "Лошадь",
-                "Коза",
-                "Обезьяна",
-                "Петух",
-                "Собака",
-                "Свинья",
-              ].map((z) => (
-                <option key={z} value={z}>
-                  {z}
-                </option>
-              ))}
-            </FormSelect>
+            <Select
+              value={zodiacChinese}
+              onChangeAction={(val) => {
+                setZodiacChinese(val);
+                setIsDirty(true);
+              }}
+              options={[
+                { value: "", label: "— нет —" },
+                ...[
+                  "Крыса",
+                  "Бык",
+                  "Тигр",
+                  "Кролик",
+                  "Дракон",
+                  "Змея",
+                  "Лошадь",
+                  "Коза",
+                  "Обезьяна",
+                  "Петух",
+                  "Собака",
+                  "Свинья",
+                ].map((z) => ({ value: z, label: z })),
+              ]}
+            />
           </FormField>
         </div>
       </FormSection>
