@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { X, Music, ExternalLink, Trophy, PlayCircle } from "lucide-react";
 import { SiYoutube, SiSpotify, SiSoundcloud, SiVk } from "react-icons/si";
+import { useLockBodyScroll } from "@/lib/use-lock-body-scroll";
 
 // Типизируем трек вместо any
 type SoundtrackTrack = {
@@ -17,17 +18,22 @@ type SoundtrackTrack = {
 
 export function ProviderIcon({ provider }: { provider: string | null }) {
   switch (provider) {
-    case "youtube": return <SiYoutube className="w-4 h-4" />;
-    case "spotify": return <SiSpotify className="w-4 h-4" />;
-    case "soundcloud": return <SiSoundcloud className="w-4 h-4" />;
-    case "vk": return <SiVk className="w-4 h-4" />;
+    case "youtube":
+      return <SiYoutube className="w-4 h-4" />;
+    case "spotify":
+      return <SiSpotify className="w-4 h-4" />;
+    case "soundcloud":
+      return <SiSoundcloud className="w-4 h-4" />;
+    case "vk":
+      return <SiVk className="w-4 h-4" />;
     case "yandex":
       return (
         <span className="w-4 h-4 flex items-center justify-center text-[10px] font-bold bg-current/10 rounded-sm">
           Я
         </span>
       );
-    default: return <PlayCircle className="w-4 h-4" />;
+    default:
+      return <PlayCircle className="w-4 h-4" />;
   }
 }
 
@@ -35,16 +41,7 @@ export function SoundtrackPlayer({ track }: { track: SoundtrackTrack }) {
   const [isOpen, setIsOpen] = useState(false);
 
   // Блокировка скролла фона при открытой модалке
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isOpen]);
+  useLockBodyScroll(isOpen);
 
   const getEmbedUrl = () => {
     if (!track.embedId) return null;
@@ -79,12 +76,14 @@ export function SoundtrackPlayer({ track }: { track: SoundtrackTrack }) {
               </span>
             )}
           </div>
-          {track.artist && <p className="text-xs text-muted truncate">{track.artist}</p>}
+          {track.artist && (
+            <p className="text-xs text-muted truncate">{track.artist}</p>
+          )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => setIsOpen(true)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-accent/10 text-accent text-sm font-medium hover:bg-accent/20 transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-accent/10 text-accent text-sm font-medium hover:bg-accent/20 transition-colors cursor-pointer"
           >
             <ProviderIcon provider={track.provider} />
             <span className="hidden sm:inline">Слушать</span>
@@ -99,18 +98,32 @@ export function SoundtrackPlayer({ track }: { track: SoundtrackTrack }) {
       </div>
 
       {isOpen && (
-        <div className="fixed inset-0 z-100 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setIsOpen(false)}>
-          <div className="w-full max-w-2xl rounded-2xl border border-border bg-surface shadow-2xl overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-100 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setIsOpen(false)}
+        >
+          <div
+            className="w-full max-w-2xl rounded-2xl border border-border bg-surface shadow-2xl overflow-hidden flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between px-4 py-3 border-b border-border">
               <div className="min-w-0">
                 <p className="text-sm font-semibold truncate">{track.title}</p>
                 <p className="text-xs text-muted truncate">{track.artist}</p>
               </div>
               <div className="flex items-center gap-2">
-                <a href={track.url} target="_blank" rel="noopener noreferrer" className="text-xs text-muted hover:text-accent flex items-center gap-1">
+                <a
+                  href={track.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-muted hover:text-accent flex items-center gap-1 cursor-pointer"
+                >
                   Открыть в сервисе <ExternalLink className="w-3 h-3" />
                 </a>
-                <button onClick={() => setIsOpen(false)} className="w-8 h-8 rounded-lg border border-border hover:border-accent/40 flex items-center justify-center ml-2">
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="w-8 h-8 rounded-lg border border-border hover:border-accent/40 flex items-center justify-center ml-2 cursor-pointer"
+                >
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -140,8 +153,15 @@ export function SoundtrackPlayer({ track }: { track: SoundtrackTrack }) {
                 )
               ) : (
                 <div className="text-center py-10">
-                  <p className="text-sm text-muted mb-4">Для этого сервиса нет встроенного плеера.</p>
-                  <a href={track.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium">
+                  <p className="text-sm text-muted mb-4">
+                    Для этого сервиса нет встроенного плеера.
+                  </p>
+                  <a
+                    href={track.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium cursor-pointer"
+                  >
                     Перейти на сайт <ExternalLink className="w-4 h-4" />
                   </a>
                 </div>

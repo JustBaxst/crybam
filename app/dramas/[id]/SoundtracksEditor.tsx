@@ -165,12 +165,16 @@ export function SoundtracksEditor({
               />
             </FormField>
 
-            <FormField label="Ссылка (YouTube или Spotify)" required>
+            <FormField
+              label="Ссылка на трек"
+              required
+              description="YouTube, Spotify, Яндекс.Музыка, SoundCloud, VK"
+            >
               <FormInput
                 type="url"
                 name="url"
                 required
-                placeholder="https://youtube.com/watch?v=..."
+                placeholder="https://..."
               />
             </FormField>
 
