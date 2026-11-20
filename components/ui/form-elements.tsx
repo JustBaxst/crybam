@@ -76,7 +76,7 @@ export function FormTextarea({
 }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
-      className={`w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors text-sm resize-y ${className}`}
+      className={`w-full px-3 py-2 rounded-lg border border-border bg-background focus:border-accent outline-none transition-colors text-sm resize-y custom-scrollbar ${className}`}
       {...props}
     />
   );

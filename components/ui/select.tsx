@@ -39,7 +39,7 @@ export function Select({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-(--radix-dropdown-menu-trigger-width) max-h-60 overflow-y-auto p-1 z-150"
+        className="w-(--radix-dropdown-menu-trigger-width) max-h-60 overflow-y-auto p-1 z-150 custom-scrollbar"
         align="start"
       >
         {options.map((opt) => (
