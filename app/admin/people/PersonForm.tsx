@@ -167,14 +167,6 @@ export function PersonForm({
               ]}
             />
           </FormField>
-          <FormField label="Пол">
-            <FormSelect name="gender" defaultValue={person?.gender ?? ""}>
-              <option value="">— не указан —</option>
-              <option value="male">Мужской</option>
-              <option value="female">Женский</option>
-              <option value="other">Другой</option>
-            </FormSelect>
-          </FormField>
           <FormField label="Рост (см)">
             <FormInput
               type="number"
