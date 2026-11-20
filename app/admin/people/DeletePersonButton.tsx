@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Trash2 } from "lucide-react";
-import { deletePerson } from "../actions";
+import { deletePerson } from "./actions";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { toast } from "sonner";
 
