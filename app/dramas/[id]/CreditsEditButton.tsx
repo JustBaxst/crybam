@@ -37,7 +37,7 @@ export function CreditsEditButton({
           dramaId={dramaId}
           credits={credits}
           existingPersons={existingPersons}
-          onClose={() => setOpen(false)}
+          onCloseAction={() => setOpen(false)}
         />
       )}
     </>
