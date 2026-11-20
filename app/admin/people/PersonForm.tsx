@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Save, User, FileText, Image } from "lucide-react";
-import { createPerson, updatePerson } from "./actions";
+import { Save, User, FileText, Image, Sparkles, Edit } from "lucide-react";
 import { FormSection } from "@/components/FormSection";
 import { COUNTRIES } from "@/lib/constants";
+import { Modal } from "@/components/ui/modal";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
   FormField,
   FormInput,
@@ -34,23 +36,30 @@ type PersonData = {
 export function PersonForm({
   person,
   fromDrama,
+  action,
+  onCloseAction,
 }: {
   person?: PersonData;
   fromDrama?: string;
+  action: (formData: FormData) => Promise<any>;
+  onCloseAction?: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [existingId, setExistingId] = useState<number | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
+
+  const isEdit = !!person?.id;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setExistingId(null);
+
     const formData = new FormData(e.currentTarget);
     if (fromDrama) formData.set("fromDrama", fromDrama);
 
     startTransition(async () => {
-      const action = person ? updatePerson : createPerson;
       const result = await action(formData);
 
       if (result?.error) {
@@ -58,6 +67,13 @@ export function PersonForm({
         if ("existingId" in result && result.existingId) {
           setExistingId(result.existingId);
         }
+      } else {
+        if (result?.isJustCompleted) {
+          toast.success(`Карточка актера завершена!`, {
+            icon: <Sparkles className="w-4 h-4" />,
+          });
+        }
+        if (onCloseAction) onCloseAction();
       }
     });
   };
@@ -66,10 +82,12 @@ export function PersonForm({
     ? new Date(person.birthDate).toISOString().slice(0, 10)
     : "";
 
-  return (
+  const formContent = (
     <form
+      id="person-form"
       onSubmit={handleSubmit}
-      className="rounded-2xl border border-border bg-surface p-6 space-y-8"
+      onChange={() => setIsDirty(true)}
+      className="space-y-8"
     >
       {person?.id && <input type="hidden" name="personId" value={person.id} />}
 
@@ -104,7 +122,7 @@ export function PersonForm({
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <FormField label="Страна / Национальность">
+          <FormField label="Национальность">
             <FormSelect
               name="nationality"
               defaultValue={person?.nationality ?? ""}
@@ -147,10 +165,11 @@ export function PersonForm({
           <FormField label="Группа крови">
             <FormSelect name="bloodType" defaultValue={person?.bloodType ?? ""}>
               <option value="">— нет —</option>
-              <option value="O(I)">O(I)</option>
-              <option value="A(II)">A(II)</option>
-              <option value="B(III)">B(III)</option>
-              <option value="AB(IV)">AB(IV)</option>
+              {["O(I)", "A(II)", "B(III)", "AB(IV)"].map((z) => (
+                <option key={z} value={z}>
+                  {z}
+                </option>
+              ))}
             </FormSelect>
           </FormField>
           <FormField label="MBTI">
@@ -270,21 +289,6 @@ export function PersonForm({
               "tiktok",
               "weibo",
               "wikipedia",
-              "facebook",
-              "linkedin",
-              "telegram",
-              "discord",
-              "threads",
-              "bluesky",
-              "vk",
-              "spotify",
-              "soundcloud",
-              "naver",
-              "kakao",
-              "wechat",
-              "bilibili",
-              "imdb",
-              "website",
             ].map((platform) => (
               <span
                 key={platform}
@@ -305,17 +309,51 @@ export function PersonForm({
         existingId={existingId}
         href={`/admin/people/${existingId}`}
       />
-
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
-        <button
-          type="submit"
-          disabled={isPending}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
-        >
-          <Save className="w-4 h-4" />
-          {isPending ? "Сохранение..." : person ? "Сохранить" : "Создать"}
-        </button>
-      </div>
     </form>
+  );
+
+  if (isEdit && onCloseAction) {
+    return (
+      <Modal
+        isOpen={true}
+        onCloseAction={onCloseAction}
+        title="Редактировать актера"
+        icon={<Edit className="w-5 h-5" />}
+        isDirty={isDirty}
+        isPending={isPending}
+        maxWidth="max-w-3xl"
+        footer={(close) => (
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={close}
+              disabled={isPending}
+            >
+              Отмена
+            </Button>
+            <Button type="submit" form="person-form" disabled={isPending}>
+              <Save className="w-4 h-4 mr-2" />
+              {isPending ? "Сохранение..." : "Сохранить"}
+            </Button>
+          </>
+        )}
+      >
+        {formContent}
+      </Modal>
+    );
+  }
+
+  // Рендер для страницы создания (NewPersonPage)
+  return (
+    <div className="rounded-2xl border border-border bg-surface p-6 space-y-8">
+      {formContent}
+      <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
+        <Button type="submit" form="person-form" disabled={isPending}>
+          <Save className="w-4 h-4 mr-2" />
+          {isPending ? "Создание..." : "Создать"}
+        </Button>
+      </div>
+    </div>
   );
 }

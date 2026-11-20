@@ -109,7 +109,9 @@ export function Modal({
             </button>
           </div>
 
-          <div className="p-6 overflow-y-auto flex-1">{children}</div>
+          <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
+            {children}
+          </div>
 
           {footer && (
             <div className="px-6 py-4 border-t border-border shrink-0 flex items-center justify-end gap-3 bg-surface rounded-b-2xl">
