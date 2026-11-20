@@ -4,9 +4,17 @@ import { useState, useTransition } from "react";
 import { Save, FileText, AlertCircle } from "lucide-react";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
-import { FormField, FormTextarea } from "@/components/ui/form-elements";
+import {
+  FormError,
+  FormField,
+  FormTextarea,
+} from "@/components/ui/form-elements";
 import { toast } from "sonner";
 
+/**
+ * Универсальный редактор альтернативных названий и имен (для дорам, актеров и персонажей).
+ * @dontDuplicate Не создавать отдельные редакторы TitlesEditor, PersonAliasEditor и т.д.
+ */
 export function AliasEditor({
   title,
   description,
@@ -93,11 +101,7 @@ export function AliasEditor({
           />
         </FormField>
 
-        {error && (
-          <p className="text-sm text-danger border border-danger/30 bg-danger/10 rounded-lg px-3 py-2 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0" /> {error}
-          </p>
-        )}
+        <FormError error={error} />
       </div>
     </Modal>
   );

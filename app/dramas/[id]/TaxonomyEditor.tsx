@@ -5,7 +5,7 @@ import { Save, Sparkles, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
-import { FormField, FormInput } from "@/components/ui/form-elements";
+import { FormError, FormField, FormInput } from "@/components/ui/form-elements";
 
 export function TaxonomyEditor({
   dramaId,
@@ -164,11 +164,7 @@ export function TaxonomyEditor({
           />
         </FormField>
 
-        {error && (
-          <p className="text-sm text-danger border border-danger/30 bg-danger/10 rounded-lg px-3 py-2 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0" /> {error}
-          </p>
-        )}
+        <FormError error={error} />
       </div>
     </Modal>
   );

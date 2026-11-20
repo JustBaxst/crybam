@@ -3,6 +3,10 @@
 import { useState, ReactNode } from "react";
 import { AliasEditor } from "./AliasEditor";
 
+/**
+ * Универсальная кнопка для вызова AliasEditor.
+ * @dontDuplicate Не создавать отдельные кнопки TitlesEditButton, PersonAliasEditButton и т.д.
+ */
 export function AliasEditButton({
   buttonText,
   icon,

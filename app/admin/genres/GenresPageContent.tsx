@@ -17,7 +17,7 @@ import {
   updateTaxonomyItem,
 } from "./actions";
 import { AdminSearchBar } from "@/components/AdminSearchBar";
-import { FormField, FormInput } from "@/components/ui/form-elements";
+import { FormError, FormField, FormInput } from "@/components/ui/form-elements";
 import { ActionDropdown } from "@/components/admin/ActionDropdown";
 import { Modal } from "@/components/ui/modal";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -160,11 +160,9 @@ function TaxonomyModal({
             maxLength={50}
             className={error ? "border-danger focus:border-danger" : ""}
           />
-          {error && (
-            <p className="text-danger text-xs mt-1 flex items-center gap-1">
-              <AlertCircle className="w-3 h-3" /> {error}
-            </p>
-          )}
+          <div className="mt-2">
+            <FormError error={error} />
+          </div>
         </FormField>
       </div>
     </Modal>

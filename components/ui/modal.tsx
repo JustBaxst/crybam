@@ -5,6 +5,10 @@ import { X } from "lucide-react";
 import { useLockBodyScroll } from "@/lib/use-lock-body-scroll";
 import { ConfirmDialog } from "./confirm-dialog";
 
+/**
+ * Универсальная обертка для модальных окон (Формы, редакторы, инфо-блоки).
+ * @dontDuplicate Не верстать оверлей, шапку и футер вручную в каждой форме.
+ */
 export function Modal({
   isOpen,
   onCloseAction,

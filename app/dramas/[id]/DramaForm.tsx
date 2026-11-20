@@ -10,7 +10,6 @@ import {
   Image,
   Download,
   Pencil,
-  AlertCircle,
 } from "lucide-react";
 import { FormSection } from "@/components/FormSection";
 import { COUNTRIES } from "@/lib/constants";
@@ -19,6 +18,7 @@ import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import {
+  FormError,
   FormField,
   FormInput,
   FormTextarea,
@@ -386,21 +386,11 @@ export function DramaForm({
         </FormField>
       </FormSection>
 
-      {error && (
-        <div className="text-sm text-danger border border-danger/30 bg-danger/10 rounded-lg px-3 py-2 flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0" /> {error}
-          </div>
-          {existingId && (
-            <a
-              href={`/admin/dramas/${existingId}`}
-              className="text-xs underline hover:text-danger/80 ml-6"
-            >
-              Открыть существующую дораму →
-            </a>
-          )}
-        </div>
-      )}
+      <FormError
+        error={error}
+        existingId={existingId}
+        href={existingId ? `/admin/dramas/${existingId}` : undefined}
+      />
     </form>
   );
 
